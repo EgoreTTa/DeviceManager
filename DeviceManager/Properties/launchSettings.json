@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "DeviceManager": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
