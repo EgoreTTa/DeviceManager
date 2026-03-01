@@ -19,21 +19,6 @@
         private readonly string _httpDirectiveLines;
         private readonly string _httpResults;
 
-        //Приморье
-        // private string _httpDevices = "https://192.168.241.22:25443/ws/lis/devices";
-        // private string _httpDirectiveLines = "https://192.168.241.22:25443/ws/lis/directive_lines";
-        // private string _httpResults = "https://192.168.241.22:25443/ws/lis/results";
-
-        //Новосибирск
-        // private readonly string _httpDevices = "http://10.31.6.59/inst/ws/soap/lis/devices";
-        // private readonly string _httpDirectiveLines = "http://10.31.6.59/inst/ws/soap/lis/directive_lines";
-        // private readonly string _httpResults = "http://10.31.6.59/inst/ws/lis/results";
-
-        //Челябинск
-        // private readonly string _httpDevices = "http://10.31.6.59/inst/ws/lis/devices";
-        // private readonly string _httpDirectiveLines = "http://10.31.6.59/inst/ws/lis/directive_lines";
-        // private readonly string _httpResults = "http://10.31.6.59/inst/ws/lis/results";
-
         public DataAccessService(string url)
         {
             _httpDevices = $"{url}/devices";
