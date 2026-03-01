@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>WebApplication</title>
+    <title>Device Manager</title>
 
     <link href="bootstrap-5.3.8-dist\css\bootstrap.min.css" rel="stylesheet">
     <script src="bootstrap-5.3.8-dist\js\bootstrap.bundle.min.js"></script>
@@ -14,7 +14,7 @@
     <header class="bg-dark text-white">
         <div class="container-lg">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                <div class="col-md-2 mb-2 mb-md-0">
+                <div class="col-sm-2 mb-2 mb-md-0">
                     <div class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
                         Driver Manager 2.0
                     </div>
@@ -26,7 +26,8 @@
                     <li><a type="button" class="nav-link px-2 text-white" id="header-tab-settings" onclick="chargePanel('settings')">Настройки</a></li>
                     <li><a type="button" class="nav-link px-2 text-white" id="header-tab-errors" onclick="chargePanel('errors')">Ошибки</a></li>
                 </ul>
-                <div class="col-md-2 mb-2 mb-md-0">
+                <div class="col-sm-2 mb-2 mb-md-0">
+                    <input class="form-control" type="text" value="127.0.0.1:5000" disabled/>
                 </div>
             </div>
         </div>
@@ -53,9 +54,7 @@
     <div class="container col-xxl settings">
         <div class="my-3 p-3 bg-body rounded shadow">
             <div class="row">
-                <div class="col-9">
-                    <h4>Настройки</h4>
-                </div>
+                <h4>Настройки</h4>
             </div>
             <hr />
             <div class="row">
@@ -66,11 +65,41 @@
                 <div class="col-sm-4">
                     <label class="form-label">Тайм-аут запросов</label>
                     <select id="devicemanager.settings.timeout" class="form-select" required="">
-                        <option selected disabled value="default">выбрать тайм-аут...</option>
+                        <option disabled value="default">выбрать тайм-аут...</option>
                         <option value="5 sec">5 сек</option>
-                        <option value="15 sec">15 сек</option>
+                        <option value="15 sec" selected>15 сек</option>
                         <option value="30 sec">30 сек</option>
                         <option value="60 sec">60 сек</option>
+                    </select>
+                </div>
+                <dev class="col-4 d-flex  align-items-end">
+                    <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
+                </dev>
+            </div>
+            <hr />
+            <div class="row">
+                <h5>Логирование</h5>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="form-label">Режим логирования</label>
+                    <select id="" class="form-select" required="">
+                        <option value="default" disabled>выбрать режим...</option>
+                        <option value="Minimum">Минимальный</option>
+                        <option value="Info" selected>Обычный</option>
+                        <option value="Debug" >Подробный</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Срок хранения логов</label>
+                    <select id="" class="form-select" required="">
+                        <option value="default" disabled>выбрать срок...</option>
+                        <option value="1 day">1 день</option>
+                        <option value="1 week" selected>1 неделя</option>
+                        <option value="1 mount" >1 месяц</option>
+                        <option value="1 year" >1 год</option>
+                        <option value="indefinitely" >бессрочно</option>
                     </select>
                 </div>
                 <div class="col-sm-4">
@@ -80,12 +109,24 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="form-label">Маска файлов</label>
+                    <input id="" class="form-control" type="text" value="yyyy-MM-dd HH:mm:ss" />
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Разделение файлов</label>
+                    <select id="" class="form-select" required="">
+                        <option value="default" disabled>выбрать тип...</option>
+                        <option value="1">По запуску</option>
+                        <option value="2" selected>По размеру (1024кб)</option>
+                        <option value="3">По дням</option>
+                    </select>
+                </div>
+            </div>
             <hr />
             <div class="row">
-                <dev class="col-3">
-                    <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
-                </dev>
-                <dev class="col-3"></dev>
+                <dev class="col-6"></dev>
                 <dev class="col-3">
                     <button type="button" class="btn btn-danger w-100" onclick="returnSettings()">Отменить</button>
                 </dev>
@@ -146,9 +187,9 @@
                         <button class="nav-link col-sm-2 active" id="nav-device-tab-1" data-bs-toggle="tab" data-bs-target="#device-tab-1" type="button" role="tab" aria-controls="device-tab-1" aria-selected="true">Статус</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-2" data-bs-toggle="tab" data-bs-target="#device-tab-2" type="button" role="tab" aria-controls="device-tab-2" aria-selected="false">Сопоставления</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-3" data-bs-toggle="tab" data-bs-target="#device-tab-3" type="button" role="tab" aria-controls="device-tab-3" aria-selected="false" disabled>Очередь заданий</button>
-                        <button class="nav-link col-sm-2" id="nav-device-tab-4" data-bs-toggle="tab" data-bs-target="#device-tab-4" type="button" role="tab" aria-controls="device-tab-4" aria-selected="false" disabled>Тестирование</button>
+                        <button class="nav-link col-sm-2" id="nav-device-tab-4" data-bs-toggle="tab" data-bs-target="#device-tab-4" type="button" role="tab" aria-controls="device-tab-4" aria-selected="false">Тестирование</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-5" data-bs-toggle="tab" data-bs-target="#device-tab-5" type="button" role="tab" aria-controls="device-tab-5" aria-selected="false">Свойства</button>
-                        <button class="nav-link col-sm-2" id="nav-device-tab-6" data-bs-toggle="tab" data-bs-target="#device-tab-6" type="button" role="tab" aria-controls="device-tab-6" aria-selected="false" disabled>Настройки</button>
+                        <button class="nav-link col-sm-2" id="nav-device-tab-6" data-bs-toggle="tab" data-bs-target="#device-tab-6" type="button" role="tab" aria-controls="device-tab-6" aria-selected="false">Настройки</button>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -162,8 +203,9 @@
                                         <table class="table my-0 table-sm table-striped table-hover table-bordered table-secondary align-middle">
                                             <thead class="table-dark">
                                                 <tr>
-                                                    <th class="col-sm-3">Полученно образцов</th>
-                                                    <th class="col-sm-3">Отправлено заказов</th>
+                                                    <th class="col-sm-2">Полученно запросов</th>
+                                                    <th class="col-sm-2">Отправлено заказов</th>
+                                                    <th class="col-sm-2">Полученно образцов</th>
                                                     <th class="col-sm-3">Ошибки</th>
                                                 </tr>
                                             </thead>
@@ -172,6 +214,63 @@
                                             <tfoot>
                                             </tfoot>
                                         </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="d-flex align-items-start">
+                                    <div class="nav flex-column nav-pills me-3 col-2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <button class="nav-link active" id="device.status-1-tab" data-bs-toggle="pill" data-bs-target="#device.status-1" type="button" role="tab" aria-controls="device.status-1" aria-selected="true">Запросы</button>
+                                        <button class="nav-link" id="device.status-2-tab" data-bs-toggle="pill" data-bs-target="#device.status-2" type="button" role="tab" aria-controls="device.status-2" aria-selected="false">Заказы</button>
+                                        <button class="nav-link" id="device.status-3-tab" data-bs-toggle="pill" data-bs-target="#device.status-3" type="button" role="tab" aria-controls="device.status-3" aria-selected="false">Результаты</button>
+                                    </div>
+                                    <div class="tab-content p-3 col-10" id="v-pills-tabContent">
+                                        <div class="tab-pane fade show active" id="device.status-1" role="tabpanel" aria-labelledby="device.status-1-tab" tabindex="0">
+                                            <table class="table my-0 table-sm table-striped table-hover table-bordered table-secondary align-middle">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th class="col-sm-2">Дата\Время</th>
+                                                        <th class="col-sm-10">Образец</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="table-group-divider" id="table-device.status-1">
+                                                </tbody>
+                                                <tfoot>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                        <div class="tab-pane fade" id="device.status-2" role="tabpanel" aria-labelledby="device.status-2-tab" tabindex="0">
+                                            <table class="table my-0 table-sm table-striped table-hover table-bordered table-secondary align-middle">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th class="col-sm-2">Дата\Время</th>
+                                                        <th class="col-sm-2">Образец</th>
+                                                        <th class="col-sm-8">Тесты</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="table-group-divider" id="table-device.status-2">
+                                                </tbody>
+                                                <tfoot>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                        <div class="tab-pane fade" id="device.status-3" role="tabpanel" aria-labelledby="device.status-3-tab" tabindex="0">
+                                            <table class="table my-0 table-sm table-striped table-hover table-bordered table-secondary align-middle">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th class="col-sm-2">Дата\Время</th>
+                                                        <th class="col-sm-2">Образец</th>
+                                                        <th class="col-sm-2">Тест</th>
+                                                        <th class="col-sm-6">Результат</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="table-group-divider" id="table-device.status-3">
+                                                </tbody>
+                                                <tfoot>
+                                                </tfoot>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -256,12 +355,25 @@
                             <div class="row">
                                 <div class="col-12">
                                     <h5>Тестирование</h5>
+                                    <hr/>
+                                    <div class="d-flex align-items-start">
+										<div class="nav flex-column nav-pills me-3 col-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+											<button class="nav-link" id="device.test-1-tab" data-bs-toggle="pill" data-bs-target="#device.test-1" type="button" role="tab" aria-controls="device.test-1" aria-selected="false" disabled>Отправка заказа в устройство</button>
+											<button class="nav-link" id="device.test-2-tab" data-bs-toggle="pill" data-bs-target="#device.test-2" type="button" role="tab" aria-controls="device.test-2" aria-selected="false" disabled>Отправка результатов в систему</button>
+										</div>
+										<div class="tab-content p-3 col-9" id="v-pills-tabContent">
+											<div class="tab-pane fade" id="device.test-1" role="tabpanel" aria-labelledby="device.comparisons-1-tab" tabindex="0">
+                                            </div>
+											<div class="tab-pane fade" id="device.test-1" role="tabpanel" aria-labelledby="device.comparisons-1-tab" tabindex="0">
+                                            </div>
+										</div>
+									</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="device-tab-5" role="tabpanel" aria-labelledby="nav-device-tab-5" tabindex="0">
-                        <div class="border border-top-0 p-3">
+                        <div class="border border-top-0 p-3 col-12">
                             <div class="row">
                                 <div class="col-12">
                                     <h5>Свойства устройства</h5>
@@ -290,6 +402,132 @@
                             <div class="row">
                                 <div class="col-12">
                                     <h5>Расширенные настройки</h5>
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-sm-6 my-3">
+                                            <label class="form-label">Тип взаимодействия</label>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-1"
+                                                    name="device.driver.type-workmode" required="" checked value="device.driver.type-workmode-1" />
+                                                <label class="form-check-label" for="device.driver.type-workmode-1"> Односторонняя передача
+                                                    данных
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-2"
+                                                    name="device.driver.type-workmode" required="" value="device.driver.type-workmode-2" />
+                                                <label class="form-check-label" for="device.driver.type-workmode-2"> Двусторонняя передача
+                                                    данных по
+                                                    запросу
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-3"
+                                                    name="device.driver.type-workmode" required="" disabled value="device.driver.type-workmode-3" />
+                                                <label class="form-check-label" for="device.driver.type-workmode-3"> Автоматическое загрузка
+                                                    образцов
+                                                    из ЛИС
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-4" name="device.driver.type-workmode" required="" value="device.driver.type-workmode-4" />
+                                                <label class="form-check-label" for="device.driver.type-workmode-4"> Автоматическое загрузка образцов из ЛИС по выбору </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 my-3">
+                                            <label class="form-label">Тип передачи результатов</label>
+                                            <div class="form-check">
+                                                <input id="device.driver.address-type-1" type="radio" class="form-check-input" name="device.driver.address-type"
+                                                    required="" checked />
+                                                <label class="form-check-label" for="device.driver.address-type-1">По номеру штрих-кода</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input id="device.driver.address-type-2" type="radio" class="form-check-input" name="device.driver.address-type"
+                                                    required="" />
+                                                <label class="form-check-label" for="device.driver.address-type-2">По позиции в плашке</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <label class="form-label">Исключить тесты из обработки</label>
+                                            <input id="" class="form-control" type="text" value="NRBC#;MICROR;Left_Shift?" />
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Обработка номера образца</label>
+                                            <select id="" class="form-select" required="">
+                                                <option value="default" disabled>выбрать тип...</option>
+                                                <option value="1" selected>Без изменений</option>
+                                                <option value="2" >Убрать 0 с начала</option>
+                                                <option value="3" >Оставить 4 знака с конца</option>
+                                                <option value="4" >Оставить 4 знака с начала</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <dev class="col-9">
+                                        </dev>
+                                        <dev class="col-3">
+                                            <button type="button" class="btn btn-success w-100" onclick="">Применить</button>
+                                        </dev>
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <h5>Логирование</h5>
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Режим логирования</label>
+                                            <select id="" class="form-select" required="">
+                                                <option value="default" disabled>выбрать режим...</option>
+                                                <option value="Minimum">Минимальный</option>
+                                                <option value="Info" selected>Обычный</option>
+                                                <option value="Debug" >Подробный</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Срок хранения логов</label>
+                                            <select id="" class="form-select" required="">
+                                                <option value="default" disabled>выбрать срок...</option>
+                                                <option value="1 day">1 день</option>
+                                                <option value="1 week" selected>1 неделя</option>
+                                                <option value="1 mount" >1 месяц</option>
+                                                <option value="1 year" >1 год</option>
+                                                <option value="indefinitely" >бессрочно</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="form-check-label" for="devicemanager.settings.islogrequest">Логировать запросы</label>
+                                            <div class="form-check form-switch">
+                                                <input id="devicemanager.settings.islogrequest" class="form-check-input" type="checkbox" role="switch">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Маска файлов</label>
+                                            <input id="" class="form-control" type="text" value="yyyy-MM-dd HH:mm:ss" />
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Разделение файлов</label>
+                                            <select id="" class="form-select" required="">
+                                                <option value="default" disabled>выбрать тип...</option>
+                                                <option value="1">По запуску</option>
+                                                <option value="2" selected>По размеру (1024кб)</option>
+                                                <option value="3">По дням</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <dev class="col-9">
+                                        </dev>
+                                        <dev class="col-3">
+                                            <button type="button" class="btn btn-success w-100" onclick="">Применить</button>
+                                        </dev>
+                                    </div>
                                 </div> 
                             </div>
                         </div>
@@ -447,59 +685,11 @@
                     </select>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-6 my-3">
-                    <label class="form-label">Тип взаимодействия</label>
-                    <div class="form-check">
-                        <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-1"
-                            name="device.driver.type-workmode" required="" checked value="device.driver.type-workmode-1" />
-                        <label class="form-check-label" for="device.driver.type-workmode-1"> Односторонняя передача
-                            данных
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-2"
-                            name="device.driver.type-workmode" required="" value="device.driver.type-workmode-2" />
-                        <label class="form-check-label" for="device.driver.type-workmode-2"> Двусторонняя передача
-                            данных по
-                            запросу
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-3"
-                            name="device.driver.type-workmode" required="" disabled value="device.driver.type-workmode-3" />
-                        <label class="form-check-label" for="device.driver.type-workmode-3"> Автоматическое загрузка
-                            образцов
-                            из ЛИС
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-4" name="device.driver.type-workmode" required="" value="device.driver.type-workmode-4" />
-                        <label class="form-check-label" for="device.driver.type-workmode-4"> Автоматическое загрузка образцов из ЛИС по выбору </label>
-                    </div>
-                </div>
-                <div class="col-sm-6 my-3">
-                    <label class="form-label">Тип передачи результатов</label>
-                    <div class="form-check">
-                        <input id="device.driver.address-type-1" type="radio" class="form-check-input" name="device.driver.address-type"
-                            required="" checked />
-                        <label class="form-check-label" for="device.driver.address-type-1">По номеру штрих-кода</label>
-                    </div>
-                    <div class="form-check">
-                        <input id="device.driver.address-type-2" type="radio" class="form-check-input" name="device.driver.address-type"
-                            required="" />
-                        <label class="form-check-label" for="device.driver.address-type-2">По позиции в плашке</label>
-                    </div>
-                </div>
-            </div>
             <div class="col-sm-12">
                 <label class="form-label">Опции</label>
                 <div class="form-check">
-                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-1" value="device.driver.option-1"
-                        checked />
-                    <label class="form-check-label" for="device.driver.option-1"> Автоматическое дополнение номера
-                        образца
-                    </label>
+                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-1" value="device.driver.option-1"/>
+                    <label class="form-check-label" for="device.driver.option-1"> Автоматическое дополнение номера образца</label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-2"
