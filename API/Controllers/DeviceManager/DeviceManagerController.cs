@@ -24,7 +24,7 @@
         {
             _logger = logger;
         }
-
+        
         [HttpGet(nameof(GetLogs))]
         public string GetLogs()
         {
