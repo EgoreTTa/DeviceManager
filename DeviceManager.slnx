@@ -1,13 +1,13 @@
 <Solution>
   <Folder Name="/Application/">
     <Project Path="ConsoleDeviceManager/BaseDriver/BaseDriver.csproj" Id="f418a331-51b5-4960-8460-3640bd56ec49" />
-    <Project Path="ConsoleDeviceManager/ConsoleDeviceManager.csproj" Id="2274f6aa-0e77-4872-8ae7-192f328a53ae" />
     <Project Path="ConsoleDeviceManager/DataAccess/DataAccess.csproj" Id="fda34434-fd50-48f4-9bec-7e08b9124eb3" />
-    <Project Path="DeviceManager/DeviceManager.csproj" Id="220e0781-5b78-4456-a3ff-4c28ae2e03ad" />
+    <Project Path="DeviceManager/DeviceManager.csproj" Id="72916bec-e4f9-44e1-8537-79986004d21a" />
+    <Project Path="DeviceManagerWorker/DeviceManagerWorker.csproj" />
   </Folder>
   <Folder Name="/Application/Drivers/" />
   <Folder Name="/Frontend/">
     <File Path="Front/index.html" />
   </Folder>
-  <Project Path="API/API.csproj" Id="13d19511-1733-486a-bcc8-b49bc3b0794e" />
+  <Project Path="DeviceManagerAPI/DeviceManagerAPI.csproj" />
 </Solution>
