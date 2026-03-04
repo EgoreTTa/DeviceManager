@@ -1,8 +1,8 @@
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace DeviceManagerWorker
+namespace DeviceManagerService.Others
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+
     public interface IDriver
     {
         public int Id { get; }

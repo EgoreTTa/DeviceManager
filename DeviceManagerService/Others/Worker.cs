@@ -1,4 +1,4 @@
-namespace DeviceManagerWorker
+namespace DeviceManagerService.Others
 {
     using System;
     using System.Collections.Generic;

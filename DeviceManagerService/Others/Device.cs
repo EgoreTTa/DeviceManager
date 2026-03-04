@@ -1,8 +1,7 @@
-namespace DeviceManagerWorker
+namespace DeviceManagerService.Others
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using DataAccess;
 
     public class Device
     {
@@ -11,7 +10,7 @@ namespace DeviceManagerWorker
         public string SystemName { get; set; } = string.Empty;
         public IDriver Driver { get; set; }
         public Connection Connection { get; set; } = null;
-        public DataAccess DataAccess { get; set; } = null;
+        // public DataAccess DataAccess { get; set; } = null;
         public bool IsActive { get; set; } = false;
 
         public async Task StartAsync(CancellationToken token)
@@ -21,7 +20,7 @@ namespace DeviceManagerWorker
             // if (Connection is null) return;
             Driver = new Driver
             {
-                DataAccess = new DataAccess("http://192.168.241.141/med2des/ws/lis", "SystemName_Device0001", "SystemName_Driver0001")
+                // DataAccess = new DataAccess("http://192.168.241.141/med2des/ws/lis", "SystemName_Device0001", "SystemName_Driver0001")
             };
             Connection = new Connection
             {

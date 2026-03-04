@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DeviceManagerWorker
+namespace DeviceManagerService.Others
 {
     public class HelpTracking
     {

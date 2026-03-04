@@ -1,12 +1,11 @@
 using System;
-using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DeviceManagerWorker
+namespace DeviceManagerService.Others
 {
     public class Connection
     {

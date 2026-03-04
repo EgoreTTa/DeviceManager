@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DeviceManagerWorker\DeviceManagerWorker.csproj" />
+    <ProjectReference Include="..\DeviceManagerService\DeviceManagerService.csproj" />
   </ItemGroup>
 
 

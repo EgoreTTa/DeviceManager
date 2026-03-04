@@ -1,11 +1,10 @@
-namespace DeviceManagerWorker
-{
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using DataAccess;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
+namespace DeviceManagerService.Others
+{
     public class Driver : IDriver
     {
         private int _id;
@@ -14,7 +13,7 @@ namespace DeviceManagerWorker
         public int Id => _id;
         public bool IsActive => _isActive;
         public Connection Connection { get; set; }
-        public DataAccess DataAccess { get; set; }
+        // public DataAccess DataAccess { get; set; }
 
         public async Task StartAsync(CancellationToken token)
         {
