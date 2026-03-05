@@ -14,4 +14,9 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="System.IO.Ports" Version="4.7.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConsoleDeviceManager\DataAccess\DataAccess.csproj" />
+    <ProjectReference Include="..\Drivers\DriverBase\DriverBase.csproj" />
+  </ItemGroup>
 </Project>

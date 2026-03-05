@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DeviceManagerService.Others
 {
-    public class Driver : IDriver
+    public class Driver : IDriverOld
     {
         private int _id;
         private bool _isActive;

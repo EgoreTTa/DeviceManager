@@ -3,7 +3,7 @@ namespace DeviceManagerService.Others
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class Device
+    public class DeviceOld
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

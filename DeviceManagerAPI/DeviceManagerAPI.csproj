@@ -12,5 +12,4 @@
     <ProjectReference Include="..\DeviceManagerService\DeviceManagerService.csproj" />
   </ItemGroup>
 
-
 </Project>

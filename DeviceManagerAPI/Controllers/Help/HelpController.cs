@@ -1,11 +1,13 @@
 ﻿namespace DeviceManagerAPI.Controllers.Help
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using Microsoft.Win32;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.IO.Ports;
+    using System.Linq;
 
     [ApiController]
     [Route("[controller]/")]
@@ -46,9 +48,23 @@
                     ports.AddRange(Directory.GetFiles("/dev/", "ttyUSB*"));
                     break;
             }
-            ports.Sort();
 
-            return ports.ToArray();
+            return ports.Where(x =>
+                        {
+                            try
+                            {
+                                var serial = new SerialPort(x);
+                                serial.Open();
+                                serial.Close();
+                                return true;
+                            }
+                            catch (Exception exception)
+                            {
+                                return false;
+                            }
+                        })
+                        .OrderBy(x => x)
+                        .ToArray();
         }
 
         [HttpGet(nameof(GetOSPlatform))]

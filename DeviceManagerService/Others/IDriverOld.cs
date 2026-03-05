@@ -3,7 +3,7 @@ namespace DeviceManagerService.Others
     using System.Threading;
     using System.Threading.Tasks;
 
-    public interface IDriver
+    public interface IDriverOld
     {
         public int Id { get; }
         public bool IsActive { get; }

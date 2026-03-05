@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
-
-namespace DeviceManagerAPI.Controllers.Devices
+﻿namespace DeviceManagerAPI.Controllers.Devices
 {
+    using DeviceManagerService.Configurations.Device;
     using Forms;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -11,6 +10,7 @@ namespace DeviceManagerAPI.Controllers.Devices
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Threading.Tasks;
 
     [ApiController]
     [Route("[controller]/")]
@@ -19,82 +19,36 @@ namespace DeviceManagerAPI.Controllers.Devices
         private readonly ILogger<DevicesController> _logger;
         private readonly IDevicesControllerService _devicesControllerService;
 
-        private static readonly List<DeviceForm> _devices = new List<DeviceForm>()
-        {
-            new DeviceForm()
-            {
-                Id = 1,
-                Name = "Device-Name-1",
-                SystemName = "Device-SystemName-1",
-                Driver = new FormDeviceDriver()
-                {
-                    Name = "DeviceDriver-Name-1",
-                    SystemName = "DeviceDriver-SystemName-1",
-                    Encoding = "ascii",
-                    WorkMode = "WorkMode-1",
-                    AddressType = "AddressType-1",
-                    Options = new string[] { },
-                    ExtraOptions = ""
-                },
-                Hardware = new FormHardware()
-                {
-                    Type = "TcpIp",
-                    TcpIp = new FormHardware.TcpIpConnection()
-                    {
-                        Mode = "Server",
-                        Host = "127.0.0.1",
-                        Port = 5000
-                    }
-                },
-                IsActive = true
-            }
-        };
-
         public DevicesController(IDevicesControllerService devicesControllerService)
         {
             _devicesControllerService = devicesControllerService;
         }
 
         [HttpGet]
-        public async Task<DeviceForm[]> GetAll()
+        public async Task<DeviceConfiguration[]> GetAll()
         {
             return await _devicesControllerService.GetDevices();
-            // return _devices.ToArray();
         }
 
         [HttpGet("{id}")]
-        public DeviceForm GetById(int id)
+        public async Task<DeviceConfiguration> GetById(int id)
         {
-            return _devices.Find(x => x.Id == id);
+            return await _devicesControllerService.GetDevice(id);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Create(DeviceForm deviceForm)
+        public async Task<IActionResult> Create(DeviceConfiguration device)
         {
-            // deviceForm.Id = _devices.Max(x => x.Id) + 1;
-            // _devices.Add(deviceForm);
-
-            // var newId = _devicesControllerService.GetDevices().Max() + 1;
-            try
-            {
-                await _devicesControllerService.AddDevice(deviceForm);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine($"{DateTime.Now}\t" + exception.Message);
-                Console.WriteLine($"{DateTime.Now}\t" + exception.StackTrace);
-
-            }
-
+            await _devicesControllerService.AddDevice(device);
 
             return StatusCode(201);
         }
 
         [HttpPost("{id}")]
-        public IActionResult Update(int id, DeviceForm after)
+        public async Task<IActionResult> Update(int id, DeviceConfiguration device)
         {
-            var deviceIndex = _devices.IndexOf(_devices.Find(x => x.Id == id));
-            _devices[deviceIndex] = after;
+            await _devicesControllerService.UpdateDevice(id, device);
+
             return StatusCode(200);
         }
 
@@ -111,8 +65,8 @@ namespace DeviceManagerAPI.Controllers.Devices
         [HttpPut("{id}/flipactive/")]
         public IActionResult FlipActive(int id)
         {
-            var device = _devices.Single(x => x.Id == id);
-            device.IsActive = !device.IsActive;
+            // var device = _devices.Single(x => x.Id == id);
+            // device.IsActive = !device.IsActive;
             return StatusCode(200);
         }
 
@@ -123,28 +77,29 @@ namespace DeviceManagerAPI.Controllers.Devices
         }
 
         [HttpGet("status/")]
-        public FormStatus[] Status()
+        public async Task<FormStatus[]> Status()
         {
-            var devicesStatus = new List<FormStatus>();
+             var devices = await _devicesControllerService.GetDevices();
 
-            foreach (var device in _devices)
-            {
-                var countMessagesQuery = new Random().Next(100);
-                var countMessagesOrder = new Random().Next(countMessagesQuery);
-                var countMessagesResult = countMessagesOrder;
-                var countMessagesError = countMessagesQuery - countMessagesOrder;
+             var devicesStatus = new List<FormStatus>();
+             foreach (var device in devices)
+             {
+                 var countMessagesQuery = new Random().Next(100);
+                 var countMessagesOrder = new Random().Next(countMessagesQuery);
+                 var countMessagesResult = countMessagesOrder;
+                 var countMessagesError = countMessagesQuery - countMessagesOrder;
 
-                devicesStatus.Add(new FormStatus()
-                {
-                    DeviceName = device.Name,
-                    CountMessagesQuery = $"{countMessagesQuery}",
-                    CountMessagesOrder = $"{countMessagesOrder}",
-                    CountMessagesResult = $"{countMessagesResult}",
-                    CountMessagesError = $"{countMessagesError}"
-                });
-            }
+                 devicesStatus.Add(new FormStatus()
+                 {
+                     DeviceName = device.Name,
+                     CountMessagesQuery = $"{countMessagesQuery}",
+                     CountMessagesOrder = $"{countMessagesOrder}",
+                     CountMessagesResult = $"{countMessagesResult}",
+                     CountMessagesError = $"{countMessagesError}"
+                 });
+             }
 
-            return devicesStatus.ToArray();
+             return devicesStatus.ToArray();
         }
     }
 }

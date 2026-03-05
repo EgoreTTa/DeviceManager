@@ -7,6 +7,7 @@ namespace DeviceManagerAPI
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using Controllers.Drivers.Services;
 
     public class Startup
     {
@@ -15,8 +16,9 @@ namespace DeviceManagerAPI
             services.AddCors();
 
             services.AddControllers();
-
+            
             services.AddHostedService<DeviceManagerService>();
+            services.AddSingleton<IDriversControllerService, DriversControllerService>();
             services.AddSingleton<IDevicesControllerService, DevicesControllerService>();
             services.AddSingleton<IDeviceManagerUseService, DeviceManagerUseService>();
         }

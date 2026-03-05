@@ -2,10 +2,11 @@ namespace DeviceManagerService
 {
     using Microsoft.Extensions.Hosting;
     using Services;
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class DeviceManagerService : BackgroundService
+    public sealed class DeviceManagerService : BackgroundService
     {
         private readonly IDeviceManagerUseService _useService;
 
@@ -16,6 +17,7 @@ namespace DeviceManagerService
 
         protected override async Task ExecuteAsync(CancellationToken token)
         {
+            Console.WriteLine("DeviceManagerService ExecuteAsync");
             await _useService.StartAsync(token);
         }
     }

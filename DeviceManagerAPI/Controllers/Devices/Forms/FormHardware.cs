@@ -2,25 +2,54 @@
 {
     public class FormHardware
     {
-        public string Type { get; set; } = string.Empty;
-        public TcpIpConnection TcpIp { get; set; } = new TcpIpConnection() { };
+        public ConnectionTypes ConnectionType { get; set; }
+        public NetworkConnection Network { get; set; } = new NetworkConnection() { };
         public SerialConnection Serial { get; set; } = new SerialConnection() { };
-        public FileSystemConnection FileSystemSystem { get; set; } = new FileSystemConnection() { };
+        public FileSystemConnection FileSystem { get; set; } = new FileSystemConnection() { };
 
-        public class TcpIpConnection
+        public enum ConnectionTypes
         {
-            public string Mode { get; set; } = string.Empty;
+            Network,
+            Serial,
+            FileSystem,
+        }
+
+        public class NetworkConnection
+        {
+            public Modes Mode { get; set; }
             public string Host { get; set; } = string.Empty;
             public int Port { get; set; }
+
+            public enum Modes
+            {
+                Server,
+                Client,
+            }
         }
 
         public class SerialConnection
         {
             public string PortName { get; set; } = string.Empty;
-            public string BaudRate { get; set; } = string.Empty;
-            public string DataBits { get; set; } = string.Empty;
-            public string StopBits { get; set; } = string.Empty;
-            public string Parity { get; set; } = string.Empty;
+            public int BaudRate { get; set; }
+            public int DataBits { get; set; }
+            public StopBits StopBit { get; set; }
+            public Parities Parity { get; set; }
+
+            public enum StopBits
+            {
+                None,
+                One,
+                Two,
+                OnePointFive,
+            }
+            public enum Parities
+            {
+                None,
+                Odd,
+                Even,
+                Mark,
+                Space,
+            }
         }
 
         public class FileSystemConnection
