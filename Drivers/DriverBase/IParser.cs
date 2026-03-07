@@ -9,7 +9,7 @@ namespace DriverBase
         public ILogger Logger { get; set; }
         public Encoding Encoding { get; set; }
         public void Clear();
-        public bool TryParse(byte[] bytes, out TestResult[] samples, out byte[] send);
-        public bool TryParseOrder(DeviceOrderDTO[] directiveLines, out byte[] send);
+        public void Parse(byte[] bytes, out TestResult[] samples, out byte[] send);
+        public void ParseOrder(DeviceOrderDTO[] directiveLines, out byte[] send);
     }
 }

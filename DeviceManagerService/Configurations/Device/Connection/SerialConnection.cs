@@ -10,8 +10,8 @@ namespace DeviceManagerService.Configurations.Device.Connection
         public int BaudRate { get; set; }
         public int DataBits { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        public StopBits StopBits { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
         public Parity Parity { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public StopBits StopBits { get; set; }
     }
 }

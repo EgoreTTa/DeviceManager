@@ -1,9 +1,11 @@
 ﻿namespace DeviceManagerAPI.Controllers.Drivers
 {
     using DeviceManagerService.Configurations.Device.Driver;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Services;
     using System;
+    using System.IO;
     using System.Threading.Tasks;
 
     [ApiController]
@@ -18,9 +20,23 @@
         }
 
         [HttpGet]
-        public async Task<DriverConfiguration[]> GetAll()
+        public async Task<Driver[]> GetAll()
         {
             return await _service.GetDrivers();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadDriver(IFormFile uploadedFile)
+        {
+            if (uploadedFile != null)
+            {
+                await using var stream = System.IO.File.Create($"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}" +
+                                                               $"DriversTest{Path.DirectorySeparatorChar}" +
+                                                               $"{uploadedFile.FileName}");
+                await uploadedFile.CopyToAsync(stream);
+            }
+
+            return StatusCode(200);
         }
 
         [HttpGet("{name}")]

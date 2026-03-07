@@ -23,7 +23,7 @@
             throw new System.NotImplementedException();
         }
 
-        public async Task<DriverConfiguration[]> GetDrivers()
+        public async Task<Driver[]> GetDrivers()
         {
             return await _useCase.GetDrivers();
         }

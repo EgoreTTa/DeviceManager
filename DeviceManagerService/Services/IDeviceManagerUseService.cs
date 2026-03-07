@@ -10,7 +10,7 @@ namespace DeviceManagerService.Services
         public Task StartAsync(CancellationToken token);
         public Task<DeviceConfiguration[]> GetDevices(CancellationToken token = default);
         public Task<DeviceConfiguration> GetDevice(int id, CancellationToken token = default);
-        public Task<DriverConfiguration[]> GetDrivers(CancellationToken token = default);
+        public Task<Driver[]> GetDrivers(CancellationToken token = default);
         public Task<DriverConfiguration> GetDrive(int id, CancellationToken token = default);
         public Task AddDevice(DeviceConfiguration device, CancellationToken token = default);
         public Task RemoveDevice(int id, CancellationToken token = default);

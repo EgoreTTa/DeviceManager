@@ -630,7 +630,7 @@
                 <div class="col-6">
                     <div class="input-group">
                         <input type="file" class="form-control" id="inputGroupFile" aria-describedby="inputGroupFileAddon" accept=".dll">
-                        <button class="btn btn-outline-success" type="button" id="inputGroupFileAddon">Загрузить</button>
+                        <button class="btn btn-outline-success" type="button" id="inputGroupFileAddon" onclick="uploadDriver()">Загрузить</button>
                     </div>
                 </div>
             </div>
@@ -655,7 +655,7 @@
         </div>
     </div>
 
-    <div class="container col-xxl driver">
+    <div class="container col-xxl driver" style="display: none">
         <div class="my-3 p-3 bg-body rounded shadow">
             <div class="row">
                 <div class="col-sm-6">
@@ -910,7 +910,7 @@
                 <div class="col-sm-4">
                     <label class="form-label">Имя драйвера</label>
                     <select class="form-select" id="device.driver.name" required="">
-                        <option selected disabled>выбрать драйвер...</option>
+                        <option selected disabled value="default">выбрать драйвер...</option>
                         <option value="ASTM">ASTM</option>
                         <option value="HL7">HL7</option>
                         <option value="Custom">Custom</option>
@@ -1131,19 +1131,22 @@
 
 <script>
     const ipAPI = 'http://127.0.0.1:5000';
-    
+
+    const driverDefault = {
+        fileName: "",
+        parser: "",
+    }
+    let driver = driverDefault;
+    let drivers = [ driverDefault ];
+
     const deviceDefault = {
         id: 0,
         name: "",
         systemName: "",
         driverConfiguration: {
-            name: "",
+            driver: driverDefault,
             systemName: "",
-            encoding: "",
-            workMode: "",
-            addressType: "",
-            options: [],
-            extraOptions: null
+            encoding: ""
         },
         connectionConfiguration: {
             connectionType: 0,
@@ -1171,16 +1174,6 @@
     };
     let device = deviceDefault;
     let devices = [ deviceDefault ];
-
-    const driverDefault = {
-        name: "",
-        systemName: "",
-        encoding: "",
-        selectParser: "",
-        parsers: [],
-    }
-    let driver = driverDefault;
-    let drivers = [ driverDefault ];
 
     const settingsDefault = {
         address: "",
@@ -1234,7 +1227,7 @@
                 element.innerHTML = `
                         <td>${device.name}</td>
                         <td>${device.systemName}</td>
-                        <td>${device.driverConfiguration.name}</td>
+                        <td>${device.driverConfiguration.driver.parser}</td>
                         <td>${device.driverConfiguration.systemName}</td>
                         <td>${device.isActive ? "Да" : "Нет"}</td>`;
                 element.addEventListener('dblclick', () => showDevice(device.id));
@@ -1259,16 +1252,38 @@
                 let element = document.createElement("tr");
                 element.className = "table-light";
                 element.innerHTML = `
-                        <td>${driver.name}</td>
-                        <td>${driver.systemName}</td>
-                        <td>${driver.encoding}</td>
-                        <td>${driver.selectParser}</td>
-                        <td>${driver.parsers}</td>
+                        <td>${driver.fileName}</td>
+                        <td>${driver.parser}</td>
+                        <td>empty</td>
+                        <td>empty</td>
+                        <td>empty</td>
                 `;
                 table.appendChild(element);
             });
         } catch (error) {
             console.error("Ошибка:", error);
+        }
+    }
+
+    async function uploadDriver() {
+        let input = document.querySelector('#inputGroupFile');
+        console.warn("W:input", input);
+        let file = input.files[0];
+        console.warn("W:file", file);
+        let formData = new FormData();
+        formData.append('uploadedFile', file);
+        
+        console.warn("W:formData", formData);
+        try {
+            let request = {
+                method: 'POST',
+                body: formData
+            }
+            let response = await fetch(ipAPI + '/drivers/', request);
+
+            console.warn("W:", response);
+        } catch (error) {
+            console.error("E:", error);
         }
     }
 
@@ -1349,7 +1364,7 @@
         device = deviceDefault;
         device.name = deviceName;
         device.systemName = deviceSystemName;
-        device.driverConfiguration.name = driverName;
+        device.driverConfiguration.driver.parser = driverName;
         device.driverConfiguration.systemName = driverSystemName;
         device.driverConfiguration.encoding = deviceEncoding;
         device.driverConfiguration.workMode = driverWorkMode;
@@ -1402,7 +1417,7 @@
 
         device.name = deviceName;
         device.systemName = deviceSystemName;
-        device.driverConfiguration.name = driverName;
+        device.driverConfiguration.driver.fileName = driverName;
         device.driverConfiguration.systemName = driverSystemName;
         device.driverConfiguration.encoding = deviceEncoding;
         device.driverConfiguration.workMode = driverWorkMode;
@@ -1474,16 +1489,16 @@
         try {
             let response = await fetch(ipAPI + '/drivers/');
             
-            let drivers = await response.json();
+            drivers = await response.json();
             console.debug("drivers:", drivers);
             console.debug("device:", device);
 
             Array.from(drivers).forEach(driver => {
                 let element = document.createElement("option");
-                element.innerHTML = `${driver.name}`;
-                element.value = driver.name;
+                element.innerHTML = `${driver.parser}`;
+                element.value = driver.parser;
                 if (device !== null) 
-                    if (device.driverConfiguration.name === driver.name)
+                    if (device.driverConfiguration.name === driver.parser)
                         element.selected = true;
                 document.getElementById('device.driver.name').appendChild(element);
             });

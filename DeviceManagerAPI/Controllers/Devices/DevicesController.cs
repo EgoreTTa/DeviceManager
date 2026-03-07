@@ -2,21 +2,16 @@
 {
     using DeviceManagerService.Configurations.Device;
     using Forms;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
     using Services;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
     using System.Threading.Tasks;
 
     [ApiController]
     [Route("[controller]/")]
     public class DevicesController : ControllerBase
     {
-        private readonly ILogger<DevicesController> _logger;
         private readonly IDevicesControllerService _devicesControllerService;
 
         public DevicesController(IDevicesControllerService devicesControllerService)

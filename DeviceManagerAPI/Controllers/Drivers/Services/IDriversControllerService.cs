@@ -7,7 +7,7 @@
     {
         public Task AddDriver(DriverConfiguration driver);
         public Task RemoveDriver(int id);
-        public Task<DriverConfiguration[]> GetDrivers();
+        public Task<Driver[]> GetDrivers();
         public Task<DriverConfiguration> GetDriver(int id);
     }
 }
