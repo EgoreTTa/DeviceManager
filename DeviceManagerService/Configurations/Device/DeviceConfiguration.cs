@@ -1,4 +1,4 @@
-namespace DeviceManagerService.Configurations.Device
+namespace DeviceManager.Configurations.Device
 {
     using Connection;
     using Driver;

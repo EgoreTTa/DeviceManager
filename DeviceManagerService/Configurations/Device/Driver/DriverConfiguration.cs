@@ -1,4 +1,4 @@
-namespace DeviceManagerService.Configurations.Device.Driver
+namespace DeviceManager.Configurations.Device.Driver
 {
     public struct DriverConfiguration
     {

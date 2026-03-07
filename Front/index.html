@@ -886,7 +886,7 @@
                         <button type="button" class="btn btn-success w-100" data-bs-dismiss="modal">Отменить</button>
                     </div>
                     <div class="col-6">
-                        <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal" onclick="deleteDeviceBySystemName()">Подтвердить</button>
+                        <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal" onclick="deleteSelectedDevice()">Подтвердить</button>
                     </div>
                 </div>
             </div>
@@ -1197,20 +1197,12 @@
     };
     let errors = [ error ];
 
-    async function deleteDeviceBySystemName() {
-        try {
-            let request = {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-            }
-            let response = await fetch(ipAPI + '/devices/' + device.id, request);
-
-            showToast("Удаление!", "Было удалено устройство " + device.name);
-            chargePanel('devices');
-        } catch (error) {
-            console.error("E:", error);
-        }
-    }
+    const deviceManagerEventDefault = {
+        dateTime: "",
+        description: ""
+    };
+    let deviceManagerEvent = deviceManagerEventDefault;
+    let deviceManagerEvents = [ deviceManagerEventDefault ];
 
     async function showListDevices() {
         let table = document.getElementById('table-devices');
@@ -1235,6 +1227,126 @@
             });
         } catch (error) {
             console.error("Ошибка:", error);
+        }
+    }
+    
+    async function showDevice(id){
+        device = devices.find(device => device.id === id);
+        console.warn("showDevice:", device);
+        chargePanel('device');
+    }
+     
+    async function createNewDevice() {
+        console.debug('createNewDevice');
+        let deviceName = document.getElementById('device.name').value;
+        let deviceSystemName = document.getElementById('device.systemName').value;
+
+        let driverName = document.getElementById('device.driver.name').value;
+        let driverSystemName = document.getElementById('device.driver.systemName').value;
+
+        let deviceEncoding = document.getElementById('device.driver.encoding').value;
+
+        let driverWorkMode;
+        Array.from(
+            document.getElementsByClassName('device.driver.type-workmode')
+        ).forEach(element => {
+            if (element.checked) {
+                driverWorkMode = element.value;}});
+
+        let deviceDriverOptions = [ ];
+        Array.from(
+            document.getElementsByClassName('device.driver.option')
+        ).forEach(element => { 
+            if (element.checked) deviceDriverOptions.push(element.value)});
+
+        device = deviceDefault;
+        device.name = deviceName;
+        device.systemName = deviceSystemName;
+        device.driverConfiguration.driver.parser = driverName;
+        device.driverConfiguration.systemName = driverSystemName;
+        device.driverConfiguration.encoding = deviceEncoding;
+        device.driverConfiguration.workMode = driverWorkMode;
+        device.driverConfiguration.options = deviceDriverOptions;
+
+        Array.from(
+            document.getElementById('device.hardware.type').children
+        ).forEach(
+            child => {
+                if (child.className.indexOf("active") > -1) 
+                    device.connectionConfiguration.connectionType = Number(child.value);
+            }
+        );
+
+        console.debug("device", device);
+        try {
+            let request = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(device)
+            };
+            let response = await fetch(ipAPI + '/devices/', request);
+            deviceManagerEvent = await response.json();
+            
+            showToast("Создано устройство.", deviceManagerEvent.description, deviceManagerEvent.dateTime);
+
+            chargePanel('devices');
+        } catch (error) {
+            console.error("E:", error);
+        }
+    }
+    
+    async function updateDevice() {
+        console.warn('updateDevice');
+        let deviceName = document.getElementById('device.name').value;
+        let deviceSystemName = document.getElementById('device.systemName').value;
+
+        let driverName = document.getElementById('device.driver.name').value;
+        let driverSystemName = document.getElementById('device.driver.systemName').value;
+
+        let deviceEncoding = document.getElementById('device.driver.encoding').value;
+
+        let driverWorkMode;
+        Array.from(document.getElementsByClassName('form-check-input')).forEach(element => {
+            if (element.name === 'type-workmode') {
+                if (element.checked) {
+                    driverWorkMode = element.value;
+                }
+            }
+        });
+
+        device.name = deviceName;
+        device.systemName = deviceSystemName;
+        device.driverConfiguration.driver.fileName = driverName;
+        device.driverConfiguration.systemName = driverSystemName;
+        device.driverConfiguration.encoding = deviceEncoding;
+        device.driverConfiguration.workMode = driverWorkMode;
+
+        try {
+            let request = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(device)
+            }
+            let response = await fetch(ipAPI + '/devices/' + device.id, request);
+
+            console.warn("W:", response);
+            chargePanel('devices');
+        } catch (error) {
+            console.error("E:", error);
+        }
+    }
+
+    async function deleteSelectedDevice() {
+        try {
+            let request = { method: 'DELETE' };
+            let response = await fetch(ipAPI + '/devices/' + device.id, request);
+
+            deviceManagerEvent = await response.json();
+            
+            showToast("Удалено устройство!", deviceManagerEvent.description, deviceManagerEvent.dateTime);
+            chargePanel('devices');
+        } catch (error) {
+            console.error("E:", error);
         }
     }
 
@@ -1263,6 +1375,12 @@
         } catch (error) {
             console.error("Ошибка:", error);
         }
+    }
+
+    async function showDriver(fileName){
+        driver = drivers.find(driver => driver.fileName === fileName);
+        console.warn("showDriver:", driver);
+        chargePanel('driver');
     }
 
     async function uploadDriver() {
@@ -1319,121 +1437,20 @@
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(ipAPI + '/devicemanager/errors/');
-            errors = await response.json();
+            let response = await fetch(ipAPI + '/devicemanager/journal');
+            deviceManagerEvents = await response.json();
 
-            console.debug("errors:", errors);
-
-            errors.forEach(error => {
+            deviceManagerEvents.forEach(deviceManagerEvent => {
                 let element = document.createElement("tr");
                 element.className = "table-light";
                 element.innerHTML = `
-                        <td>${error.dateTime}</td>
-                        <td>${error.error}</td>
+                        <td>${deviceManagerEvent.dateTime}</td>
+                        <td>${deviceManagerEvent.description}</td>
                 `;
                 table.appendChild(element);
             });
         } catch (error) {
             console.error("Ошибка:", error);
-        }
-    }
-
-    async function createNewDevice() {
-        console.debug('createNewDevice');
-        let deviceName = document.getElementById('device.name').value;
-        let deviceSystemName = document.getElementById('device.systemName').value;
-
-        let driverName = document.getElementById('device.driver.name').value;
-        let driverSystemName = document.getElementById('device.driver.systemName').value;
-
-        let deviceEncoding = document.getElementById('device.driver.encoding').value;
-
-        let driverWorkMode;
-        Array.from(
-            document.getElementsByClassName('device.driver.type-workmode')
-        ).forEach(element => {
-            if (element.checked) {
-                driverWorkMode = element.value;}});
-
-        let deviceDriverOptions = [ ];
-        Array.from(
-            document.getElementsByClassName('device.driver.option')
-        ).forEach(element => { 
-            if (element.checked) deviceDriverOptions.push(element.value)});
-
-        device = deviceDefault;
-        device.name = deviceName;
-        device.systemName = deviceSystemName;
-        device.driverConfiguration.driver.parser = driverName;
-        device.driverConfiguration.systemName = driverSystemName;
-        device.driverConfiguration.encoding = deviceEncoding;
-        device.driverConfiguration.workMode = driverWorkMode;
-        device.driverConfiguration.options = deviceDriverOptions;
-
-        Array.from(
-            document.getElementById('device.hardware.type').children
-        ).forEach(
-            child => {
-                if (child.className.indexOf("active") > -1) 
-                    device.connectionConfiguration.connectionType = Number(child.value);
-            }
-        );
-
-        console.debug("device", device);
-        try {
-            let request = {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(device)
-            }
-            let response = await fetch(ipAPI + '/devices/', request);
-
-            showToast("Создано устройство.", "Создано " + device.name + ".");
-
-            chargePanel('devices');
-        } catch (error) {
-            console.error("E:", error);
-        }
-    }
-    
-    async function updateDevice() {
-        console.warn('updateDevice');
-        let deviceName = document.getElementById('device.name').value;
-        let deviceSystemName = document.getElementById('device.systemName').value;
-
-        let driverName = document.getElementById('device.driver.name').value;
-        let driverSystemName = document.getElementById('device.driver.systemName').value;
-
-        let deviceEncoding = document.getElementById('device.driver.encoding').value;
-
-        let driverWorkMode;
-        Array.from(document.getElementsByClassName('form-check-input')).forEach(element => {
-            if (element.name === 'type-workmode') {
-                if (element.checked) {
-                    driverWorkMode = element.value;
-                }
-            }
-        });
-
-        device.name = deviceName;
-        device.systemName = deviceSystemName;
-        device.driverConfiguration.driver.fileName = driverName;
-        device.driverConfiguration.systemName = driverSystemName;
-        device.driverConfiguration.encoding = deviceEncoding;
-        device.driverConfiguration.workMode = driverWorkMode;
-
-        try {
-            let request = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(device)
-            }
-            let response = await fetch(ipAPI + '/devices/' + device.id, request);
-
-            console.warn("W:", response);
-            chargePanel('devices');
-        } catch (error) {
-            console.error("E:", error);
         }
     }
 
@@ -1447,10 +1464,9 @@
                 body: JSON.stringify(device)
             }
             let response = await fetch(ipAPI + '/devices/' + device.id + '/flipactive/', request);
+            deviceManagerEvent = await response.json();
 
-            console.warn("W:", response);
-
-            showToast(device.isActive ? "Отключение!" : "Включение.", device.isActive ? "Был отключен " + device.name + "!" : "Был включен " + device.name + ".");
+            showToast(device.isActive ? "Отключение!" : "Включение.", deviceManagerEvent.description, deviceManagerEvent.dateTime);
 
             response = await fetch(ipAPI + '/devices/' + device.id);
             device = await response.json();
@@ -1472,7 +1488,7 @@
         }
     }
 
-    function cancelCreateNewDevice() {
+    async function cancelCreateNewDevice() {
         chargePanel('devices');
     }
 
@@ -1533,12 +1549,6 @@
         }
     }
 
-    function showDevice(id){
-        device = devices.find(device => device.id === id);
-        console.warn("showDevice:", device);
-        chargePanel('device');
-    }
-
     async function chargePanel(panelName) {
         Array.from(document.getElementsByClassName('container')).forEach(element => {
             element.style.display = 'none';
@@ -1560,15 +1570,18 @@
                 showListDevices();
                 device = null;
                 break;
-            case "drivers":
-                showListDrivers();
-                break;
             case "device":
                 renderForm('place2');
                 document.getElementById('selected.device.name').value = device.name;
                 document.getElementById('selected.device.systemName').value = device.systemName;
                 getDrivers();
                 getPorts();
+                break;
+            case "drivers":
+                showListDrivers();
+                break;
+            case "driver":
+
                 break;
             case "status":
                 showStatusDevices();
@@ -1631,20 +1644,17 @@
         ) return;
         try {
             let request = {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newSettings)
-            }
+            };
             let response = await fetch(ipAPI + '/devicemanager/updatesettings/', request);
 
-            console.warn("W:", response);
             chargePanel('devices');
 
-            showToast("Настройки изменены!", "Для применения новых настроек нужно время, ожидание изменения в каждом устройстве...");
+            deviceManagerEvent = await response.json();
 
-            const toastLiveExample = document.getElementById('liveToast');
-            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
-            toastBootstrap.show();
+            showToast("Настройки изменены!", deviceManagerEvent.description, deviceManagerEvent.dateTime);
         } catch (error) {
             console.error("E:", error);
         }
@@ -1665,25 +1675,24 @@
         document.getElementById('devicemanager.settings.islogrequest').checked = settings.isLogRequest;
     }
 
-    function selectHardware(){
+    async function selectHardware(){
         console.debug("selectHardware");
         element = document.getElementById('device.hardware.address');
 
         element.disabled = document.getElementById('device.hardware.mode-1').selected;
     }
 
-    function showToast(header, body){
+    async function showToast(header, body, dateTime){
         document.getElementById('toast-header').innerText = header;
         document.getElementById('toast-body').innerText = body;
-        let splitDateTimeNow = new Date().toISOString().split('T');
-        document.getElementById('toast-date-time').innerText = splitDateTimeNow[0] + " " + splitDateTimeNow[1].substring(0, 8);
+        document.getElementById('toast-date-time').innerText = dateTime;
 
         const toastLiveExample = document.getElementById('liveToast');
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
         toastBootstrap.show();
     }
 
-    function renderForm(containerId) {
+    async function renderForm(containerId) {
         const template = document.getElementById('template-form-create-or-update-device');
         const clone = document.importNode(template.content, true);
         

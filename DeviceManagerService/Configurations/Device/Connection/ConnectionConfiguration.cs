@@ -1,7 +1,7 @@
-namespace DeviceManagerService.Configurations.Device.Connection
+namespace DeviceManager.Configurations.Device.Connection
 {
-    using Newtonsoft.Json.Converters;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
 
     public struct ConnectionConfiguration
     {

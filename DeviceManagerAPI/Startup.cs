@@ -2,11 +2,11 @@ namespace DeviceManagerAPI
 {
     using Controllers.Devices.Services;
     using Controllers.Drivers.Services;
-    using DeviceManagerService;
-    using DeviceManagerService.Services;
+    using DeviceManager;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
+    using Services;
 
     public class Startup
     {
@@ -14,12 +14,12 @@ namespace DeviceManagerAPI
         {
             services.AddCors();
             services.AddControllers();
-            
+
             services.AddHostedService<DeviceManagerService>();
 
             services.AddSingleton<IDriversControllerService, DriversControllerService>();
             services.AddSingleton<IDevicesControllerService, DevicesControllerService>();
-            services.AddSingleton<IDeviceManagerUseService, DeviceManagerUseService>();
+            services.AddSingleton<IDeviceManager, DeviceManager>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -29,10 +29,7 @@ namespace DeviceManagerAPI
                                           .AllowAnyOrigin());
             app.UseRouting();
 
-            app.UseEndpoints(builder =>
-            {
-                builder.MapControllers();
-            });
+            app.UseEndpoints(builder => { builder.MapControllers(); });
         }
     }
 }

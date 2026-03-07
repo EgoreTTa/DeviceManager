@@ -1,8 +1,8 @@
-namespace DeviceManagerService.Configurations.Device.Connection
+namespace DeviceManager.Configurations.Device.Connection
 {
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using System.IO.Ports;
-    using Newtonsoft.Json;
 
     public struct SerialConnection
     {

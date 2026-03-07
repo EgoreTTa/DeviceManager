@@ -1,4 +1,4 @@
-namespace DeviceManagerService.Services
+namespace DeviceManager.Entities
 {
     using Configurations.Device;
     using Configurations.Device.Connection;

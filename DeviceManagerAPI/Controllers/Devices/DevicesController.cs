@@ -1,7 +1,8 @@
 ﻿namespace DeviceManagerAPI.Controllers.Devices
 {
-    using DeviceManagerService.Configurations.Device;
     using Forms;
+    using global::DeviceManager.Configurations.Device;
+    using global::DeviceManager.Entities;
     using Microsoft.AspNetCore.Mvc;
     using Services;
     using System;
@@ -32,37 +33,27 @@
         }
 
         [HttpPut]
-        public async Task<IActionResult> Create(DeviceConfiguration device)
+        public async Task<DeviceManagerEvent> Create(DeviceConfiguration device)
         {
-            await _devicesControllerService.AddDevice(device);
-
-            return StatusCode(201);
+            return await _devicesControllerService.AddDevice(device);
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> Update(int id, DeviceConfiguration device)
+        public async Task<DeviceManagerEvent> Update(int id, DeviceConfiguration device)
         {
-            await _devicesControllerService.UpdateDevice(id, device);
-
-            return StatusCode(200);
+            return await _devicesControllerService.UpdateDevice(id, device);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<DeviceManagerEvent> Delete(int id)
         {
-            // _devices.Remove(_devices.Find(x => x.Id == id));
-
-            await _devicesControllerService.RemoveDevice(id);
-
-            return StatusCode(200);
+            return await _devicesControllerService.RemoveDevice(id);
         }
 
         [HttpPut("{id}/flipactive/")]
-        public IActionResult FlipActive(int id)
+        public async Task<DeviceManagerEvent> FlipActive(int id)
         {
-            // var device = _devices.Single(x => x.Id == id);
-            // device.IsActive = !device.IsActive;
-            return StatusCode(200);
+            return await _devicesControllerService.FlipActive(id);
         }
 
         [HttpGet("{id}/getcomparisons/")]

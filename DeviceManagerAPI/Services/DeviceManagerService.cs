@@ -1,23 +1,21 @@
-namespace DeviceManagerService
+namespace DeviceManagerAPI.Services
 {
+    using DeviceManager;
     using Microsoft.Extensions.Hosting;
-    using Services;
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
     public sealed class DeviceManagerService : BackgroundService
     {
-        private readonly IDeviceManagerUseService _useService;
+        private readonly IDeviceManager _useService;
 
-        public DeviceManagerService(IDeviceManagerUseService useService)
+        public DeviceManagerService(IDeviceManager useService)
         {
             _useService = useService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken token)
         {
-            Console.WriteLine("DeviceManagerService ExecuteAsync");
             await _useService.StartAsync(token);
         }
     }

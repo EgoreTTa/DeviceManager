@@ -1,43 +1,49 @@
 ﻿namespace DeviceManagerAPI.Controllers.Devices.Services
 {
-    using DeviceManagerService.Configurations.Device;
-    using DeviceManagerService.Services;
+    using global::DeviceManager;
+    using global::DeviceManager.Configurations.Device;
+    using global::DeviceManager.Entities;
     using System.Linq;
     using System.Threading.Tasks;
 
     public class DevicesControllerService : IDevicesControllerService
     {
-        private readonly IDeviceManagerUseService _useCase;
+        private readonly IDeviceManager _useCase;
 
-        public DevicesControllerService(IDeviceManagerUseService useCase)
+        public DevicesControllerService(IDeviceManager useCase)
         {
             _useCase = useCase;
         }
 
-        public async Task AddDevice(DeviceConfiguration device)
+        public async Task<DeviceManagerEvent> AddDevice(DeviceConfiguration device)
         {
             var devices = await _useCase.GetDevices();
 
             var newId = devices.Max(x => x.Id) + 1;
             device.Id = newId;
 
-            await _useCase.AddDevice(device);
+            return await _useCase.AddDevice(device);
         }
 
-        public async Task UpdateDevice(int id, DeviceConfiguration device)
+        public async Task<DeviceManagerEvent> UpdateDevice(int id, DeviceConfiguration device)
         {
-            await _useCase.UpdateDevice(id, device);
+            return await _useCase.UpdateDevice(id, device);
         }
 
-        public async Task RemoveDevice(int id)
+        public async Task<DeviceManagerEvent> FlipActive(int id)
         {
-            await _useCase.RemoveDevice(id);
+            return await _useCase.FlipActive(id);
+        }
+
+        public async Task<DeviceManagerEvent> RemoveDevice(int id)
+        {
+            return await _useCase.RemoveDevice(id);
         }
 
         public async Task<DeviceConfiguration[]> GetDevices()
         {
             var devices = await _useCase.GetDevices();
-            return devices.OrderBy(x=>x.Id).ToArray();
+            return devices.OrderBy(x => x.Id).ToArray();
         }
 
         public async Task<DeviceConfiguration> GetDevice(int id) => await _useCase.GetDevice(id);

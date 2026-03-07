@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DeviceManagerService\DeviceManagerService.csproj" />
+    <ProjectReference Include="..\DeviceManagerService\DeviceManager.csproj" />
   </ItemGroup>
 
 </Project>

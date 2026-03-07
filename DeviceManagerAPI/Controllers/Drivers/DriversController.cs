@@ -1,6 +1,6 @@
 ﻿namespace DeviceManagerAPI.Controllers.Drivers
 {
-    using DeviceManagerService.Configurations.Device.Driver;
+    using global::DeviceManager.Configurations.Device.Driver;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Services;
@@ -14,16 +14,10 @@
     {
         private readonly IDriversControllerService _service;
 
-        public DriversController(IDriversControllerService driversControllerService)
-        {
-            _service = driversControllerService;
-        }
+        public DriversController(IDriversControllerService driversControllerService) => _service = driversControllerService;
 
         [HttpGet]
-        public async Task<Driver[]> GetAll()
-        {
-            return await _service.GetDrivers();
-        }
+        public async Task<Driver[]> GetAll() => await _service.GetDrivers();
 
         [HttpPost]
         public async Task<IActionResult> UploadDriver(IFormFile uploadedFile)

@@ -1,14 +1,14 @@
 ﻿namespace DeviceManagerAPI.Controllers.Drivers.Services
 {
-    using DeviceManagerService.Configurations.Device.Driver;
-    using DeviceManagerService.Services;
+    using global::DeviceManager;
+    using global::DeviceManager.Configurations.Device.Driver;
     using System.Threading.Tasks;
 
     public class DriversControllerService : IDriversControllerService
     {
-        private readonly IDeviceManagerUseService _useCase;
+        private readonly IDeviceManager _useCase;
 
-        public DriversControllerService(IDeviceManagerUseService useCase)
+        public DriversControllerService(IDeviceManager useCase)
         {
             _useCase = useCase;
         }

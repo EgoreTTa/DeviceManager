@@ -1,4 +1,4 @@
-namespace DeviceManagerService.Configurations.Device.Connection
+namespace DeviceManager.Configurations.Device.Connection
 {
     public enum NetworkModes
     {

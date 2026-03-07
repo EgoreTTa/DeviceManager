@@ -1,8 +1,7 @@
 ﻿namespace DeviceManagerAPI.Controllers.Drivers.Services
 {
-    using DeviceManagerService.Configurations.Device.Driver;
+    using global::DeviceManager.Configurations.Device.Driver;
     using System.Threading.Tasks;
-
     public interface IDriversControllerService
     {
         public Task AddDriver(DriverConfiguration driver);
