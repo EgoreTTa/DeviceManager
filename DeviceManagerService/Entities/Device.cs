@@ -19,14 +19,14 @@ namespace DeviceManager.Entities
     {
         public ILogger Logger { get; set; }
         public DeviceConfiguration Configuration { get; set; }
+        public AppDbContext DbContext { get; set; }
         private DataAccess _dataAccess;
 
-        public async Task StartAsync(string url, IParser parser, CancellationToken token)
+        public async Task StartAsync(DataAccess dataAccess, IParser parser, CancellationToken token)
         {
-            _dataAccess = new DataAccess(url, Configuration.SystemName, Configuration.DriverConfiguration.SystemName);
             parser.Encoding = Encoding.GetEncoding(Configuration.DriverConfiguration.Encoding);
             Logger.Information($"Encoding:{parser.Encoding.BodyName}");
-
+            
             Logger.Information($"ConnectionType:{Configuration.ConnectionConfiguration.ConnectionType}");
             switch (Configuration.ConnectionConfiguration.ConnectionType)
             {
@@ -96,8 +96,7 @@ namespace DeviceManager.Entities
                         }
                         catch (Exception exception)
                         {
-                            Logger.Fatal("network", exception);
-                            Logger.Error("network", exception);
+                            Logger.Error(exception.Message);
                             await Task.Delay(TimeSpan.FromSeconds(1), token);
                         }
 
@@ -153,8 +152,7 @@ namespace DeviceManager.Entities
                         }
                         catch (Exception exception)
                         {
-                            Logger.Fatal("network", exception);
-                            Logger.Error("network", exception);
+                            Logger.Error(exception.Message);
                             await Task.Delay(TimeSpan.FromSeconds(1), token);
                         }
 
@@ -191,6 +189,10 @@ namespace DeviceManager.Entities
                     if (samples != null)
                         if (samples.Any(x => x.Results != null))
                         {
+                            foreach (var testResult in samples) testResult.DeviceId = Configuration.Id;
+
+                            DbContext.TestResults.AddRange(samples);
+                            await DbContext.SaveChangesAsync(token);
                             await _dataAccess.SetDeviceResults(samples);
                         }
                         else
@@ -206,8 +208,7 @@ namespace DeviceManager.Entities
                 }
                 catch (Exception exception)
                 {
-                    Logger.Fatal("serial", exception);
-                    Logger.Error("serial", exception);
+                    Logger.Error(exception.Message);
                     await Task.Delay(TimeSpan.FromSeconds(1), token);
                 }
             }
@@ -254,8 +255,7 @@ namespace DeviceManager.Entities
                         }
                         catch (Exception exception)
                         {
-                            Logger.Fatal("filesystem", exception);
-                            Logger.Error("filesystem", exception);
+                            Logger.Error(exception.Message);
                             await Task.Delay(TimeSpan.FromSeconds(1), token);
                         }
                     }

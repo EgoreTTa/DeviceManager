@@ -1,9 +1,13 @@
+using System.Security.Cryptography.X509Certificates;
+using DataAccess.DTOs;
+
 namespace DeviceManager
 {
     using Configurations;
     using Configurations.Device;
     using Configurations.Device.Connection;
     using Configurations.Device.Driver;
+    using DataAccess;
     using DriverBase;
     using Entities;
     using Microsoft.EntityFrameworkCore;
@@ -21,6 +25,10 @@ namespace DeviceManager
 
     public sealed class DeviceManager : IDeviceManager
     {
+        private readonly string _pathDrivers;
+        private readonly string _pathDeviceConfigs;
+        private readonly string _pathConfig;
+
         private readonly List<DeviceConfiguration> _devices = new List<DeviceConfiguration>()
         {
             new DeviceConfiguration()
@@ -74,13 +82,18 @@ namespace DeviceManager
 
         public DeviceManager()
         {
-            Directory.CreateDirectory($"Configs{Path.DirectorySeparatorChar}");
+            _pathConfig = Path.GetFullPath(Path.Combine("Configs"));
+            Directory.CreateDirectory(_pathConfig);
+            _pathDrivers = Path.GetFullPath(Path.Combine("Drivers"));
+            Directory.CreateDirectory(_pathDrivers);
+            _pathDeviceConfigs = Path.GetFullPath(Path.Combine($"Configs", "Devices"));
+            Directory.CreateDirectory(_pathDeviceConfigs);
 
-            _deviceManagerConfiguration = JsonConvert.DeserializeObject<DeviceManagerConfiguration>(File.ReadAllText($"Configs{Path.DirectorySeparatorChar}Configuration.json"));
+            _deviceManagerConfiguration = JsonConvert.DeserializeObject<DeviceManagerConfiguration>(File.ReadAllText(Path.Combine(_pathConfig, "Configuration.json")));
             _logger = new LoggerConfiguration().MinimumLevel.Debug()
                                                .WriteTo.Console()
                                                .WriteTo.File(
-                                                   path: Path.Combine("Logs", "DeviceManager", ".txt"),
+                                                   path: Path.Combine("Logs", nameof(DeviceManager), ".txt"),
                                                    rollingInterval: RollingInterval.Day,
                                                    fileSizeLimitBytes: 1024 * 1024,
                                                    rollOnFileSizeLimit: true,
@@ -99,15 +112,13 @@ namespace DeviceManager
 
         private void ReadDeviceConfigurations()
         {
-            var pathDeviceConfigs = Path.Combine($"Configs", "Devices");
-            Directory.CreateDirectory(pathDeviceConfigs);
-            var files = Directory.GetFiles(pathDeviceConfigs, "*.json");
+            var files = Directory.GetFiles(_pathDeviceConfigs, "*.json");
             if (files.Length == 0)
             {
                 _logger.Warning("Device configurations not found!");
                 foreach (var deviceConfiguration in _devices)
                 {
-                    File.AppendAllText($"{Path.Combine(pathDeviceConfigs, deviceConfiguration.Name)}.json",
+                    File.AppendAllText($"{Path.Combine(_pathDeviceConfigs, deviceConfiguration.Name)}.json",
                         JsonConvert.SerializeObject(deviceConfiguration, Formatting.Indented));
 
                     _logger.Information("Device configuration template created.");
@@ -126,7 +137,7 @@ namespace DeviceManager
                         if (_devices.Any(x => x.Id == device.Id))
                         {
                             device.Id = _devices.Select(x => x.Id).Max() + 1;
-                            File.WriteAllText(Path.Combine(pathDeviceConfigs, file),
+                            File.WriteAllText(Path.Combine(_pathDeviceConfigs, file),
                                 JsonConvert.SerializeObject(device, Formatting.Indented));
                         }
 
@@ -145,7 +156,7 @@ namespace DeviceManager
         {
             var files = driverConfigurations
                         .Where(x => string.IsNullOrEmpty(x.Driver.FileName) is false)
-                        .Select(x => $"{Path.Combine("Drivers", x.Driver.FileName)}{(x.Driver.FileName.Contains(".dll") is false ? ".dll" : string.Empty)}")
+                        .Select(x => $"{Path.Combine(_pathDrivers, x.Driver.FileName)}{(x.Driver.FileName.Contains(".dll") is false ? ".dll" : string.Empty)}")
                         .Distinct();
             foreach (var file in files)
             {
@@ -182,33 +193,25 @@ namespace DeviceManager
 
         public async Task StartAsync(CancellationToken token)
         {
-            _logger.Information("DeviceManagerService: start");
-
-
-            while (token.IsCancellationRequested is false)
-            {
-                try
-                {
-                    _logger.Information($"Tracking start...");
-
-                    await StartDevice(token);
-
-                    _logger.Warning($"Device stop!");
-
-                    _logger.Information($"Tracking end.");
-                }
-                catch (Exception exception)
-                {
-                    _logger.Fatal(exception.Message);
-                    _logger.Error(exception.StackTrace);
-                }
-                finally
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(1), token);
-                }
-            }
-
-            _logger.Warning("DeviceManagerService: stop");
+            // while (token.IsCancellationRequested is false)
+            // {
+            //     try
+            //     {
+            //         _logger.Information($"Tracking start...");
+            //
+            //
+            //
+            //         _logger.Information($"Tracking end.");
+            //     }
+            //     catch (Exception exception)
+            //     {
+            //         _logger.Error(exception.Message);
+            //     }
+            //     finally
+            //     {
+            //         await Task.Delay(TimeSpan.FromSeconds(1), token);
+            //     }
+            // }
         }
 
         public Task<DeviceConfiguration[]> GetDevices(CancellationToken token = default)
@@ -239,7 +242,7 @@ namespace DeviceManager
 
         public async Task<DeviceManagerEvent> AddDevice(DeviceConfiguration device, CancellationToken token = default)
         {
-            await File.AppendAllTextAsync($"Configs{Path.DirectorySeparatorChar}Devices{Path.DirectorySeparatorChar}{device.Id}.json",
+            await File.AppendAllTextAsync(Path.Combine(_pathDeviceConfigs, $"{device.Id}.json"),
                 JsonConvert.SerializeObject(device, Formatting.Indented), token);
             _logger.Information($"Device configuration {device.Name} save.");
             
@@ -255,7 +258,7 @@ namespace DeviceManager
         public async Task<DeviceManagerEvent> RemoveDevice(int id, CancellationToken token = default)
         {
             var device = _devices.Find(x => x.Id == id);
-            File.Delete($"Configs{Path.DirectorySeparatorChar}Devices{Path.DirectorySeparatorChar}{device.Id}.json");
+            File.Delete(Path.Combine(_pathDeviceConfigs, $"{device.Id}.json"));
             _logger.Information($"Device configuration {device.Name} deleted!");
 
             _devices.Remove(device);
@@ -271,7 +274,7 @@ namespace DeviceManager
         {
             _devices[_devices.IndexOf(_devices.Find(x => x.Id == id))] = device;
 
-            await File.WriteAllTextAsync($"Configs{Path.DirectorySeparatorChar}Devices{Path.DirectorySeparatorChar}{device.Id}",
+            await File.WriteAllTextAsync(Path.Combine(_pathDeviceConfigs, $"{device.Id}.json"),
                 JsonConvert.SerializeObject(device, Formatting.Indented), token);
 
             var newEvent = new DeviceManagerEvent($"Обновлена конфигурация устройства {device.Name}");
@@ -294,7 +297,7 @@ namespace DeviceManager
             return newEvent;
         }
 
-        public async Task<DeviceManagerEvent> FlipActive(int id)
+        public async Task<DeviceManagerEvent> FlipActive(int id, CancellationToken token)
         {
             var device = _devices[_devices.IndexOf(_devices.Find(x => x.Id == id))];
             device.IsActive = !device.IsActive;
@@ -302,34 +305,58 @@ namespace DeviceManager
 
             var newEvent = new DeviceManagerEvent($"{(device.IsActive ? "Включено" : "Отключено")} устройство {device.Name}!");
             _db.Events.Add(newEvent);
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(token);
+
+            if (device.IsActive) await StartDeviceAsync(device, token);
+            else
+            {
+                var track = _trackings.Single(x => x.device.Configuration.Id == id);
+                track.source.Cancel();
+                await Task.WhenAny(track.task, Task.Delay(TimeSpan.FromSeconds(5), token));
+                track.source.Dispose();
+            }
+
+
 
             return newEvent;
         }
 
-        private async Task StartDevice(CancellationToken token)
+        public async Task<TestResult[]> GetTestResultsByDeviceId(int id)
         {
-            var deviceConfiguration = _devices.First();
+            await _db.TestResults.LoadAsync();
+            return _db.TestResults.Where(x => x.DeviceId == id).ToArray();
+        }
+
+        private async Task StartDeviceAsync(DeviceConfiguration configuration, CancellationToken token)
+        {
             var device = new Device()
             {
                 Logger = new LoggerConfiguration().MinimumLevel.Debug()
                                                   .WriteTo.Console()
                                                   .WriteTo.File(
-                                                      path: Path.Combine("Logs", deviceConfiguration.Name, ".txt"),
+                                                      path: Path.Combine("Logs", configuration.Name, ".txt"),
                                                       rollingInterval: RollingInterval.Day,
                                                       fileSizeLimitBytes: 1024 * 1024,
                                                       rollOnFileSizeLimit: true,
                                                       retainedFileCountLimit: 7,
                                                       shared: true)
                                                   .CreateLogger(),
-                Configuration = deviceConfiguration
+                Configuration = configuration
             };
 
-            var parser = Activator.CreateInstance(_parsers.First().type) as IParser;
+            var parserType = Type.GetType(configuration.DriverConfiguration.Driver.Parser);
+            if (parserType == null ) return;
+
+            var parser = Activator.CreateInstance(parserType) as IParser;
             if (parser == null) return;
             parser.Logger = device.Logger;
 
-            await device.StartAsync(_deviceManagerConfiguration.Address, parser, token);
+            var dataAccess = new DataAccess(_deviceManagerConfiguration.Address,
+                configuration.SystemName,
+                configuration.DriverConfiguration.SystemName);
+
+            var source = new CancellationTokenSource();
+            _trackings.Add((device, device.StartAsync(dataAccess, parser, source.Token), source));
         }
     }
 }

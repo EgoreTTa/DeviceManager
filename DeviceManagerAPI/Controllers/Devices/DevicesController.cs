@@ -1,4 +1,6 @@
-﻿namespace DeviceManagerAPI.Controllers.Devices
+﻿using DataAccess.DTOs;
+
+namespace DeviceManagerAPI.Controllers.Devices
 {
     using Forms;
     using global::DeviceManager.Configurations.Device;
@@ -60,6 +62,12 @@
         public IActionResult GetComparisons(int id)
         {
             return StatusCode(200);
+        }
+
+        [HttpGet("{id}/testresults/")]
+        public async Task<TestResult[]> GetTestResults(int id)
+        {
+            return await _devicesControllerService.GetTestResultsByDeviceId(id);
         }
 
         [HttpGet("status/")]

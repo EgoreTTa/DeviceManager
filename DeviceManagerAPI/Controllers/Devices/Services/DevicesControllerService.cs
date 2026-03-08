@@ -1,5 +1,6 @@
 ﻿namespace DeviceManagerAPI.Controllers.Devices.Services
 {
+    using DataAccess.DTOs;
     using global::DeviceManager;
     using global::DeviceManager.Configurations.Device;
     using global::DeviceManager.Entities;
@@ -47,5 +48,10 @@
         }
 
         public async Task<DeviceConfiguration> GetDevice(int id) => await _useCase.GetDevice(id);
+
+        public async Task<TestResult[]> GetTestResultsByDeviceId(int id)
+        {
+            return await _useCase.GetTestResultsByDeviceId(id);
+        }
     }
 }

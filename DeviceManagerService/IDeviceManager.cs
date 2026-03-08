@@ -1,3 +1,5 @@
+using DataAccess.DTOs;
+
 namespace DeviceManager
 {
     using Configurations;
@@ -20,6 +22,7 @@ namespace DeviceManager
         public Task<DeviceManagerEvent> UpdateDevice(int id, DeviceConfiguration device, CancellationToken token = default);
         public Task<DeviceManagerConfiguration> GetSettings();
         public Task<DeviceManagerEvent> UpdateSettings(DeviceManagerConfiguration formDeviceManagerSettings);
-        public Task<DeviceManagerEvent> FlipActive(int id);
+        public Task<DeviceManagerEvent> FlipActive(int id, CancellationToken token);
+        public Task<TestResult[]> GetTestResultsByDeviceId(int id);
     }
 }

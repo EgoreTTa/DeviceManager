@@ -293,7 +293,7 @@
                                                         <th class="col-sm-2"></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody class="table-group-divider" id="table-device.status-3">
+                                                <tbody class="table-group-divider" id="table-device.results">
                                                     <tr>
                                                         <td>2026-02-28 05:22:12</td>
                                                         <td>202602289991</td>
@@ -1175,6 +1175,17 @@
     let device = deviceDefault;
     let devices = [ deviceDefault ];
 
+    const deviceResultDefault = {
+        sampleCode: "",
+        result: {
+            testCode:"",
+            value:"",
+            muCode:"",
+        }
+    }
+    let deviceResult = deviceResultDefault;
+    let deviceResults = [ deviceResultDefault ];
+
     const settingsDefault = {
         address: "",
         timeOut: "",
@@ -1744,6 +1755,29 @@
         {
             elementDeviceIsActive.innerText = "Включить";
             elementDeviceIsActive.className = 'btn btn-primary w-100';
+        }
+    }
+
+    async function getDeviceResults(id) {
+        let table = document.getElementById('table-device.results');
+        Array.from(table.children).forEach((element) => { element.remove(); });
+
+        try {
+            let response = await fetch(`${ipAPI}/devices/${device.id}/results`);
+            deviceResults = await response.json();
+
+            deviceResults.forEach(deviceResult => {
+                let element = document.createElement("tr");
+                element.className = "table-light";
+                element.innerHTML =    `<td>-</td>
+                                        <td>${deviceResult.sampleCode}</td>
+                                        <td>${deviceResult.result.testCode}</td>
+                                        <td>${deviceResult.result.value}</td>
+                                        <td>${deviceResult.result.muCode}</td>`;
+                table.appendChild(element);
+            });
+        } catch (error) {
+            console.error("Ошибка:", error);
         }
     }
 </script>

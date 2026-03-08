@@ -1,4 +1,6 @@
-﻿namespace DeviceManagerAPI.Controllers.Devices.Services
+﻿using DataAccess.DTOs;
+
+namespace DeviceManagerAPI.Controllers.Devices.Services
 {
     using global::DeviceManager.Configurations.Device;
     using global::DeviceManager.Entities;
@@ -12,5 +14,6 @@
         public Task<DeviceConfiguration> GetDevice(int id);
         public Task<DeviceManagerEvent> UpdateDevice(int id, DeviceConfiguration device);
         public Task<DeviceManagerEvent> FlipActive(int id);
+        public Task<TestResult[]> GetTestResultsByDeviceId(int id);
     }
 }
