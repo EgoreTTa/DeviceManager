@@ -12,9 +12,7 @@
     public sealed class ASTM : IParser
     {
         private readonly StringBuilder _messageForParse = new StringBuilder();
-        private readonly StringBuilder _frameForParse = new StringBuilder();
-        private readonly Regex _messageRegex = new Regex(@"H\|[\\\^\&]{3}[\s\S]*?\rL\|.\r");
-        private readonly Regex _recordRegex = new Regex(@".(?<Record>.*?)(|)(?<CheckSum>..)\r\n");
+        private readonly Regex _messageRegex = new Regex(@"(?<Message>H\|[\\\^\&]{3}[\s\S]*?L\|.\|.\r)(|)(?<CheckSum>..)\r\n");
 
         public ILogger Logger { get; set; }
         public Encoding Encoding { get; set; } = Encoding.ASCII;
@@ -22,6 +20,8 @@
         public void Clear()
         {
             Logger.Warning("Parser clear...");
+            _messageForParse.Clear();
+            _messageForParse.Clear();
         }
 
         public void Parse(byte[] bytes, out TestResult[] samples, out byte[] send)
@@ -49,36 +49,22 @@
                     Logger.Information($"-->:<EOT>");
                     break;
                 default:
-                    _frameForParse.Append(data);
-
-                    if (_recordRegex.IsMatch(_frameForParse.ToString()))
-                    {
-                        var matchRecord = _recordRegex.Match(_frameForParse.ToString());
-
-                        Logger.Information($"<--:<{GetMessageForLogger(matchRecord.ToString())}>");
-                        _messageForParse.Append($"{matchRecord.Groups["Record"].Value}\r");
-
-                        send = new byte[] { 6 };
-                        Logger.Information($"-->:<ACK>");
-
-                        _frameForParse.Replace(matchRecord.Value, string.Empty);
-                    }
-
-                    if (_frameForParse.Length > 0)
-                        Logger.Warning($"buffer for frame:<{GetMessageForLogger(_frameForParse.ToString())}>");
-
+                    _messageForParse.Append(data);
 
                     foreach (Match match in _messageRegex.Matches(_messageForParse.ToString()))
                     {
-                        Logger.Information($"<{GetMessageForLogger(match.ToString())}>");
+                        Logger.Information($"<--:<{GetMessageForLogger(match.ToString())}>");
+
+                        send = new byte[] { 6 };
+                        Logger.Information($"-->:<ACK>");
+                        
                         try
                         {
                             testResults.Add(ParseMessage(match.ToString()));
                         }
                         catch (Exception exception)
                         {
-                            Logger.Fatal("Parse down", exception);
-                            Logger.Error("Parse down", exception);
+                            Logger.Fatal(exception.Message);
                         }
 
                         _messageForParse.Replace(match.Value, string.Empty);
@@ -129,45 +115,15 @@
                         break;
                     case 'R':
                         var blocks = record.Split('|');
-                        var testCode = blocks[2].Split('^')[3];
+                        var testCode = blocks[2];
                         var value = blocks[3];
                         var muCode = blocks[4];
-
-                        if (muCode == " "
-                            ||
-                            string.IsNullOrEmpty(muCode))
+                        results.Add(new Result
                         {
-                            muCode = testCode;
-                        }
-
-                        switch (testCode)
-                        {
-                            case "BLD":
-                            case "BIL":
-                            case "UBG":
-                            case "KET":
-                            case "GLU":
-                            case "PRO":
-                            case "NIT":
-                            case "LEU":
-                                results.Add(new Result
-                                {
-                                    TestCode = testCode,
-                                    Value = $"{testCode}_{value}",
-                                    MuCode = muCode
-                                });
-                                break;
-                            case "SG":
-                            case "pH":
-                                results.Add(new Result
-                                {
-                                    TestCode = testCode,
-                                    Value = $"{value}",
-                                    MuCode = muCode
-                                });
-                                break;
-                        }
-
+                            TestCode = testCode,
+                            Value = $"{value}",
+                            MuCode = muCode
+                        });
                         break;
                 }
             }

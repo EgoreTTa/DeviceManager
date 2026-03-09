@@ -3,9 +3,11 @@ namespace DeviceManager.Entities
     using Configurations.Device;
     using Configurations.Device.Connection;
     using DataAccess;
+    using DataAccess.DTOs;
     using DriverBase;
     using Serilog;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.IO.Ports;
     using System.Linq;
@@ -17,31 +19,82 @@ namespace DeviceManager.Entities
 
     public class Device
     {
+        private DataAccess _dataAccess;
+        private DeviceInfoDto _deviceInfoDto;
+        private TestCollationDto[] _testCollationDto;
+        private MeasureUnitDto[] _measureUnitDtos;
+        private EnumValueDto[] _enumValueDtos;
+        private AntibioticDto[] _antibioticDtos;
+        private BacteriumDto[] _bacteriumDtos;
+        private BiomaterialDto[] _biomaterialDtos;
+        private (Task task, CancellationTokenSource source) _trackTask;
+        private Task _taskForRestart;
+
         public ILogger Logger { get; set; }
         public DeviceConfiguration Configuration { get; set; }
+        public IParser Parser { get; set; }
         public AppDbContext DbContext { get; set; }
-        private DataAccess _dataAccess;
 
-        public async Task StartAsync(DataAccess dataAccess, IParser parser, CancellationToken token)
+        public TestCollationDto[] TestCollationDto => _testCollationDto.ToArray();
+
+        public Device(ILogger logger, DeviceConfiguration configuration, IParser parser, DataAccess dataAccess)
         {
-            parser.Encoding = Encoding.GetEncoding(Configuration.DriverConfiguration.Encoding);
-            Logger.Information($"Encoding:{parser.Encoding.BodyName}");
+            Configuration = configuration;
+            Logger = logger;
+            Parser = parser;
+            _dataAccess = dataAccess;
+        }
+
+        public async Task StartAsync()
+        {
+            if (Configuration.IsActive is false) return;
+            _taskForRestart ??= Run();
+            _deviceInfoDto = await _dataAccess.GetDeviceInfo(Configuration.DriverConfiguration.SystemName);
+            _testCollationDto = await _dataAccess.GetTestCollations(Configuration.DriverConfiguration.SystemName);
+            _measureUnitDtos = await _dataAccess.GetMeasureUnits(Configuration.DriverConfiguration.SystemName);
+            _enumValueDtos = await _dataAccess.GetEnumValues(Configuration.DriverConfiguration.SystemName);
+        }
+
+        private Task Init()
+        {
+            Parser.Encoding = Encoding.GetEncoding(Configuration.DriverConfiguration.Encoding);
+            Parser.Logger = Logger;
+            Logger.Information($"Encoding:{Parser.Encoding.BodyName}");
+            Logger.Information($"Parser.FullName:{Parser.GetType().FullName}");
+
+            var source = new CancellationTokenSource();
             
             Logger.Information($"ConnectionType:{Configuration.ConnectionConfiguration.ConnectionType}");
-            switch (Configuration.ConnectionConfiguration.ConnectionType)
+            _trackTask = Configuration.ConnectionConfiguration.ConnectionType switch
             {
-                case ConnectionTypes.Network:
-                    await ListenerNetwork(Configuration.ConnectionConfiguration.Network, parser, token);
-                    break;
-                case ConnectionTypes.Serial:
-                    await ListenerSerialPort(Configuration.ConnectionConfiguration.Serial, parser, token);
-                    break;
-                case ConnectionTypes.FileSystem:
-                    await ListenerFileSystem(Configuration.ConnectionConfiguration.FileSystem, parser, token);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                ConnectionTypes.Network => (ListenerNetwork(Configuration.ConnectionConfiguration.Network, Parser, source.Token), source),
+                ConnectionTypes.Serial => (ListenerSerialPort(Configuration.ConnectionConfiguration.Serial, Parser, source.Token), source),
+                ConnectionTypes.FileSystem => (ListenerFileSystem(Configuration.ConnectionConfiguration.FileSystem, Parser, source.Token), source),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            return Task.CompletedTask;
+        }
+
+        private async Task Run()
+        {
+            do
+            {
+                try
+                {
+                    await Init();
+                    await Task.WhenAny(_trackTask.task);
+                    Logger.Warning($"{Configuration.Name}:{_trackTask.task.Status}... {(_trackTask.task.Status == TaskStatus.Canceled ? "Stop." : "Restart!")}");
+                    if (_trackTask.task.Exception is { } testException)  Logger.Error(testException.Message);
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                }
+                catch (Exception exception)
+                {
+                    Logger.Error(exception.Message);
+                    Logger.Fatal(exception.StackTrace);
+                }
+            } while (_trackTask.source.IsCancellationRequested is false);
+
+            _taskForRestart = null;
         }
 
         private async Task ListenerNetwork(NetworkConnection connection, IParser parser, CancellationToken token)
@@ -81,17 +134,23 @@ namespace DeviceManager.Entities
                             if (samples != null)
                                 if (samples.Any(x => x.Results != null))
                                 {
-                                    await _dataAccess.SetDeviceResults(samples);
+                                    // foreach (var testResult in samples) testResult.DeviceId = Configuration.Id;
+                                    //
+                                    // DbContext.TestResults.AddRange(samples);
+                                    // await DbContext.SaveChangesAsync(token);
+                                    await SetDeviceResults(samples);
                                 }
                                 else
                                 {
                                     var directiveLines = await _dataAccess.GetDirectiveLinesByBarcodes(
-                                        samples.Select(x => x.SampleCode)
-                                               .ToArray());
+                                        Configuration.SystemName,
+                                        samples.Select(x => x.SampleCode).ToArray(),
+                                        false, //todo flag in configuration?
+                                        _deviceInfoDto.LpuId);
                                     parser.ParseOrder(directiveLines, out var order);
 
-                                    await client.SendAsync(send, SocketFlags.None, token);
-                                    Logger.Debug($"network send: {string.Join(", ", send.Select(x => $"{x:X2}"))}");
+                                    await client.SendAsync(order, SocketFlags.None, token);
+                                    Logger.Debug($"network send: {string.Join(", ", order.Select(x => $"{x:X2}"))}");
                                 }
                         }
                         catch (Exception exception)
@@ -138,16 +197,23 @@ namespace DeviceManager.Entities
                             if (samples != null)
                                 if (samples.Any(x => x.Results != null))
                                 {
-                                    await _dataAccess.SetDeviceResults(samples);
+                                    // foreach (var testResult in samples) testResult.DeviceId = Configuration.Id;
+                                    //
+                                    // DbContext.TestResults.AddRange(samples);
+                                    // await DbContext.SaveChangesAsync(token);
+                                    // await SetDeviceResults(samples);
                                 }
                                 else
                                 {
                                     var directiveLines = await _dataAccess.GetDirectiveLinesByBarcodes(
-                                        samples.Select(x => x.SampleCode)
-                                               .ToArray());
+                                        Configuration.SystemName,
+                                        samples.Select(x => x.SampleCode).ToArray(),
+                                        false, //todo flag in configuration?
+                                        _deviceInfoDto.LpuId);
                                     parser.ParseOrder(directiveLines, out var order);
 
-                                    await client.SendAsync(send, SocketFlags.None, token);
+                                    await client.SendAsync(order, SocketFlags.None, token);
+                                    Logger.Debug($"network send: {string.Join(", ", order.Select(x => $"{x:X2}"))}");
                                 }
                         }
                         catch (Exception exception)
@@ -167,53 +233,70 @@ namespace DeviceManager.Entities
         private async Task ListenerSerialPort(SerialConnection connection, IParser parser, CancellationToken token)
         {
             var serial = new SerialPort($"{connection.PortName}");
-            serial.Open();
-            Logger.Information($"serial {connection.PortName} open!");
 
+            Logger.Debug($"serial {connection.PortName} open...");
+            serial.Open();
+            Logger.Debug($"serial {connection.PortName} opened.");
+            // token.Register(() =>
+            // {
+            //     Logger.Warning($"serial {connection.PortName} close...");
+            //     serial.Close();
+            //     Logger.Warning($"serial {connection.PortName} closed!");
+            // });
+            var count = 0;
             var buffer = new byte[2048];
             while (token.IsCancellationRequested is false)
             {
                 try
                 {
-                    var count = await serial.BaseStream.ReadAsync(buffer, token);
+                    // await Task.Factory.StartNew(() => { count = serial.BaseStream.Read(buffer); }, token);
+                    await Task.Run(() => { count = serial.BaseStream.Read(buffer); }, token);
+                    // var count = await serial.BaseStream.ReadAsync(buffer, token);
                     var bytes = buffer.Take(count).ToArray();
                     Logger.Debug($"serial {connection.PortName} receive: {string.Join(", ", bytes.Select(x => $"{x:X2}"))}");
 
-                    parser.Parse(bytes, out var samples, out var send);
+                    Parser.Parse(bytes, out var samples, out var send);
                     if (send != null)
                     {
                         await serial.BaseStream.WriteAsync(send, token);
                         Logger.Debug($"serial {connection.PortName} send: {string.Join(", ", send.Select(x => $"{x:X2}"))}");
                     }
 
-                    if (samples != null)
-                        if (samples.Any(x => x.Results != null))
-                        {
-                            foreach (var testResult in samples) testResult.DeviceId = Configuration.Id;
+                    if (samples == null) continue;
 
-                            DbContext.TestResults.AddRange(samples);
-                            await DbContext.SaveChangesAsync(token);
-                            await _dataAccess.SetDeviceResults(samples);
-                        }
-                        else
-                        {
-                            var directiveLines = await _dataAccess.GetDirectiveLinesByBarcodes(
-                                samples.Select(x => x.SampleCode)
-                                       .ToArray());
-                            parser.ParseOrder(directiveLines, out var order);
+                    if (samples.Any(x => x.Results != null))
+                    {
+                        // foreach (var testResult in samples)
+                        // {
+                        //     testResult.DeviceId = Configuration.Id;
+                        // }
+                        //
+                        // DbContext.TestResults.AddRange(samples);
+                        // await DbContext.SaveChangesAsync(token);
+                        await SetDeviceResults(samples);
+                    }
+                    else
+                    {
+                        var directiveLines = await _dataAccess.GetDirectiveLinesByBarcodes(
+                            Configuration.SystemName,
+                            samples.Select(x => x.SampleCode).ToArray(),
+                            false, //todo flag in configuration?
+                            _deviceInfoDto.LpuId);
+                        Parser.ParseOrder(directiveLines, out var order);
 
-                            await serial.BaseStream.WriteAsync(order, token);
-                            Logger.Debug($"serial {connection.PortName} send: {string.Join(", ", send.Select(x => $"{x:X2}"))}");
-                        }
+                        await serial.BaseStream.WriteAsync(order, token);
+                        Logger.Debug($"serial {connection.PortName} send: {string.Join(", ", order.Select(x => $"{x:X2}"))}");
+                    }
                 }
                 catch (Exception exception)
                 {
                     Logger.Error(exception.Message);
+                    Logger.Fatal(exception.StackTrace);
                     await Task.Delay(TimeSpan.FromSeconds(1), token);
+                    serial.Close();
+                    Logger.Debug($"serial {connection.PortName} closed.");
                 }
             }
-            serial.Close();
-            Logger.Warning($"serial {connection.PortName} close!");
         }
 
         private async Task ListenerFileSystem(FileSystemConnection connection, IParser parser, CancellationToken token)
@@ -241,16 +324,23 @@ namespace DeviceManager.Entities
                             if (samples != null)
                                 if (samples.Any(x => x.Results != null))
                                 {
-                                    await _dataAccess.SetDeviceResults(samples);
+                                    // foreach (var testResult in samples) testResult.DeviceId = Configuration.Id;
+                                    //
+                                    // DbContext.TestResults.AddRange(samples);
+                                    // await DbContext.SaveChangesAsync(token);
+                                    // await SetDeviceResults(samples);
                                 }
                                 else
                                 {
                                     var directiveLines = await _dataAccess.GetDirectiveLinesByBarcodes(
-                                        samples.Select(x => x.SampleCode)
-                                               .ToArray());
+                                        Configuration.SystemName,
+                                        samples.Select(x => x.SampleCode).ToArray(),
+                                        false, //todo flag in configuration?
+                                        _deviceInfoDto.LpuId);
                                     parser.ParseOrder(directiveLines, out var order);
 
-                                    await File.WriteAllBytesAsync(connection.FolderToWrite, send, token);
+                                    await File.WriteAllBytesAsync(connection.FolderToWrite, order, token);
+                                    Logger.Debug($"filesystem send: {string.Join(", ", order.Select(x => $"{x:X2}"))}");
                                 }
                         }
                         catch (Exception exception)
@@ -263,6 +353,161 @@ namespace DeviceManager.Entities
             }
         }
 
-        public async Task StopAsync(CancellationToken token) { }
+        private async Task SetDeviceResults(TestResult[] results)
+        {
+            var resultsToErrors = new List<TestResult>();
+
+            foreach (var testResults in results)
+            {
+                var testsForSaveToSend = testResults.Results
+                                                    .Where(x =>
+                                                        _testCollationDto.Select(y => y.Code)
+                                                                         .Contains(x.TestCode))
+                                                    .ToArray();
+
+                var testForSaveToErrors = testResults.Results
+                                             .Except(testsForSaveToSend)
+                                             .ToArray();
+
+                if (testForSaveToErrors.Length > 0)
+                {
+                    var testResultsForErrors = new TestResult()
+                    {
+                        SampleCode = testResults.SampleCode,
+                        Results = testForSaveToErrors
+                    };
+                    resultsToErrors.Add(testResultsForErrors);
+                }
+
+                if (testsForSaveToSend.Length > 0)
+                {
+                    var deviceOrderDtos = await GetDirectiveLinesByBarcodes(new[] { testResults.SampleCode });
+
+                    foreach (var result in testsForSaveToSend)
+                    {
+                        Logger.Information($"{DateTime.Now}\t" +
+                                           $"result.TestCode:{result.TestCode}\t" +
+                                           $"result.MuCode:{result.MuCode}");
+
+                        var testCollation = _testCollationDto.SingleOrDefault(x => x.Code == result.TestCode)
+                                                             ?.SystemEntityId;
+                        var measureUnit = _measureUnitDtos.SingleOrDefault(x => x._code == result.MuCode)
+                                                          ?._systemEntityId;
+
+                        if (string.IsNullOrEmpty(testCollation) is false
+                            &&
+                            string.IsNullOrEmpty(measureUnit) is false)
+                        {
+                            foreach (var deviceOrderDto in deviceOrderDtos)
+                            {
+                                var directiveLines = new List<DirectiveLine>();
+
+                                // var testsAfterSave = results.SelectMany(x => deviceOrderDto._directionLines)
+                                //                             .ToArray();
+
+                                foreach (var directionLine in deviceOrderDto._directionLines)
+                                {
+                                    if (directionLine._requestedbarcode == testResults.SampleCode)
+                                    {
+                                        foreach (var testDTO in directionLine._testDTOs)
+                                        {
+                                            Logger.Information($"deviceOrderDto.id:{deviceOrderDto._id}\t" +
+                                                               $"|directionLine.id:{directionLine._id}\t" +
+                                                               $"|test.id:{testDTO._testId}\t" +
+                                                               $"|test.muId:{testDTO._muId}\t" +
+                                                               $"|testCollation:{testCollation}\t" +
+                                                               $"|measureUnit:{measureUnit}");
+                                            if (testDTO._testId == testCollation
+                                                &&
+                                                testDTO._muId == measureUnit)
+                                            {
+                                                testDTO._value = result.Value;
+                                                Logger.Information($"Save testCollation:{testCollation}\t" +
+                                                              $"|value {testDTO._value}\t" +
+                                                              $"|measureUnit:{measureUnit}");
+
+                                                directiveLines.Add(new DirectiveLine()
+                                                {
+                                                    Id = directionLine._id,
+                                                    CreatorSharedId = directionLine._creatorsharedid,
+                                                    ResearchResults = new[]
+                                                    {
+                                                    new ResearchResult()
+                                                    {
+                                                        ResultTypeData = testDTO._resultTypeData,
+                                                        TestId = testDTO._testId,
+                                                        Value = testDTO._value,
+                                                        MUId = testDTO._muId
+                                                    }
+                                                }
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (directiveLines.Count > 0)
+                                {
+                                    var saveDeviceResults = new SaveDeviceResultsRequest()
+                                    {
+                                        DirectiveLines = directiveLines.ToArray(),
+                                        DeviceSystemName = _deviceInfoDto.SystemName
+                                    };
+
+                                    var directionLines = _dataAccess.SaveDeviceResults(saveDeviceResults);
+
+                                    // SaveToErrors()
+                                    // foreach (var directionLine in directionLines)
+                                    // {
+                                    //     foreach (var directionLineTest in directionLine._tests)
+                                    //     {
+                                    //         testsAfterSave.Remove(directionLineTest);
+                                    //     }
+                                    // }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (resultsToErrors.Count > 0)
+            {
+                Logger.Warning("Save To Errors");
+            }
+        }
+
+        public async Task<DeviceOrderDTO[]> GetDirectiveLinesByBarcodes(string[] barcodes)
+        {
+            var deviceOrderDtos = await _dataAccess.GetDirectiveLinesByBarcodes(
+                _deviceInfoDto.SystemName,
+                barcodes,
+                false,
+                _deviceInfoDto.LpuId);
+            Logger.Information($"Получено {deviceOrderDtos.Length} Device Orders для Barcodes=\"{string.Join(", ", barcodes)}\"");
+
+            foreach (var orderDto in deviceOrderDtos)
+            {
+                var tests = orderDto._directionLines.SelectMany(y =>
+                                        y._testDTOs.Select(z => z._testId))
+                                    .Distinct()
+                                    .Intersect(_testCollationDto.Select(x => x.SystemEntityId))
+                                    .ToArray();
+
+                Logger.Information($"Сопоставлено {tests.Length} показателя для Barcode=\"{orderDto._directionLines.First()._samplebarcode}\"");
+                foreach (var test in tests)
+                {
+                    Logger.Information($"Сопоставлено ID=\"{test}\" для Barcode=\"{orderDto._directionLines.First()._samplebarcode}\"");
+                }
+            }
+            return deviceOrderDtos;
+        }
+
+        public async Task StopAsync(CancellationToken token)
+        {
+            _trackTask.source.Cancel();
+            await Task.WhenAny(_trackTask.task, Task.Delay(TimeSpan.FromSeconds(5), token));
+            _trackTask.source.Dispose();
+        }
     }
 }

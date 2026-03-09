@@ -970,13 +970,13 @@
                     <div class="nav nav-tabs" id="device.hardware.type" role="tablist">
                         <button class="nav-link active col-sm-4" id="device.hardware.type-1-tab" data-bs-toggle="tab"
                             data-bs-target="#device.hardware.type-1" type="button" role="tab" aria-controls="device.hardware.type-1"
-                            aria-selected="true" value="0">Сетевой</button>
+                            aria-selected="true" value="Network">Сетевой</button>
                         <button class="nav-link col-sm-4" id="device.hardware.type-2-tab" data-bs-toggle="tab"
                             data-bs-target="#device.hardware.type-2" type="button" role="tab" aria-controls="device.hardware.type-2"
-                            aria-selected="false" value="1">Серийный</button>
+                            aria-selected="false" value="Serial">Серийный</button>
                         <button class="nav-link col-sm-4" id="device.hardware.type-3-tab" data-bs-toggle="tab"
                             data-bs-target="#device.hardware.type-3" type="button" role="tab" aria-controls="device.hardware.type-3"
-                            aria-selected="false" value="2">Файловый</button>
+                            aria-selected="false" value="FileSystem">Файловый</button>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -986,8 +986,8 @@
                             <div class="col-sm-2">
                                 <label class="form-label">Режим</label>
                                 <select id="device.hardware.mode" class="form-select" required="" onchange="selectHardware()">
-                                    <option id="device.hardware.mode-1" type="button" value="device.hardware.mode-1">Сервер</option>
-                                    <option id="device.hardware.mode-2" type="button" value="device.hardware.mode-2">Клиент</option>
+                                    <option id="device.hardware.mode-1" type="button" value="Server">Сервер</option>
+                                    <option id="device.hardware.mode-2" type="button" value="Client">Клиент</option>
                                 </select>
                             </div>
                             <div class="col-sm-10"></div>
@@ -999,7 +999,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <label class="form-label">Порт</label>
-                                <input id="device.hardware.port" type="text" class="form-control" value="5000" />
+                                <input id="device.hardware.port" type="text" class="form-control" value="5050" />
                             </div>
                             <div class="col-sm-6">
                             </div>
@@ -1019,44 +1019,44 @@
                             </div>
                             <div class="col-sm-4">
                                 <label class="form-label">Скорость данных</label>
-                                <select id="device.serial.baundrate" class="form-select" required="">
-                                    <option>1200</option>
-                                    <option>2400</option>
-                                    <option>4800</option>
-                                    <option selected>9600</option>
-                                    <option>19200</option>
-                                    <option>38400</option>
-                                    <option>57600</option>
-                                    <option>115200</option>
+                                <select id="device.serial.baudrate" class="form-select" required="">
+                                    <option value="1200">1200</option>
+                                    <option value="2400">2400</option>
+                                    <option value="4800">4800</option>
+                                    <option selected value="9600">9600</option>
+                                    <option value="19200">19200</option>
+                                    <option value="38400">38400</option>
+                                    <option value="57600">57600</option>
+                                    <option value="115200">115200</option>
                                 </select>
                             </div>
                             <div class="col-sm-4"><label class="form-label">Длина бит</label>
-                                <select id="device.serial.databits" class="form-select" required="">
-                                    <option>5</option>
-                                    <option>6</option>
-                                    <option>7</option>
-                                    <option selected>8</option>
-                                    <option>9</option>
+                                <select id="device.serial.dataBits" class="form-select" required="">
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option selected value="8">8</option>
+                                    <option value="9">9</option>
                                 </select>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-sm-4"><label class="form-label">Количество
                                     стоповых бит</label>
-                                <select id="device.serial.stopbits" class="form-select" required="">
-                                    <option>None</option>
-                                    <option selected>One</option>
-                                    <option>Two</option>
-                                    <option>OnePointFive</option>
+                                <select id="device.serial.stopBits" class="form-select" required="">
+                                    <option value="None">None</option>
+                                    <option selected value="One">One</option>
+                                    <option value="Two">Two</option>
+                                    <option value="OnePointFive">OnePointFive</option>
                                 </select>
                             </div>
                             <div class="col-sm-4"><label class="form-label">Четность</label>
                                 <select id="device.serial.parity" class="form-select" required="">
-                                    <option selected>None</option>
-                                    <option>Odd</option>
-                                    <option>Even</option>
-                                    <option>Mark</option>
-                                    <option>Space</option>
+                                    <option selected value="None">None</option>
+                                    <option value="Odd">Odd</option>
+                                    <option value="Even">Even</option>
+                                    <option value="Mark">Mark</option>
+                                    <option value="Space">Space</option>
                                 </select>
                             </div>
                             <div class="col-sm-2">
@@ -1149,9 +1149,9 @@
             encoding: ""
         },
         connectionConfiguration: {
-            connectionType: 0,
+            connectionType: "",
             network: {
-                mode: 0,
+                mode: "",
                 host: "",
                 port: 0
             },
@@ -1159,8 +1159,8 @@
                 portName: "",
                 baudRate: 0,
                 dataBits: 0,
-                stopBits: 0,
-                parity: 0,
+                stopBits: "",
+                parity: "",
             },
             fileSystem: {
                 folderToRead: "",
@@ -1215,6 +1215,49 @@
     let deviceManagerEvent = deviceManagerEventDefault;
     let deviceManagerEvents = [ deviceManagerEventDefault ];
 
+    const deviceTestCollationDefault = {
+        code: "",
+        deviceId: "",
+        systemEntityId: "",
+        driverSystemName: "",
+        devicesystemname: ""
+    };
+    let deviceTestCollation = deviceTestCollationDefault;
+    let deviceTestCollations = [ deviceTestCollationDefault ];
+
+    async function getDevice() {
+        let driverWorkMode;
+        Array.from(document.getElementsByClassName('device.driver.type-workmode')).forEach(element => {if (element.checked) {driverWorkMode = element.value;}});
+
+        let deviceDriverOptions = [ ];
+        Array.from(document.getElementsByClassName('device.driver.option')).forEach(element => { if (element.checked) deviceDriverOptions.push(element.value)});
+
+        let id = device.id;
+        device = deviceDefault;
+        device.id = id;
+        device.name = document.getElementById('device.name').value;
+        device.systemName = document.getElementById('device.systemName').value;
+        device.driverConfiguration.driver.parser = document.getElementById('device.driver.name').value;
+        device.driverConfiguration.driver.fileName = drivers.find(x => x.parser == device.driverConfiguration.driver.parser).fileName;
+        device.driverConfiguration.systemName = document.getElementById('device.driver.systemName').value;
+        Array.from(document.getElementById('device.driver.encoding').children).forEach(element => {if (element.selected) {device.driverConfiguration.encoding = element.value;}});
+        device.driverConfiguration.workMode = driverWorkMode;
+        device.driverConfiguration.options = deviceDriverOptions;
+
+        Array.from(document.getElementById('device.hardware.type').children).forEach(child => {if (child.className.indexOf("active") > -1) device.connectionConfiguration.connectionType = child.value;});
+        
+        device.connectionConfiguration.serial.portName = document.getElementById('device.serial.portname').value;
+        Array.from(document.getElementById('device.serial.baudrate')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.baudRate = Number(element.value);}});
+        Array.from(document.getElementById('device.serial.dataBits')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.dataBits = Number(element.value);}});
+        Array.from(document.getElementById('device.serial.parity')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.parity = element.innerText;}});
+        Array.from(document.getElementById('device.serial.stopBits')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.stopBits = element.innerText;}});
+        
+        Array.from(document.getElementById('device.hardware.mode')).forEach(element => {if (element.selected) {device.connectionConfiguration.network.mode = element.value;}});
+        device.connectionConfiguration.network.host = document.getElementById('device.hardware.address').value;
+        device.connectionConfiguration.network.port = document.getElementById('device.hardware.port').value;
+        console.debug("device", device);
+    }
+
     async function showListDevices() {
         let table = document.getElementById('table-devices');
         Array.from(table.children).forEach((element) => { element.remove(); });
@@ -1241,61 +1284,25 @@
         }
     }
     
-    async function showDevice(id){
+    async function showDevice(id) {
         device = devices.find(device => device.id === id);
         console.warn("showDevice:", device);
+        await getDeviceTestCollations(id);
         chargePanel('device');
     }
      
     async function createNewDevice() {
         console.debug('createNewDevice');
-        let deviceName = document.getElementById('device.name').value;
-        let deviceSystemName = document.getElementById('device.systemName').value;
+        
+        await getDevice();
 
-        let driverName = document.getElementById('device.driver.name').value;
-        let driverSystemName = document.getElementById('device.driver.systemName').value;
-
-        let deviceEncoding = document.getElementById('device.driver.encoding').value;
-
-        let driverWorkMode;
-        Array.from(
-            document.getElementsByClassName('device.driver.type-workmode')
-        ).forEach(element => {
-            if (element.checked) {
-                driverWorkMode = element.value;}});
-
-        let deviceDriverOptions = [ ];
-        Array.from(
-            document.getElementsByClassName('device.driver.option')
-        ).forEach(element => { 
-            if (element.checked) deviceDriverOptions.push(element.value)});
-
-        device = deviceDefault;
-        device.name = deviceName;
-        device.systemName = deviceSystemName;
-        device.driverConfiguration.driver.parser = driverName;
-        device.driverConfiguration.systemName = driverSystemName;
-        device.driverConfiguration.encoding = deviceEncoding;
-        device.driverConfiguration.workMode = driverWorkMode;
-        device.driverConfiguration.options = deviceDriverOptions;
-
-        Array.from(
-            document.getElementById('device.hardware.type').children
-        ).forEach(
-            child => {
-                if (child.className.indexOf("active") > -1) 
-                    device.connectionConfiguration.connectionType = Number(child.value);
-            }
-        );
-
-        console.debug("device", device);
         try {
             let request = {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(device)
             };
-            let response = await fetch(ipAPI + '/devices/', request);
+            let response = await fetch(`${ipAPI}/devices`, request);
             deviceManagerEvent = await response.json();
             
             showToast("Создано устройство.", deviceManagerEvent.description, deviceManagerEvent.dateTime);
@@ -1308,37 +1315,16 @@
     
     async function updateDevice() {
         console.warn('updateDevice');
-        let deviceName = document.getElementById('device.name').value;
-        let deviceSystemName = document.getElementById('device.systemName').value;
-
-        let driverName = document.getElementById('device.driver.name').value;
-        let driverSystemName = document.getElementById('device.driver.systemName').value;
-
-        let deviceEncoding = document.getElementById('device.driver.encoding').value;
-
-        let driverWorkMode;
-        Array.from(document.getElementsByClassName('form-check-input')).forEach(element => {
-            if (element.name === 'type-workmode') {
-                if (element.checked) {
-                    driverWorkMode = element.value;
-                }
-            }
-        });
-
-        device.name = deviceName;
-        device.systemName = deviceSystemName;
-        device.driverConfiguration.driver.fileName = driverName;
-        device.driverConfiguration.systemName = driverSystemName;
-        device.driverConfiguration.encoding = deviceEncoding;
-        device.driverConfiguration.workMode = driverWorkMode;
-
+        
+        getDevice();
+        
         try {
             let request = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(device)
             }
-            let response = await fetch(ipAPI + '/devices/' + device.id, request);
+            let response = await fetch(`${ipAPI}/devices/${device.id}`, request);
 
             console.warn("W:", response);
             chargePanel('devices');
@@ -1377,9 +1363,9 @@
                 element.innerHTML = `
                         <td>${driver.fileName}</td>
                         <td>${driver.parser}</td>
-                        <td>empty</td>
-                        <td>empty</td>
-                        <td>empty</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
                 `;
                 table.appendChild(element);
             });
@@ -1388,7 +1374,7 @@
         }
     }
 
-    async function showDriver(fileName){
+    async function showDriver(fileName) {
         driver = drivers.find(driver => driver.fileName === fileName);
         console.warn("showDriver:", driver);
         chargePanel('driver');
@@ -1396,24 +1382,21 @@
 
     async function uploadDriver() {
         let input = document.querySelector('#inputGroupFile');
-        console.warn("W:input", input);
         let file = input.files[0];
-        console.warn("W:file", file);
         let formData = new FormData();
         formData.append('uploadedFile', file);
         
-        console.warn("W:formData", formData);
         try {
-            let request = {
-                method: 'POST',
-                body: formData
-            }
-            let response = await fetch(ipAPI + '/drivers/', request);
+            let request = { method: 'POST', body: formData };
+            let response = await fetch(`${ipAPI}/drivers`, request);
 
-            console.warn("W:", response);
+            deviceManagerEvent = await response.json();
+
+            showToast("Загружен драйвер", deviceManagerEvent.description, deviceManagerEvent.dateTime);
         } catch (error) {
             console.error("E:", error);
         }
+        await chargePanel('drivers');
     }
 
     async function showStatusDevices() {
@@ -1514,8 +1497,7 @@
         );
 
         try {
-            let response = await fetch(ipAPI + '/drivers/');
-            
+            let response = await fetch(`${ipAPI}/drivers`);
             drivers = await response.json();
             console.debug("drivers:", drivers);
             console.debug("device:", device);
@@ -1525,7 +1507,7 @@
                 element.innerHTML = `${driver.parser}`;
                 element.value = driver.parser;
                 if (device !== null) 
-                    if (device.driverConfiguration.name === driver.parser)
+                    if (device.driverConfiguration.driver.parser === driver.parser)
                         element.selected = true;
                 document.getElementById('device.driver.name').appendChild(element);
             });
@@ -1686,14 +1668,14 @@
         document.getElementById('devicemanager.settings.islogrequest').checked = settings.isLogRequest;
     }
 
-    async function selectHardware(){
+    async function selectHardware() {
         console.debug("selectHardware");
         element = document.getElementById('device.hardware.address');
 
         element.disabled = document.getElementById('device.hardware.mode-1').selected;
     }
 
-    async function showToast(header, body, dateTime){
+    async function showToast(header, body, dateTime) {
         document.getElementById('toast-header').innerText = header;
         document.getElementById('toast-body').innerText = body;
         document.getElementById('toast-date-time').innerText = dateTime;
@@ -1774,6 +1756,27 @@
                                         <td>${deviceResult.result.testCode}</td>
                                         <td>${deviceResult.result.value}</td>
                                         <td>${deviceResult.result.muCode}</td>`;
+                table.appendChild(element);
+            });
+        } catch (error) {
+            console.error("Ошибка:", error);
+        }
+    }
+    
+    async function getDeviceTestCollations(id) {
+        let table = document.getElementById('table-device.comparisons-7');
+        Array.from(table.children).forEach((element) => { element.remove(); });
+
+        try {
+            let response = await fetch(`${ipAPI}/devices/${device.id}/comparisons/test-collations`);
+            deviceTestCollations = await response.json();
+            
+            deviceTestCollations.forEach(deviceTestCollation => {
+                let element = document.createElement("tr");
+                element.className = "table-light";
+                element.innerHTML =    `<td>${deviceTestCollation.systemEntityId}</td>
+                                        <td>${deviceTestCollation.code}</td>
+                                        <td>-</td>`;
                 table.appendChild(element);
             });
         } catch (error) {

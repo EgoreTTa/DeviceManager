@@ -13,7 +13,7 @@
     public class DeviceManagerController : ControllerBase
     {
         private readonly IDeviceManager _service;
-        
+
         public DeviceManagerController(IDeviceManager service) => _service = service;
 
         [HttpPost(nameof(UploadDriver))]
@@ -91,11 +91,11 @@
         {
             return await _service.GetEvents();
         }
- 
+
         [HttpPut(nameof(UpdateSettings))]
         public async Task<DeviceManagerEvent> UpdateSettings(DeviceManagerConfiguration formDeviceManagerSettings)
         {
-            return await _service.UpdateSettings(formDeviceManagerSettings); 
+            return await _service.UpdateSettings(formDeviceManagerSettings);
         }
     }
 }
