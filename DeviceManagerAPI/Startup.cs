@@ -1,7 +1,5 @@
 namespace DeviceManagerAPI
 {
-    using Controllers.Devices.Services;
-    using Controllers.Drivers.Services;
     using DeviceManager;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -13,12 +11,10 @@ namespace DeviceManagerAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
 
             services.AddHostedService<DeviceManagerService>();
 
-            services.AddSingleton<IDriversControllerService, DriversControllerService>();
-            services.AddSingleton<IDevicesControllerService, DevicesControllerService>();
             services.AddSingleton<IDeviceManager, DeviceManager>();
         }
 

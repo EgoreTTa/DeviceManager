@@ -1,5 +1,3 @@
-using DataAccess.DTOs;
-
 namespace DeviceManager
 {
     using Configurations;
@@ -8,6 +6,7 @@ namespace DeviceManager
     using Entities;
     using System.Threading;
     using System.Threading.Tasks;
+    using DataAccess.DTOs;
 
     public interface IDeviceManager
     {
@@ -22,7 +21,9 @@ namespace DeviceManager
         public Task<DeviceManagerEvent> UpdateDevice(int id, DeviceConfiguration device, CancellationToken token = default);
         public Task<DeviceManagerConfiguration> GetSettings();
         public Task<DeviceManagerEvent> UpdateSettings(DeviceManagerConfiguration formDeviceManagerSettings);
-        public Task<DeviceManagerEvent> FlipActive(int id, CancellationToken token);
+        public Task<DeviceManagerEvent> FlipActive(int id, CancellationToken token = default);
         public Task<TestResult[]> GetTestResultsByDeviceId(int id);
+        public Task<TestCollationDto[]> GetTestCollationsByDeviceId(int id);
+        public Task<DeviceManagerEvent> LoadDriver(string nameDriver);
     }
 }

@@ -1,12 +1,11 @@
-﻿using DataAccess.DTOs;
-
-namespace DeviceManagerAPI.Controllers.Devices
+﻿namespace DeviceManagerAPI.Controllers.Devices
 {
+    using DataAccess.DTOs;
     using Forms;
+    using global::DeviceManager;
     using global::DeviceManager.Configurations.Device;
     using global::DeviceManager.Entities;
     using Microsoft.AspNetCore.Mvc;
-    using Services;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -15,65 +14,38 @@ namespace DeviceManagerAPI.Controllers.Devices
     [Route("[controller]/")]
     public class DevicesController : ControllerBase
     {
-        private readonly IDevicesControllerService _devicesControllerService;
+        private readonly IDeviceManager _service;
 
-        public DevicesController(IDevicesControllerService devicesControllerService)
-        {
-            _devicesControllerService = devicesControllerService;
-        }
+        public DevicesController(IDeviceManager service) => _service = service;
 
         [HttpGet]
-        public async Task<DeviceConfiguration[]> GetAll()
-        {
-            return await _devicesControllerService.GetDevices();
-        }
+        public async Task<DeviceConfiguration[]> GetAll() => await _service.GetDevices();
 
         [HttpGet("{id}")]
-        public async Task<DeviceConfiguration> GetById(int id)
-        {
-            return await _devicesControllerService.GetDevice(id);
-        }
+        public async Task<DeviceConfiguration> GetById(int id) => await _service.GetDevice(id);
 
         [HttpPut]
-        public async Task<DeviceManagerEvent> Create(DeviceConfiguration device)
-        {
-            return await _devicesControllerService.AddDevice(device);
-        }
+        public async Task<DeviceManagerEvent> Create(DeviceConfiguration device) => await _service.AddDevice(device);
 
         [HttpPost("{id}")]
-        public async Task<DeviceManagerEvent> Update(int id, DeviceConfiguration device)
-        {
-            return await _devicesControllerService.UpdateDevice(id, device);
-        }
+        public async Task<DeviceManagerEvent> Update(int id, DeviceConfiguration device) => await _service.UpdateDevice(id, device);
 
         [HttpDelete("{id}")]
-        public async Task<DeviceManagerEvent> Delete(int id)
-        {
-            return await _devicesControllerService.RemoveDevice(id);
-        }
+        public async Task<DeviceManagerEvent> Delete(int id) => await _service.RemoveDevice(id);
 
         [HttpPut("{id}/flipactive/")]
-        public async Task<DeviceManagerEvent> FlipActive(int id)
-        {
-            return await _devicesControllerService.FlipActive(id);
-        }
+        public async Task<DeviceManagerEvent> FlipActive(int id) => await _service.FlipActive(id);
 
-        [HttpGet("{id}/getcomparisons/")]
-        public IActionResult GetComparisons(int id)
-        {
-            return StatusCode(200);
-        }
+        [HttpGet("{id}/comparisons/test-collations")]
+        public async Task<TestCollationDto[]> GetTestCollations(int id) => await _service.GetTestCollationsByDeviceId(id);
 
-        [HttpGet("{id}/testresults/")]
-        public async Task<TestResult[]> GetTestResults(int id)
-        {
-            return await _devicesControllerService.GetTestResultsByDeviceId(id);
-        }
+        [HttpGet("{id}/test-results/")]
+        public async Task<TestResult[]> GetTestResults(int id) => await _service.GetTestResultsByDeviceId(id);
 
         [HttpGet("status/")]
         public async Task<FormStatus[]> Status()
         {
-             var devices = await _devicesControllerService.GetDevices();
+             var devices = await _service.GetDevices();
 
              var devicesStatus = new List<FormStatus>();
              foreach (var device in devices)

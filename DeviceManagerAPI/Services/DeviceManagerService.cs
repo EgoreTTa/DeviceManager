@@ -7,16 +7,10 @@ namespace DeviceManagerAPI.Services
 
     public sealed class DeviceManagerService : BackgroundService
     {
-        private readonly IDeviceManager _useService;
+        private readonly IDeviceManager _service;
 
-        public DeviceManagerService(IDeviceManager useService)
-        {
-            _useService = useService;
-        }
+        public DeviceManagerService(IDeviceManager service) => _service = service;
 
-        protected override async Task ExecuteAsync(CancellationToken token)
-        {
-            await _useService.StartAsync(token);
-        }
+        protected override Task ExecuteAsync(CancellationToken token) => _service.StartAsync(token);
     }
 }

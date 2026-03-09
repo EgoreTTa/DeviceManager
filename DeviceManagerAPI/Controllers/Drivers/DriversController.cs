@@ -1,9 +1,10 @@
 ﻿namespace DeviceManagerAPI.Controllers.Drivers
 {
+    using global::DeviceManager;
     using global::DeviceManager.Configurations.Device.Driver;
+    using global::DeviceManager.Entities;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Services;
     using System;
     using System.IO;
     using System.Threading.Tasks;
@@ -12,29 +13,26 @@
     [Route("[controller]/")]
     public class DriversController : ControllerBase
     {
-        private readonly IDriversControllerService _service;
+        private readonly IDeviceManager _service;
 
-        public DriversController(IDriversControllerService driversControllerService) => _service = driversControllerService;
+        public DriversController(IDeviceManager service) => _service = service;
 
         [HttpGet]
         public async Task<Driver[]> GetAll() => await _service.GetDrivers();
 
         [HttpPost]
-        public async Task<IActionResult> UploadDriver(IFormFile uploadedFile)
+        public async Task<DeviceManagerEvent> UploadDriver(IFormFile uploadedFile)
         {
-            if (uploadedFile != null)
+            await using (var stream = System.IO.File.Create(Path.Combine(Directory.GetCurrentDirectory(), "Drivers", uploadedFile.FileName)))
             {
-                await using var stream = System.IO.File.Create($"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}" +
-                                                               $"DriversTest{Path.DirectorySeparatorChar}" +
-                                                               $"{uploadedFile.FileName}");
                 await uploadedFile.CopyToAsync(stream);
             }
 
-            return StatusCode(200);
+            return await _service.LoadDriver(uploadedFile.FileName);
         }
 
         [HttpGet("{name}")]
-        public FormDriver GetByName(string name)
+        public Task<IActionResult> GetByName(string name)
         {
             // return _service.Find(x => x.Name == name);
             throw new NotImplementedException();

@@ -1,25 +1,16 @@
 ﻿namespace DeviceManagerAPI.Controllers.Help
 {
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Win32;
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.IO.Ports;
     using System.Linq;
 
     [ApiController]
     [Route("[controller]/")]
     public class HelpController : ControllerBase
     {
-        private readonly ILogger<HelpController> _logger;
-
-        public HelpController(ILogger<HelpController> logger)
-        {
-            _logger = logger;
-        }
-
         [HttpGet(nameof(GetPorts))]
         public string[] GetPorts()
         {
@@ -49,22 +40,23 @@
                     break;
             }
 
-            return ports.Where(x =>
-                        {
-                            try
-                            {
-                                var serial = new SerialPort(x);
-                                serial.Open();
-                                serial.Close();
-                                return true;
-                            }
-                            catch (Exception exception)
-                            {
-                                return false;
-                            }
-                        })
-                        .OrderBy(x => x)
-                        .ToArray();
+            return ports.OrderBy(x => x).ToArray();
+            // ports.Where(x =>
+            //      {
+            //          try
+            //          {
+            //              var serial = new SerialPort(x);
+            //              serial.Open();
+            //              serial.Close();
+            //              return true;
+            //          }
+            //          catch (Exception exception)
+            //          {
+            //              return false;
+            //          }
+            //      })
+            //      .OrderBy(x => x)
+            //      .ToArray();
         }
 
         [HttpGet(nameof(GetOSPlatform))]
