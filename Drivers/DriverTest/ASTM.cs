@@ -1,13 +1,15 @@
 ﻿namespace DriverTest
 {
-    using DataAccess.DTOs;
+    using DataAccess.DTOs.LIS;
     using DriverBase;
+    using DriverBase.DTOs;
     using Serilog;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
 
     public sealed class ASTM : IParser
     {
@@ -17,21 +19,81 @@
         public ILogger Logger { get; set; }
         public Encoding Encoding { get; set; } = Encoding.ASCII;
 
+        public int IndexFieldForSample { get; set; } = 2;
+        public string IndexFieldForTestName { get; set; } = "2";
+        public int IndexFieldForMeasureUnit { get; set; } = 3;
+        public int IndexFieldForValue { get; set; } = 4;
+
         public void Clear()
         {
             Logger.Warning("Parser clear...");
             _messageForParse.Clear();
-            _messageForParse.Clear();
         }
 
-        public void Parse(byte[] bytes, out TestResult[] samples, out byte[] send)
+        public OptionDTO[] GetOptions()
+        {
+            return new[]
+            {
+                new OptionDTO()
+                {
+                    Name = nameof(IndexFieldForSample),
+                    Description = "Номер поля в O-Record для обработки номера образца",
+                    Value = IndexFieldForSample,
+                    Examples = new[] { "2", "3" },
+                },
+                new OptionDTO()
+                {
+                    Name = nameof(IndexFieldForTestName),
+                    Description = "Номер поля в R-Record для обработки имени теста",
+                    Value = IndexFieldForTestName,
+                    Examples = new[] { "2", "2.3", "2.4", "2.5" },
+                },
+                new OptionDTO()
+                {
+                    Name = nameof(IndexFieldForMeasureUnit),
+                    Description = "Номер поля в R-Record для обработки ед.изм. теста",
+                    Value = IndexFieldForMeasureUnit,
+                    Examples = new[] { "4" },
+                },
+                new OptionDTO()
+                {
+                    Name = nameof(IndexFieldForValue),
+                    Description = "Номер поля в R-Record для обработки результата теста",
+                    Value = IndexFieldForValue,
+                    Examples = new[] { "3", "10" },
+                },
+            };
+        }
+
+        public void SetOptions(OptionDTO[] options)
+        {
+            foreach (var option in options)
+            {
+                switch (option.Name)
+                {
+                    case nameof(IndexFieldForSample):
+                        IndexFieldForSample = int.Parse($"{option.Value}");
+                        break;
+                    case nameof(IndexFieldForTestName):
+                        IndexFieldForTestName = $"{option.Value}";
+                        break;
+                    case nameof(IndexFieldForMeasureUnit):
+                        IndexFieldForMeasureUnit = int.Parse($"{option.Value}");
+                        break;
+                    case nameof(IndexFieldForValue):
+                        IndexFieldForValue = int.Parse($"{option.Value}");
+                        break;
+                }
+            }
+        }
+
+        public Task<ParserMessage> WriteAsync(byte[] bytes)
         {
             var data = Encoding.GetString(bytes);
-            Logger.Debug($" <-:<{GetMessageForLogger(data)}>");
+            Logger.Debug($" <-:{GetMessageForLogger(data)}");
 
-            samples = null;
-            send = null;
-            var testResults = new List<TestResult>();
+            var message = new ParserMessage();
+            var testResults = new List<TestResultDTO>();
 
             switch (bytes.Last())
             {
@@ -40,12 +102,12 @@
                     break;
                 case 5:
                     Logger.Information($"<--:<ENQ>");
-                    send = new byte[] { 6 };
+                    message.ForConnect = new byte[] { 6 };
                     Logger.Information($"-->:<ACK>");
                     break;
                 case 6:
                     Logger.Information($"<--:<ACK>");
-                    send = new byte[] { 4 };
+                    message.ForConnect = new byte[] { 4 };
                     Logger.Information($"-->:<EOT>");
                     break;
                 default:
@@ -53,36 +115,44 @@
 
                     foreach (Match match in _messageRegex.Matches(_messageForParse.ToString()))
                     {
-                        Logger.Information($"<--:<{GetMessageForLogger(match.ToString())}>");
+                        Logger.Information($"<--:{GetMessageForLogger(match.ToString())}");
 
-                        send = new byte[] { 6 };
+                        message.ForConnect = new byte[] { 6 };
                         Logger.Information($"-->:<ACK>");
-                        
+
                         try
                         {
-                            testResults.Add(ParseMessage(match.ToString()));
+                            testResults.AddRange(ParseMessage(match.ToString()));
                         }
                         catch (Exception exception)
                         {
-                            Logger.Fatal(exception.Message);
+                            Logger.Error(exception.Message);
+                            Logger.Debug(exception.StackTrace);
                         }
 
                         _messageForParse.Replace(match.Value, string.Empty);
                     }
 
-                    if (testResults.Count > 0) 
-                        samples = testResults.ToArray();
+                    if (testResults.Count > 0)
+                        message.ForDeviceService = testResults.ToArray();
 
                     if (_messageForParse.Length > 0)
-                        Logger.Warning($"buffer for message:<{GetMessageForLogger(_messageForParse.ToString())}>");
+                        Logger.Warning($"buffer for message:{GetMessageForLogger(_messageForParse.ToString())}");
 
                     break;
             }
+
+            return Task.FromResult(message);
         }
 
-        public void ParseOrder(DeviceOrderDTO[] directiveLines, out byte[] send)
+        public Task<ParserMessage> ReadAsync()
         {
-            send = null;
+            throw new NotImplementedException();
+        }
+
+        public Task<ParserMessage> WriteAsync(DeviceOrderDTO[] orders)
+        {
+            throw new NotImplementedException();
         }
 
         private static string GetMessageForLogger(string message)
@@ -99,10 +169,10 @@
                           .Replace($"\x0D", "<CR>");
         }
 
-        private static TestResult ParseMessage(string message)
+        private TestResultDTO[] ParseMessage(string message)
         {
-            var testResult = new TestResult();
-            var results = new List<Result>();
+            var testResults = new List<TestResultDTO>();
+            var sampleCode = string.Empty;
 
             var records = message.Split('\r', StringSplitOptions.RemoveEmptyEntries);
 
@@ -110,16 +180,23 @@
             {
                 switch (record[0])
                 {
-                    case 'P':
-                        testResult.SampleCode = record.Split('|')[2];
+                    case 'O':
+                        sampleCode = record.Split('|')[IndexFieldForSample];
                         break;
                     case 'R':
                         var blocks = record.Split('|');
-                        var testCode = blocks[2];
-                        var value = blocks[3];
-                        var muCode = blocks[4];
-                        results.Add(new Result
+                        var indexesForTestName = IndexFieldForTestName.Split('.');
+                        var index = int.Parse(indexesForTestName.First());
+                        var testCode = indexesForTestName.Length == 1
+                            ? blocks[index]
+                            : blocks[index].Split('^')[int.Parse(indexesForTestName.Last())];
+                        
+                        var value = blocks[IndexFieldForMeasureUnit];
+                        var muCode = blocks[IndexFieldForValue];
+
+                        testResults.Add(new TestResultDTO
                         {
+                            SampleCode = sampleCode,
                             TestCode = testCode,
                             Value = $"{value}",
                             MuCode = muCode
@@ -128,9 +205,7 @@
                 }
             }
 
-            testResult.Results = results.ToArray();
-
-            return testResult;
+            return testResults.ToArray();
         }
     }
 }

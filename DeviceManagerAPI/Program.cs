@@ -9,7 +9,6 @@
         public static async Task Main()
         {
             var builder = CreateHostBuilder();
-
             await builder.Build().RunAsync();
         }
 

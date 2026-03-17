@@ -1,71 +1,89 @@
 ﻿namespace DeviceManagerAPI.Controllers.Devices
 {
-    using DataAccess.DTOs;
-    using Forms;
-    using global::DeviceManager;
+    using DataAccess.DTOs.LIS;
+    using DriverBase.DTOs;
     using global::DeviceManager.Configurations.Device;
     using global::DeviceManager.Entities;
+    using global::DeviceManager.UseCases;
     using Microsoft.AspNetCore.Mvc;
-    using System;
-    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     [ApiController]
     [Route("[controller]/")]
     public class DevicesController : ControllerBase
     {
-        private readonly IDeviceManager _service;
+        private readonly IDeviceUseCase _service;
 
-        public DevicesController(IDeviceManager service) => _service = service;
+        public DevicesController(IDeviceUseCase service) => _service = service;
 
         [HttpGet]
-        public async Task<DeviceConfiguration[]> GetAll() => await _service.GetDevices();
-
-        [HttpGet("{id}")]
-        public async Task<DeviceConfiguration> GetById(int id) => await _service.GetDevice(id);
+        public DeviceConfig[] GetAll() => _service.GetDevices()
+                                                  .Select(device => device.Configuration)
+                                                  .ToArray();
 
         [HttpPut]
-        public async Task<DeviceManagerEvent> Create(DeviceConfiguration device) => await _service.AddDevice(device);
+        public async Task<DeviceManagerEvent> Create(DeviceConfig device) => await _service.AddDevice(device);
 
         [HttpPost("{id}")]
-        public async Task<DeviceManagerEvent> Update(int id, DeviceConfiguration device) => await _service.UpdateDevice(id, device);
+        public async Task<DeviceManagerEvent> Update(int id, DeviceConfig device) => await _service.UpdateDevice(id, device);
 
         [HttpDelete("{id}")]
         public async Task<DeviceManagerEvent> Delete(int id) => await _service.RemoveDevice(id);
 
-        [HttpPut("{id}/flipactive/")]
-        public async Task<DeviceManagerEvent> FlipActive(int id) => await _service.FlipActive(id);
+        [HttpPut("{id}/flip-active")]
+        public async Task<DeviceManagerEvent> FlipActive(int id)
+        {
+            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            if (device.Configuration.IsActive)
+            {
+                await device.StopAsync();
+                device.Configuration.IsActive = false;
+            }
+            else
+            {
+                await device.StartAsync();
+                device.Configuration.IsActive = true;
+            }
+
+            return null;
+        }
 
         [HttpGet("{id}/comparisons/test-collations")]
-        public async Task<TestCollationDto[]> GetTestCollations(int id) => await _service.GetTestCollationsByDeviceId(id);
-
-        [HttpGet("{id}/test-results/")]
-        public async Task<TestResult[]> GetTestResults(int id) => await _service.GetTestResultsByDeviceId(id);
-
-        [HttpGet("status/")]
-        public async Task<FormStatus[]> Status()
+        public TestCollationDto[] GetTestCollations(int id)
         {
-             var devices = await _service.GetDevices();
+            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            return device.GetTestCollations();
+        }
 
-             var devicesStatus = new List<FormStatus>();
-             foreach (var device in devices)
-             {
-                 var countMessagesQuery = new Random().Next(100);
-                 var countMessagesOrder = new Random().Next(countMessagesQuery);
-                 var countMessagesResult = countMessagesOrder;
-                 var countMessagesError = countMessagesQuery - countMessagesOrder;
+        [HttpGet("{id}/test-results")]
+        public async Task<TestResultDTO[]> GetTestResults(int id)
+        {
+            return await _service.GetTestResults(id);
+        }
 
-                 devicesStatus.Add(new FormStatus()
-                 {
-                     DeviceName = device.Name,
-                     CountMessagesQuery = $"{countMessagesQuery}",
-                     CountMessagesOrder = $"{countMessagesOrder}",
-                     CountMessagesResult = $"{countMessagesResult}",
-                     CountMessagesError = $"{countMessagesError}"
-                 });
-             }
+        [HttpPost("{id}/test-results/{testResultId}")]
+        public async Task<DeviceManagerEvent> RetrySendTestResult(int id, int testResultId) => await _service.RetrySendTestResult(id, testResultId);
 
-             return devicesStatus.ToArray();
+        [HttpGet("{id}/logs")]
+        public string[] GetLogs(int id)
+        {
+            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            return device.DeviceLogs.Logs;
+        }
+
+        [HttpGet("{id}/driver/options")]
+        public OptionDTO[] GetDriverOptions(int id)
+        {
+            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            return device.Parser.GetOptions();
+        }
+
+        [HttpPost("{id}/driver/options")]
+        public void SetDriverOptions(int id, OptionDTO[] options)
+        {
+            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            device.Parser.SetOptions(options);
         }
     }
 }

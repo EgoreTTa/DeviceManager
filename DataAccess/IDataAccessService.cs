@@ -1,7 +1,7 @@
 ﻿namespace DataAccess
 {
     using System.Threading.Tasks;
-    using DTOs;
+    using DTOs.LIS;
 
     public interface IDataAccessService
     {

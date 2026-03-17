@@ -51,6 +51,21 @@
         </div>
     </div>
 
+    <!--div class="container col-xxl device-logs">
+        <div class="my-3 p-3 bg-body rounded shadow">
+            <div class="row">
+                <div class="col-9">
+                    <h4>Монитор событий</h4>
+                </div>
+                <div class="col-3">
+                    <button id="button-device-log" type="button" class="btn btn-success w-100" onclick="updateLog(device.id)">Включить мониторинг</button>
+                </div>
+            </div>
+            <hr />
+            <textarea class="form-control" name="device-log-test" id="log-test" rows="30" disabled></textarea>
+        </div>
+    </div-->
+
     <div class="container col-xxl settings" style="display: none">
         <div class="my-3 p-3 bg-body rounded shadow">
             <div class="row">
@@ -184,11 +199,12 @@
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                         <button class="nav-link col-sm-2 active" id="nav-device-tab-1" data-bs-toggle="tab" data-bs-target="#device-tab-1" type="button" role="tab" aria-controls="device-tab-1" aria-selected="true">Статус</button>
-                        <button class="nav-link col-sm-2" id="nav-device-tab-2" data-bs-toggle="tab" data-bs-target="#device-tab-2" type="button" role="tab" aria-controls="device-tab-2" aria-selected="false">Сопоставления</button>
-                        <button class="nav-link col-sm-2" id="nav-device-tab-3" data-bs-toggle="tab" data-bs-target="#device-tab-3" type="button" role="tab" aria-controls="device-tab-3" aria-selected="false" disabled>Очередь заданий</button>
+                        <button class="nav-link col-sm-2" id="nav-device-tab-2" data-bs-toggle="tab" data-bs-target="#device-tab-2" type="button" role="tab" aria-controls="device-tab-2" aria-selected="false" onClick="getDeviceTestCollations()">Сопоставления</button>
+                        <button class="nav-link col-sm-2" id="nav-device-tab-3" data-bs-toggle="tab" data-bs-target="#device-tab-3" type="button" role="tab" aria-controls="device-tab-3" aria-selected="false">Мониторинг</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-4" data-bs-toggle="tab" data-bs-target="#device-tab-4" type="button" role="tab" aria-controls="device-tab-4" aria-selected="false">Тестирование</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-5" data-bs-toggle="tab" data-bs-target="#device-tab-5" type="button" role="tab" aria-controls="device-tab-5" aria-selected="false">Свойства</button>
-                        <button class="nav-link col-sm-2" id="nav-device-tab-6" data-bs-toggle="tab" data-bs-target="#device-tab-6" type="button" role="tab" aria-controls="device-tab-6" aria-selected="false">Настройки</button>
+                        <button class="nav-link col-sm-2" id="nav-device-tab-6" data-bs-toggle="tab" data-bs-target="#device-tab-6" type="button" role="tab" aria-controls="device-tab-6" aria-selected="false" onClick="showDeviceDriver()">Настройки</button>
+                        <!--button class="nav-link col-sm-2" id="nav-device-tab-7" data-bs-toggle="tab" data-bs-target="#device-tab-7" type="button" role="tab" aria-controls="device-tab-7" aria-selected="false" disabled>Очередь заданий</button-->
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -228,7 +244,7 @@
                                     <div class="nav flex-column nav-pills col-2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                                         <button class="nav-link active text-start" id="device.status-1-tab" data-bs-toggle="pill" data-bs-target="#device.status-1" type="button" role="tab" aria-controls="device.status-1" aria-selected="true">Запросы</button>
                                         <button class="nav-link text-start" id="device.status-2-tab" data-bs-toggle="pill" data-bs-target="#device.status-2" type="button" role="tab" aria-controls="device.status-2" aria-selected="false">Заказы</button>
-                                        <button class="nav-link text-start" id="device.status-3-tab" data-bs-toggle="pill" data-bs-target="#device.status-3" type="button" role="tab" aria-controls="device.status-3" aria-selected="false">Результаты</button>
+                                        <button class="nav-link text-start" id="device.status-3-tab" data-bs-toggle="pill" data-bs-target="#device.status-3" type="button" role="tab" aria-controls="device.status-3" aria-selected="false" onclick="getDeviceResults()">Результаты</button>
                                     </div>
                                     <div class="tab-content col-10 px-3" id="v-pills-tabContent">
                                         <div class="tab-pane fade show active" id="device.status-1" role="tabpanel" aria-labelledby="device.status-1-tab" tabindex="0">
@@ -411,10 +427,15 @@
                     <div class="tab-pane fade" id="device-tab-3" role="tabpanel" aria-labelledby="nav-device-tab-3" tabindex="0">
                         <div class="p-3 border border-top-0">
                             <div class="row">
-                                <div class="col-12">
-                                    <h5>Очередь заданий</h5>
+                                <div class="col-9">
+                                    <h4>Монитор событий</h4>
+                                </div>
+                                <div class="col-3">
+                                    <button id="button-device-log" type="button" class="btn btn-success w-100" onclick="updateLog()">Включить мониторинг</button>
                                 </div>
                             </div>
+                            <hr />
+                            <textarea class="form-control" name="device-log-test" id="log-test" rows="25" disabled></textarea>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="device-tab-4" role="tabpanel" aria-labelledby="nav-device-tab-4" tabindex="0">
@@ -471,6 +492,16 @@
                         <div class="p-3 border border-top-0">
                             <div class="row">
                                 <div class="col-12">
+                                    <div class="row my-3">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Имя файла</label>
+                                            <input type="text" class="form-control" id="device.driver.fileName" value="device.driver.fileName" disabled />
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">Драйвер</label>
+                                            <input type="text" class="form-control" id="device.driver.parser" value="device.driver.parser" disabled />
+                                        </div>
+                                    </div>
                                     <h5>Расширенные настройки</h5>
                                     <hr />
                                     <div class="row my-3">
@@ -603,13 +634,14 @@
                                         <h5>Специальные настройки</h5>
                                     </div>
                                     <hr />
-                                        <p>В некоторых случаях будут дополнительные настройки для устройств, подробнее читайте в драйвере.</p>
+                                    <div id="device.driver.options" class="row row-cols-2">
+                                    </div>
                                     <hr />
                                     <div class="row">
                                         <dev class="col-9">
                                         </dev>
                                         <dev class="col-3">
-                                            <button type="button" class="btn btn-success w-100" onclick="">Применить</button>
+                                            <button type="button" class="btn btn-success w-100" onclick="setDeviceDriverOptions()">Применить</button>
                                         </dev>
                                     </div>
                                 </div> 
@@ -660,11 +692,11 @@
             <div class="row">
                 <div class="col-sm-6">
                     <label class="form-label">Имя файла</label>
-                    <input type="text" class="form-control" id="selected.device.name" value="device.name" disabled />
+                    <input type="text" class="form-control" id="selected.driver.fileName" value="driver.fileName" disabled />
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label">Драйвер</label>
-                    <input type="text" class="form-control" id="selected.device.systemName" value="device.systemName" disabled />
+                    <input type="text" class="form-control" id="selected.driver.parser" value="driver.parser" disabled />
                 </div>
             </div>
             <hr/>
@@ -676,44 +708,31 @@
                         <div class="col-6">
                             <label class="form-label">Тип взаимодействия</label>
                             <div class="form-check">
-                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-1"
-                                    name="device.driver.type-workmode" required="" checked value="device.driver.type-workmode-1" />
-                                <label class="form-check-label" for="device.driver.type-workmode-1"> Односторонняя передача
-                                    данных
-                                </label>
+                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-1" name="selected.driver.type-workmode" required="" checked value="selected.driver.type-workmode-1" />
+                                <label class="form-check-label" for="selected.driver.type-workmode-1"> Односторонняя передача данных</label>
                             </div>
                             <div class="form-check">
-                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-2"
-                                    name="device.driver.type-workmode" required="" value="device.driver.type-workmode-2" />
-                                <label class="form-check-label" for="device.driver.type-workmode-2"> Двусторонняя передача
-                                    данных по
-                                    запросу
-                                </label>
+                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-2" name="selected.driver.type-workmode" required="" value="selected.driver.type-workmode-2" />
+                                <label class="form-check-label" for="selected.driver.type-workmode-2"> Двусторонняя передача данных по запросу</label>
                             </div>
                             <div class="form-check">
-                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-3"
-                                    name="device.driver.type-workmode" required="" disabled value="device.driver.type-workmode-3" />
-                                <label class="form-check-label" for="device.driver.type-workmode-3"> Автоматическое загрузка
-                                    образцов
-                                    из ЛИС
-                                </label>
+                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-3" name="selected.driver.type-workmode" required="" disabled value="selected.driver.type-workmode-3" />
+                                <label class="form-check-label" for="selected.driver.type-workmode-3"> Автоматическое загрузка образцов из ЛИС</label>
                             </div>
                             <div class="form-check">
-                                <input type="radio" class="form-check-input device.driver.type-workmode" id="device.driver.type-workmode-4" name="device.driver.type-workmode" required="" value="device.driver.type-workmode-4" />
-                                <label class="form-check-label" for="device.driver.type-workmode-4"> Автоматическое загрузка образцов из ЛИС по выбору </label>
+                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-4" name="selected.driver.type-workmode" required="" value="selected.driver.type-workmode-4" />
+                                <label class="form-check-label" for="selected.driver.type-workmode-4"> Автоматическое загрузка образцов из ЛИС по выбору </label>
                             </div>
                         </div>
                         <div class="col-6">
                             <label class="form-label">Тип передачи результатов</label>
                             <div class="form-check">
-                                <input id="device.driver.address-type-1" type="radio" class="form-check-input" name="device.driver.address-type"
-                                    required="" checked />
-                                <label class="form-check-label" for="device.driver.address-type-1">По номеру штрих-кода</label>
+                                <input id="selected.driver.address-type-1" type="radio" class="form-check-input" name="selected.driver.address-type" required="" checked />
+                                <label class="form-check-label" for="selected.driver.address-type-1">По номеру штрих-кода</label>
                             </div>
                             <div class="form-check">
-                                <input id="device.driver.address-type-2" type="radio" class="form-check-input" name="device.driver.address-type"
-                                    required="" />
-                                <label class="form-check-label" for="device.driver.address-type-2">По позиции в плашке</label>
+                                <input id="selected.driver.address-type-2" type="radio" class="form-check-input" name="selected.driver.address-type" required="" />
+                                <label class="form-check-label" for="selected.driver.address-type-2">По позиции в плашке</label>
                             </div>
                         </div>
                     </div>
@@ -735,79 +754,59 @@
                     </div>
                     <hr />
                     <div class="row">
-                        <dev class="col-9">
-                        </dev>
-                        <dev class="col-3">
-                            <button type="button" class="btn btn-success w-100" onclick="">Применить</button>
-                        </dev>
-                    </div>
-                    <hr />
-                    <div class="row">
-                        <h5>Логирование</h5>
-                    </div>
-                    <hr />
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label class="form-label">Режим логирования</label>
-                            <select id="" class="form-select" required="">
-                                <option value="default" disabled>выбрать режим...</option>
-                                <option value="Minimum">Минимальный</option>
-                                <option value="Info" selected>Обычный</option>
-                                <option value="Debug" >Подробный</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-4">
-                            <label class="form-label">Срок хранения логов</label>
-                            <select id="" class="form-select" required="">
-                                <option value="default" disabled>выбрать срок...</option>
-                                <option value="1 day">1 день</option>
-                                <option value="1 week" selected>1 неделя</option>
-                                <option value="1 mount" >1 месяц</option>
-                                <option value="1 year" >1 год</option>
-                                <option value="indefinitely" >бессрочно</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-4">
-                            <label class="form-check-label" for="devicemanager.settings.islogrequest">Логировать запросы</label>
-                            <div class="form-check form-switch">
-                                <input id="devicemanager.settings.islogrequest" class="form-check-input" type="checkbox" role="switch">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <label class="form-label">Маска файлов</label>
-                            <input id="" class="form-control" type="text" value="yyyy-MM-dd HH:mm:ss" />
-                        </div>
-                        <div class="col-sm-4">
-                            <label class="form-label">Разделение файлов</label>
-                            <select id="" class="form-select" required="">
-                                <option value="default" disabled>выбрать тип...</option>
-                                <option value="1">По запуску</option>
-                                <option value="2" selected>По размеру (1024кб)</option>
-                                <option value="3">По дням</option>
-                            </select>
-                        </div>
-                    </div>
-                    <hr />
-                    <div class="row">
-                        <dev class="col-9">
-                        </dev>
-                        <dev class="col-3">
-                            <button type="button" class="btn btn-success w-100" onclick="">Применить</button>
-                        </dev>
-                    </div>
-                    <hr />
-                    <div class="row">
                         <h5>Специальные настройки</h5>
                     </div>
                     <hr />
+                    <div id="selected.driver.options" class="row">
+                        
+                    </div>
                     <hr />
                     <div class="row">
-                        <dev class="col-9">
-                        </dev>
+                        <h5>Пример обработки</h5>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="mb-3 col-sm-8">
+                            <label for="" class="form-label"></label>
+                            <textarea class="form-control" name="" id="" rows="10">
+-->:<ENQ>
+-->:<STX>H|\^&|||BiOLiS NEO^SYSTEM1|||||HOST^P_1||P|1|20260313144850<ETX>..<CR><LF>
+-->:<STX>P|1|130326-364|||^|||U|||||<ETX>..<CR><LF>
+-->:<STX>O|1||^1^1|^^^1^GLUC^0\^^^2^CHOL^0\^^^6^T.Pr.^0|R||||||||||Serum||||||||||F<ETX>..<CR><LF>
+-->:<STX>R|1|^^^1^GLUC^0|4.0|ммоль/л|4.2 TO 6.4|L||F||||20260313110659<ETX>..<CR><LF>
+-->:<STX>R|2|^^^2^CHOL^0|3.79|ммоль/л|0.00 TO 6.20|||F||||20260313110714<ETX>..<CR><LF>
+-->:<STX>R|3|^^^6^T.Pr.^0|65.2|г/л|66.0 TO 87.0|L||F||||20260313110729<ETX>..<CR><LF>
+-->:<STX>L|1|N<ETX>..<CR><LF>
+-->:<EOT>
+                            </textarea>
+                        </div>
+                        <div class="mb-3 col-sm-4">
+                            <label for="" class="form-label"></label>
+                            <textarea class="form-control" name="" id="" rows="10">
+<--:<ACK>
+<--:<ACK>
+<--:<ACK>
+<--:<ACK>
+<--:<ACK>
+<--:<ACK>
+<--:<ACK>
+<--:<ACK>
+<--:<ACK>
+
+Parsing...
+
+Sample = 130326-364
+Test = GLUC  Value=  4.0  MU = ммоль/л
+Test = CHOL  Value=  3.79 MU = ммоль/л 
+Test = T.Pr. Value= 65.2  MU = г/л
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="row">
                         <dev class="col-3">
-                            <button type="button" class="btn btn-success w-100" onclick="">Применить</button>
+                            <button type="button" class="btn btn-danger w-100" onclick="deleteSelectedDriver()">Удалить</button>
+                        </dev>
+                        <dev class="col">
                         </dev>
                     </div>
                 </div> 
@@ -874,6 +873,25 @@
         </div>
     </div>
 
+    <div class="container col-xxl event" style="display: none">
+        <div class="my-3 p-3 bg-body rounded shadow">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="form-label">Дата\Время события</label>
+                    <input type="text" class="form-control" id="selected.event.datetime" value="driver.fileName" disabled />
+                </div>
+                <div class="col">
+                    <label class="form-label">Описание события</label>
+                    <input type="text" class="form-control" id="selected.event.description" value="driver.parser" disabled />
+                </div>
+            </div>
+            <hr />
+            <div class=" col">
+                <textarea class="form-control" name="" id="selected.event.details" rows="30" disabled></textarea>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modal-delete-device" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content my-3 p-3">
@@ -911,9 +929,9 @@
                     <label class="form-label">Имя драйвера</label>
                     <select class="form-select" id="device.driver.name" required="">
                         <option selected disabled value="default">выбрать драйвер...</option>
-                        <option value="ASTM">ASTM</option>
-                        <option value="HL7">HL7</option>
-                        <option value="Custom">Custom</option>
+                        <option>test ASTM</option>
+                        <option>test HL7</option>
+                        <option>test Custom</option>
                     </select>
                 </div>
                 <div class="col-sm-4">
@@ -1132,9 +1150,26 @@
 <script>
     const ipAPI = 'http://127.0.0.1:5000';
 
+    const driverOptionDefault = {
+        name: "",
+        description: "",
+        value: "",
+        examples: [ "" ],
+    }
+    let driverOption = driverOptionDefault;
+    let driverOptions = [ driverOptionDefault ];
+
+    const parserDefault = {
+        fullName: "",
+        options: [ driverOptionDefault ]
+    }
+    let parser = parserDefault;
+    let parsers = [ parserDefault ];
+
     const driverDefault = {
+        id: 0,
         fileName: "",
-        parser: "",
+        parsers: [ parserDefault ],
     }
     let driver = driverDefault;
     let drivers = [ driverDefault ];
@@ -1143,12 +1178,13 @@
         id: 0,
         name: "",
         systemName: "",
-        driverConfiguration: {
-            driver: driverDefault,
-            systemName: "",
-            encoding: ""
+        driverSystemName: "",
+        driver: {
+            filename: "",
+            encoding: "",
+            parser: parserDefault,
         },
-        connectionConfiguration: {
+        connection: {
             connectionType: "",
             network: {
                 mode: "",
@@ -1176,12 +1212,11 @@
     let devices = [ deviceDefault ];
 
     const deviceResultDefault = {
+        dateTime: "",
         sampleCode: "",
-        result: {
-            testCode:"",
-            value:"",
-            muCode:"",
-        }
+        testCode:"",
+        value:"",
+        muCode:"",
     }
     let deviceResult = deviceResultDefault;
     let deviceResults = [ deviceResultDefault ];
@@ -1209,8 +1244,10 @@
     let errors = [ error ];
 
     const deviceManagerEventDefault = {
+        id: 0,
         dateTime: "",
-        description: ""
+        description: "",
+        details: "",
     };
     let deviceManagerEvent = deviceManagerEventDefault;
     let deviceManagerEvents = [ deviceManagerEventDefault ];
@@ -1225,6 +1262,8 @@
     let deviceTestCollation = deviceTestCollationDefault;
     let deviceTestCollations = [ deviceTestCollationDefault ];
 
+    let isActiveUpdateLog = false;
+    
     async function getDevice() {
         let driverWorkMode;
         Array.from(document.getElementsByClassName('device.driver.type-workmode')).forEach(element => {if (element.checked) {driverWorkMode = element.value;}});
@@ -1238,24 +1277,23 @@
         device.id = id;
         device.name = document.getElementById('device.name').value;
         device.systemName = document.getElementById('device.systemName').value;
-        device.driverConfiguration.driver.parser = document.getElementById('device.driver.name').value;
-        device.driverConfiguration.driver.fileName = drivers.find(x => x.parser == device.driverConfiguration.driver.parser).fileName;
-        device.driverConfiguration.systemName = document.getElementById('device.driver.systemName').value;
-        Array.from(document.getElementById('device.driver.encoding').children).forEach(element => {if (element.selected) {device.driverConfiguration.encoding = element.value;}});
-        device.driverConfiguration.workMode = driverWorkMode;
-        device.driverConfiguration.options = deviceDriverOptions;
+        device.driver.parser.fullName = document.getElementById('device.driver.name').value;
+        device.driverSystemName = document.getElementById('device.driver.systemName').value;
+        Array.from(document.getElementById('device.driver.encoding').children).forEach(element => {if (element.selected) {device.driver.encoding = element.value;}});
+        // device.driverConfiguration.workMode = driverWorkMode;
+        // device.driverConfiguration.options = deviceDriverOptions;
 
-        Array.from(document.getElementById('device.hardware.type').children).forEach(child => {if (child.className.indexOf("active") > -1) device.connectionConfiguration.connectionType = child.value;});
+        Array.from(document.getElementById('device.hardware.type').children).forEach(child => {if (child.className.indexOf("active") > -1) device.connection.connectionType = child.value;});
         
-        device.connectionConfiguration.serial.portName = document.getElementById('device.serial.portname').value;
-        Array.from(document.getElementById('device.serial.baudrate')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.baudRate = Number(element.value);}});
-        Array.from(document.getElementById('device.serial.dataBits')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.dataBits = Number(element.value);}});
-        Array.from(document.getElementById('device.serial.parity')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.parity = element.innerText;}});
-        Array.from(document.getElementById('device.serial.stopBits')).forEach(element => {if (element.selected) {device.connectionConfiguration.serial.stopBits = element.innerText;}});
+        device.connection.serial.portName = document.getElementById('device.serial.portname').value;
+        Array.from(document.getElementById('device.serial.baudrate')).forEach(element => {if (element.selected) {device.connection.serial.baudRate = Number(element.value);}});
+        Array.from(document.getElementById('device.serial.dataBits')).forEach(element => {if (element.selected) {device.connection.serial.dataBits = Number(element.value);}});
+        Array.from(document.getElementById('device.serial.parity')).forEach(element => {if (element.selected) {device.connection.serial.parity = element.innerText;}});
+        Array.from(document.getElementById('device.serial.stopBits')).forEach(element => {if (element.selected) {device.connection.serial.stopBits = element.innerText;}});
         
-        Array.from(document.getElementById('device.hardware.mode')).forEach(element => {if (element.selected) {device.connectionConfiguration.network.mode = element.value;}});
-        device.connectionConfiguration.network.host = document.getElementById('device.hardware.address').value;
-        device.connectionConfiguration.network.port = document.getElementById('device.hardware.port').value;
+        Array.from(document.getElementById('device.hardware.mode')).forEach(element => {if (element.selected) {device.connection.network.mode = element.value;}});
+        device.connection.network.host = document.getElementById('device.hardware.address').value;
+        device.connection.network.port = document.getElementById('device.hardware.port').value;
         console.debug("device", device);
     }
 
@@ -1274,8 +1312,8 @@
                 element.innerHTML = `
                         <td>${device.name}</td>
                         <td>${device.systemName}</td>
-                        <td>${device.driverConfiguration.driver.parser}</td>
-                        <td>${device.driverConfiguration.systemName}</td>
+                        <td>${device.driver.parser.fullName}</td>
+                        <td>${device.driverSystemName}</td>
                         <td>${device.isActive ? "Да" : "Нет"}</td>`;
                 element.addEventListener('dblclick', () => showDevice(device.id));
                 table.appendChild(element);
@@ -1288,7 +1326,7 @@
     async function showDevice(id) {
         device = devices.find(device => device.id === id);
         console.warn("showDevice:", device);
-        await getDeviceTestCollations(id);
+        await getDeviceTestCollations();
         chargePanel('device');
     }
      
@@ -1337,7 +1375,7 @@
     async function deleteSelectedDevice() {
         try {
             let request = { method: 'DELETE' };
-            let response = await fetch(ipAPI + '/devices/' + device.id, request);
+            let response = await fetch(`${ipAPI}/devices/${device.id}`, request);
 
             deviceManagerEvent = await response.json();
             
@@ -1348,36 +1386,157 @@
         }
     }
 
+    async function deleteSelectedDriver() {
+        try {
+            let request = { method: 'DELETE' };
+            let response = await fetch(`${ipAPI}/drivers/${driver.fileName}`, request);
+
+            //deviceManagerEvent = await response.json();
+            
+            chargePanel('drivers');
+        } catch (error) {
+            console.error("E:", error);
+        }
+    }
+
     async function showListDrivers() {
         let table = document.getElementById('table-drivers');
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(ipAPI + '/drivers/');
+            let response = await fetch(`${ipAPI}/drivers`);
             drivers = await response.json();
 
             console.debug("drivers:", drivers);
 
             drivers.forEach(driver => {
-                let element = document.createElement("tr");
-                element.className = "table-light";
-                element.innerHTML = `
-                        <td>${driver.fileName}</td>
-                        <td>${driver.parser}</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                `;
-                table.appendChild(element);
+                driver.parsers.forEach(parser => {
+                    let element = document.createElement("tr");
+                    element.id = parser;
+                    element.className = "table-light";
+                    element.innerHTML = `   <td>${driver.fileName}</td>
+                                            <td>${parser.fullName}</td>
+                                            <td>-</td>
+                                            <td>-</td>
+                                            <td>-</td>`;
+                                            
+                    element.addEventListener('dblclick', () => showDriver(parser.fullName));
+                    table.appendChild(element);
+                });
             });
         } catch (error) {
             console.error("Ошибка:", error);
         }
     }
 
-    async function showDriver(fileName) {
-        driver = drivers.find(driver => driver.fileName === fileName);
-        console.warn("showDriver:", driver);
+    async function showDeviceDriver() {
+        let panel = document.getElementById('device.driver.options');
+        Array.from(panel.children).forEach((element) => { element.remove(); });
+
+        console.warn("device.driver.parser:", device.driver.parser.fullName);
+        let driverInfo = drivers.find(driver => 
+            driver.parsers.find(parser => 
+                parser.fullName == device.driver.parser.fullName));
+        console.warn("driverInfo:", driverInfo);
+
+        document.getElementById('device.driver.fileName').value = driverInfo.fileName;
+        document.getElementById('device.driver.parser').value = device.driver.parser.fullName;
+
+        try {
+            let response = await fetch(`${ipAPI}/devices/${device.id}/driver/options`);
+            driverOptions = await response.json();
+            
+            console.warn("driverOptions:", driverOptions);
+            
+            driverOptions.forEach(driverOption => {
+                let div = document.createElement("div");
+                div.className = "col";
+                panel.appendChild(div);
+
+                let label = document.createElement("label");
+                label.className = "form-label";
+                label.innerText = driverOption.description;
+                div.appendChild(label);
+
+                let select = document.createElement("select");
+                select.id = driverOption.propertyName;
+                select.className = "form-select";
+                select.value = driverOption.value;
+                div.appendChild(select);
+
+                driverOption.examples.forEach(example => {
+                    let option = document.createElement("option");
+                    option.value = example;
+                    option.innerText = example;
+                    if (driverOption.value == example) option.selected = true;
+                    select.appendChild(option);
+                })
+            });
+        } catch (error) {
+            console.error("Ошибка:", error);
+        }
+    }
+
+    async function showDriver(parserName) {
+        let panel = document.getElementById('selected.driver.options');
+        Array.from(panel.children).forEach((element) => { element.remove(); });
+
+        console.warn("parserName:", parserName);
+        console.warn("drivers:", drivers);
+
+        let selectedParser = parserDefault;
+
+        driver = drivers.find(driver => {
+            console.warn("find driver:", driver);
+            
+            selectedParser = driver.parsers.find(parser => {
+                console.warn("find parser:", parser);
+
+                if (parser.fullName == parserName) return parser;
+            });
+
+            if (selectedParser != parserDefault) return driver;
+        });
+
+        console.warn("selectedDriver:", driver);
+        console.warn("selectedParser", selectedParser);
+
+        document.getElementById('selected.driver.fileName').value = driver.fileName;
+        document.getElementById('selected.driver.parser').value = selectedParser.fullName;
+
+        try {
+            let response = await fetch(`${ipAPI}/drivers/${selectedParser.fullName}/options`);
+            driverOptions = await response.json();
+            
+            console.warn("driverOptions:", driverOptions);
+            
+            driverOptions.forEach(driverOption => {
+                let div = document.createElement("div");
+                div.className = "col-sm-6";
+                panel.appendChild(div);
+
+                let label = document.createElement("label");
+                label.className = "form-label";
+                label.id = driverOption.propertyName;
+                label.innerText = driverOption.description;
+                div.appendChild(label);
+
+                let select = document.createElement("select");
+                select.className = "form-select";
+                div.appendChild(select);
+
+                driverOption.examples.forEach(example => {
+                    let option = document.createElement("option");
+                    option.value = example;
+                    option.innerText = example;
+                    if (driverOption.value == example) option.selected;
+                    select.appendChild(option);
+                })
+            });
+        } catch (error) {
+            console.error("Ошибка:", error);
+        }
+
         chargePanel('driver');
     }
 
@@ -1436,16 +1595,18 @@
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(ipAPI + '/devicemanager/journal');
+            let response = await fetch(`${ipAPI}/devicemanager/journal`);
             deviceManagerEvents = await response.json();
 
             deviceManagerEvents.forEach(deviceManagerEvent => {
                 let element = document.createElement("tr");
+                element.id = deviceManagerEvent.id;
                 element.className = "table-light";
                 element.innerHTML = `
                         <td>${deviceManagerEvent.dateTime}</td>
                         <td>${deviceManagerEvent.description}</td>
                 `;
+                element.addEventListener('dblclick', () => showEventDetails(deviceManagerEvent.id));
                 table.appendChild(element);
             });
         } catch (error) {
@@ -1453,8 +1614,18 @@
         }
     }
 
+    async function showEventDetails(id) {
+        deviceManagerEvent = deviceManagerEvents.find( x => x.id == id);
+        document.getElementById('selected.event.datetime').value = deviceManagerEvent.dateTime;
+        document.getElementById('selected.event.description').value = deviceManagerEvent.description;
+        document.getElementById('selected.event.details').value = deviceManagerEvent.details;
+        document.getElementById('selected.event.details').rows = deviceManagerEvent.details.split('\r').length;
+  
+        chargePanel('event');
+    }
+
     async function flipActiveDevice() {
-        console.warn('flipActiveDevice');
+        console.warn('device:', device);
 
         try {
             let request = {
@@ -1462,7 +1633,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(device)
             }
-            let response = await fetch(ipAPI + '/devices/' + device.id + '/flipactive/', request);
+            let response = await fetch(`${ipAPI}/devices/${device.id}/flip-active/`, request);
             deviceManagerEvent = await response.json();
 
             showToast(device.isActive ? "Отключение!" : "Включение.", deviceManagerEvent.description, deviceManagerEvent.dateTime);
@@ -1492,29 +1663,26 @@
     }
 
     async function getDrivers() {
-        Array.from(
-            document.getElementById('device.driver.name').children
-        ).forEach(
-            (element) => {
-                if (element.value !== "default")
-                    element.remove();
-            }
-        );
+        var select = document.getElementById('device.driver.name');
+        
+        Array.from(select.children).forEach(option => { if (option.value !== "default") option.remove(); } );
 
         try {
             let response = await fetch(`${ipAPI}/drivers`);
             drivers = await response.json();
-            console.debug("drivers:", drivers);
-            console.debug("device:", device);
 
-            Array.from(drivers).forEach(driver => {
-                let element = document.createElement("option");
-                element.innerHTML = `${driver.parser}`;
-                element.value = driver.parser;
-                if (device !== null) 
-                    if (device.driverConfiguration.driver.parser === driver.parser)
-                        element.selected = true;
-                document.getElementById('device.driver.name').appendChild(element);
+            drivers.forEach(driver => {
+                driver.parsers.forEach(parser => {
+                    let option = document.createElement("option");
+
+                    option.innerHTML = `${parser.fullName}`;
+                    option.value = parser.fullName;
+                    if (device !== null) 
+                        if (device.driver.parser === parser.fullName)
+                            option.selected = true;
+
+                    select.appendChild(option);
+                });
             });
         } catch (error) {
             console.error("Ошибка:", error);
@@ -1595,6 +1763,9 @@
             case "journal":
                 showJournal();
                 break;
+            case "event":
+
+                break;
             default:
                 console.warn("chargePanel");
                 break;
@@ -1658,6 +1829,31 @@
         }
     }
 
+    async function setDeviceDriverOptions(){
+        console.warn("driverOptions:", driverOptions);
+        Array.from(driverOptions).forEach((driverOption) => { 
+            let select = document.getElementById(driverOption.propertyName);
+            driverOption.value = select.value;
+        });
+
+        console.warn("driverOptions:", driverOptions);
+
+        try {
+            let request = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(driverOptions)
+            };
+            let response = await fetch(`${ipAPI}/devices/${device.id}/driver/options`, request);
+
+            deviceManagerEvent = await response.json();
+
+            showToast("Настройки изменены!", deviceManagerEvent.description, deviceManagerEvent.dateTime);
+        } catch (error) {
+            console.error("E:", error);
+        }
+    }
+
     async function returnSettings() {
         console.debug('returnSettings');
 
@@ -1703,14 +1899,14 @@
 
         Array.from(document.getElementById('device.driver.name').children)
         .forEach(element => {
-            if (element.value === device.driverConfiguration.name) element.selected = true;
+            if (element.value === device.driver.parser.fullName) element.selected = true;
             else element.selected = false;
         });
-        document.getElementById('device.driver.systemName').value = device.driverConfiguration.systemName;
+        document.getElementById('device.driver.systemName').value = device.driverSystemName;
 
         Array.from(document.getElementById('device.driver.encoding').children)
         .forEach(element => {
-            if (element.value === device.driverConfiguration.encoding) element.selected = true;
+            if (element.value === device.driver.encoding.encoding) element.selected = true;
             else element.selected = false;
         });
 
@@ -1726,11 +1922,11 @@
         
         Array.from(document.getElementById('device.hardware.type').children)
         .forEach(child => {
-                if (child.value == device.connectionConfiguration.connectionType) child.click();
+                if (child.value == device.connection.connectionType) child.click();
             }
         );
         
-        document.getElementById('device.driver.systemName').value = device.driverConfiguration.systemName;
+        document.getElementById('device.driver.systemName').value = device.driverSystemName;
 
         let elementDeviceIsActive = document.getElementById('device.isActive');
         if (device.isActive) 
@@ -1745,30 +1941,46 @@
         }
     }
 
-    async function getDeviceResults(id) {
+    async function getDeviceResults() {
         let table = document.getElementById('table-device.results');
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(`${ipAPI}/devices/${device.id}/results`);
+            let response = await fetch(`${ipAPI}/devices/${device.id}/test-results`);
             deviceResults = await response.json();
 
             deviceResults.forEach(deviceResult => {
                 let element = document.createElement("tr");
                 element.className = "table-light";
-                element.innerHTML =    `<td>-</td>
+                element.innerHTML =    `<td>${deviceResult.dateTime}</td>
                                         <td>${deviceResult.sampleCode}</td>
-                                        <td>${deviceResult.result.testCode}</td>
-                                        <td>${deviceResult.result.value}</td>
-                                        <td>${deviceResult.result.muCode}</td>`;
+                                        <td>${deviceResult.testCode}</td>
+                                        <td>${deviceResult.value}</td>
+                                        <td>${deviceResult.muCode}</td>
+                                        <td><button class="btn btn-outline-secondary" type="button" onClick="deviceResultSend(${deviceResult.id})">Отправить</button></td>`;
                 table.appendChild(element);
             });
         } catch (error) {
             console.error("Ошибка:", error);
         }
     }
+
+    async function deviceResultSend(id) {
+        try {
+            let request = { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }};
+            let response = await fetch(`${ipAPI}/devices/${device.id}/test-results/${id}`, request);
+
+            deviceManagerEvent = await response.json();
+
+            showToast("Образец отправлен вручную!", deviceManagerEvent.description, deviceManagerEvent.dateTime);
+        } catch (error) {
+            console.error("E:", error);
+        }
+    }
     
-    async function getDeviceTestCollations(id) {
+    async function getDeviceTestCollations() {
         let table = document.getElementById('table-device.comparisons-7');
         Array.from(table.children).forEach((element) => { element.remove(); });
 
@@ -1788,6 +2000,45 @@
             console.error("Ошибка:", error);
         }
     }
+
+    async function updateLog(){
+        isActiveUpdateLog = !isActiveUpdateLog;
+        console.debug("isActiveUpdateLog:", isActiveUpdateLog);
+        
+        let button = document.getElementById('button-device-log');
+        if (isActiveUpdateLog)
+        {
+            button.innerText = "Выключить мониторинг";
+            button.className = button.className.replace("btn-success", "btn-warning");
+        }
+        else
+        {
+            button.innerText = "Включить мониторинг";
+            button.className = button.className.replace("btn-warning", "btn-success");
+        }
+        console.debug("device.id:", device.id);
+
+        while (isActiveUpdateLog)
+        {
+            try {
+                let response = await fetch(`${ipAPI}/devices/${device.id}/logs`);
+                let log = String();
+                let logs = [ log ];
+                logs = await response.json();
+                console.warn("logs:", logs);
+                
+                document.getElementById('log-test').value = logs.join('');
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            } catch (error) {
+                console.error("updateLog:", error);
+                isActiveUpdateLog = false;
+            }
+        }
+        
+        button.innerText = "Включить мониторинг";
+        button.className = button.className.replace("btn-warning", "btn-success");
+    };
 </script>
 
 </html>

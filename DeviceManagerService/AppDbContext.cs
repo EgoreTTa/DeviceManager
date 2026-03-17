@@ -1,14 +1,16 @@
 namespace DeviceManager
 {
-    using DataAccess.DTOs;
+    using Configurations.Device;
+    using DriverBase.DTOs;
     using Entities;
     using Microsoft.EntityFrameworkCore;
 
     public sealed class AppDbContext : DbContext
     {
-        public DbSet<DeviceManagerEvent> Events { get; set; } = null;
-        public DbSet<TestResult> TestResults { get; set; } = null;
-        
+        public DbSet<DeviceManagerEvent> Events { get; set; }
+        public DbSet<DeviceConfigBackup> DeviceConfigs { get; set; }
+        public DbSet<TestResultDTO> TestResults { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlite("Data Source=DeviceManager.db");
     }
 }

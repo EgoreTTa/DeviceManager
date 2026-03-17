@@ -1,6 +1,7 @@
 ﻿namespace DataAccess
 {
-    using DTOs;
+    using DTOs.LIS;
+    using Serilog;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -19,8 +20,11 @@
         private readonly string _httpDirectiveLines;
         private readonly string _httpResults;
 
-        public DataAccess(string url)
+        private ILogger Logger { get; set; }
+
+        public DataAccess(ILogger logger, string url)
         {
+            Logger = logger;
             _httpDevices = $"{url}/devices";
             _httpDirectiveLines = $"{url}/directive_lines";
             _httpResults = $"{url}/results";
@@ -28,7 +32,7 @@
 
         public async Task<DeviceInfoDto> GetDeviceInfo(string driverSystemName)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос устройств использующих драйвер SystemName=\"{driverSystemName}\"");
+            Logger.Information($"Запрос устройств использующих драйвер SystemName=\"{driverSystemName}\"");
             var client = new HttpClient();
 
             var xElements = new[]
@@ -39,11 +43,14 @@
 
             var content = GetRequest("DriverDeviceInfo", xElements);
 
+            Logger.Debug($"Request to {_httpDevices}:\r\n" +
+                         $"{content}");
             var responseMessage = await client.PostAsync(new Uri(_httpDevices), new StringContent($"{content}"));
 
             var responseStringResult = await responseMessage.Content.ReadAsStringAsync();
             var xDocument = XDocument.Parse(responseStringResult);
-
+            Logger.Debug($"Response:\r\n" +
+                         $"{xDocument}");
             var method = GetResponse(xDocument);
 
             var row = method.Element("response")?.Element("data")?.Element("row");
@@ -63,18 +70,18 @@
                     IsActive = row.Element("isactive")?.Value,
                 };
 
-                Console.WriteLine($"{DateTime.Now}\t" + $"Получено устройство Name=\"{deviceInfoDto.Name}\" c SystemName=\"{deviceInfoDto.SystemName}\"");
+                Logger.Information($"Получено устройство Name=\"{deviceInfoDto.Name}\" c SystemName=\"{deviceInfoDto.SystemName}\"");
 
                 return deviceInfoDto;
             }
 
-            Console.WriteLine($"{DateTime.Now}\t" + "Указаный драйвер не зарегистрирован в системе МИС/ЛИС или нет устройств использующий этот драйвер");
+            Logger.Warning($"Указаный драйвер не зарегистрирован в системе МИС/ЛИС или нет устройств использующий этот драйвер");
             return null;
         }
 
         public async Task<EnumValueDto[]> GetEnumValues(string driverSystemName)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос перечислимых значений тестов драйвера SystemName=\"{driverSystemName}\"");
+            Logger.Information($"Запрос перечислимых значений тестов драйвера SystemName=\"{driverSystemName}\"");
             var client = new HttpClient();
 
             var xElements = new[]
@@ -105,18 +112,17 @@
             }
 
             enumValueDtos = enumValueDtos.OrderBy(x => x._code).ToList();
-            Console.WriteLine($"{DateTime.Now}\t" + (enumValueDtos.Count > 0
+            Logger.Warning(enumValueDtos.Count > 0
                 ? $"Получено \"{enumValueDtos.Count}\" перечислимых значений тестов"
-                : "Указаный драйвер не содержит сопоставлений перечислимых значений тестов"));
+                : "Указаный драйвер не содержит сопоставлений перечислимых значений тестов");
             foreach (var enumValueDto in enumValueDtos)
-                Console.WriteLine($"{DateTime.Now}\t" +
-                                  $"\tПеречислимое значение теста=\"{enumValueDto._code}\" is ID=\"{enumValueDto._systemEntityId}\"");
+                Logger.Information($"Перечислимое значение теста=\"{enumValueDto._code}\" is ID=\"{enumValueDto._systemEntityId}\"");
             return enumValueDtos.ToArray();
         }
 
         public async Task<MeasureUnitDto[]> GetMeasureUnits(string driverSystemName)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос единиц измерений драйвера SystemName=\"{driverSystemName}\"");
+            Logger.Information($"Запрос единиц измерений драйвера SystemName=\"{driverSystemName}\"");
             var client = new HttpClient();
             var xElements = new[]
             {
@@ -149,18 +155,17 @@
             }
 
             measureUnitDtos = measureUnitDtos.OrderBy(x => x._code).ToList();
-            Console.WriteLine($"{DateTime.Now}\t" + (measureUnitDtos.Count > 0
+            Logger.Information(measureUnitDtos.Count > 0
                 ? $"Получено \"{measureUnitDtos.Count}\" единиц измерений"
-                : "Указаный драйвер не содержит сопоставлений единиц измерений"));
+                : "Указаный драйвер не содержит сопоставлений единиц измерений");
             foreach (var measureUnitDto in measureUnitDtos)
-                Console.WriteLine($"{DateTime.Now}\t" +
-                                  $"\tЕдиница измерения=\"{measureUnitDto._code}\" is ID=\"{measureUnitDto._systemEntityId}\"");
+                Logger.Information($"Единица измерения=\"{measureUnitDto._code}\" is ID=\"{measureUnitDto._systemEntityId}\"");
             return measureUnitDtos.ToArray();
         }
 
         public async Task<TestCollationDto[]> GetTestCollations(string driverSystemName)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос результатов исследований драйвера SystemName=\"{driverSystemName}\"");
+            Logger.Information($"Запрос результатов исследований драйвера SystemName=\"{driverSystemName}\"");
             using var client = new HttpClient();
             var request = $"<request xmlns=\"\">" +
                           $"    <driversystemnameItem>{driverSystemName}</driversystemnameItem>" +
@@ -187,13 +192,11 @@
             }
 
             testCollations = testCollations.OrderBy(x => x.Code).ToList();
-            Console.WriteLine($"{DateTime.Now}\t" +
-                              (testCollations.Count > 0
+            Logger.Information(testCollations.Count > 0
                                   ? $"Получено \"{testCollations.Count}\" сопоставлений результатов исследований"
-                                  : "Указаный драйвер не содержит сопоставлений результатов исследований"));
+                                  : "Указаный драйвер не содержит сопоставлений результатов исследований");
             foreach (var objectResponse in testCollations)
-                Console.WriteLine($"{DateTime.Now}\t" +
-                                  $"\tКод теста на приборе=\"{objectResponse.Code}\" is ID=\"{objectResponse.SystemEntityId}\"");
+                Logger.Information($"Код теста на приборе=\"{objectResponse.Code}\" is ID=\"{objectResponse.SystemEntityId}\"");
             return testCollations.ToArray();
         }
 
@@ -236,7 +239,7 @@
 
         public async Task<AntibioticDto[]> GetAntibiotics(string driverSystemName)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос антибиотиков драйвера SystemName=\"{driverSystemName}\"");
+            Logger.Information($"Запрос антибиотиков драйвера SystemName=\"{driverSystemName}\"");
             using var client = new HttpClient();
             var request = $"<request xmlns=\"\">" +
                           $"    <driversystemnameItem>{driverSystemName}</driversystemnameItem>" +
@@ -269,18 +272,17 @@
             }
 
             antibioticDtos = antibioticDtos.OrderBy(x => x._code).ToList();
-            Console.WriteLine($"{DateTime.Now}\t" + (antibioticDtos.Count > 0
+            Logger.Information(antibioticDtos.Count > 0
                 ? $"Получено \"{antibioticDtos.Count}\" антибиотиков"
-                : "Указаный драйвер не содержит сопоставлений антибиотиков"));
+                : "Указаный драйвер не содержит сопоставлений антибиотиков");
             foreach (var antibioticDto in antibioticDtos)
-                Console.WriteLine($"{DateTime.Now}\t" +
-                                  $"\tАнтибиотик=\"{antibioticDto._code}\" is ID=\"{antibioticDto._systemEntityId}\"");
+                Logger.Information($"Антибиотик=\"{antibioticDto._code}\" is ID=\"{antibioticDto._systemEntityId}\"");
             return antibioticDtos.ToArray();
         }
 
         public async Task<BacteriumDto[]> GetBacteries(string driverSystemName)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос бактерий драйвера SystemName=\"{driverSystemName}\"");
+            Logger.Information($"Запрос бактерий драйвера SystemName=\"{driverSystemName}\"");
             using var client = new HttpClient();
             var request = $"<request xmlns=\"\">" +
                           $"    <driversystemnameItem>{driverSystemName}</driversystemnameItem>" +
@@ -306,17 +308,17 @@
             }
 
             bacteriumDtos = bacteriumDtos.OrderBy(x => x._code).ToList();
-            Console.WriteLine($"{DateTime.Now}\t" + (bacteriumDtos.Count > 0
+            Logger.Information(bacteriumDtos.Count > 0
                 ? $"Получено \"{bacteriumDtos.Count}\" бактерий"
-                : "Указаный драйвер не содержит сопоставлений бактерий"));
+                : "Указаный драйвер не содержит сопоставлений бактерий");
             foreach (var bacteriumDto in bacteriumDtos)
-                Console.WriteLine($"{DateTime.Now}\t" + $"\tБактерия=\"{bacteriumDto._code}\" is ID=\"{bacteriumDto._systemEntityId}\"");
+                Logger.Information($"Бактерия=\"{bacteriumDto._code}\" is ID=\"{bacteriumDto._systemEntityId}\"");
             return bacteriumDtos.ToArray();
         }
 
         public async Task<BiomaterialDto[]> GetBiomaterials(string driverSystemName)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос биоматериалов драйвера SystemName=\"{driverSystemName}\"");
+            Logger.Information($"Запрос биоматериалов драйвера SystemName=\"{driverSystemName}\"");
             using var client = new HttpClient();
             var request = $"<request xmlns=\"\">" +
                           $"    <driversystemnameItem>{driverSystemName}</driversystemnameItem>" +
@@ -342,11 +344,11 @@
             }
 
             biomaterialDtos = biomaterialDtos.OrderBy(x => x._code).ToList();
-            Console.WriteLine($"{DateTime.Now}\t" + (biomaterialDtos.Count > 0
+            Logger.Information(biomaterialDtos.Count > 0
                 ? $"Получено \"{biomaterialDtos.Count}\" биоматериалов"
-                : "Указаный драйвер не содержит сопоставлений биоматериалов"));
+                : "Указаный драйвер не содержит сопоставлений биоматериалов");
             foreach (var biomaterialDto in biomaterialDtos)
-                Console.WriteLine($"{DateTime.Now}\t" + $"\tБиоматериал=\"{biomaterialDto._code}\" is ID=\"{biomaterialDto._systemEntityId}\"");
+                Logger.Information($"Биоматериал=\"{biomaterialDto._code}\" is ID=\"{biomaterialDto._systemEntityId}\"");
             return biomaterialDtos.ToArray();
         }
 
@@ -356,7 +358,7 @@
             bool autoSuggestBarcode,
             string lpu)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + $"Запрос строк исследований по Barcodes=\"{string.Join(", ", barcodes)}\"");
+            Logger.Information($"Запрос строк исследований по Barcodes=\"{string.Join(", ", barcodes)}\"");
 
             var xElements = new XElement[] { }
                 .Append(new XElement(nameof(deviceSystemName).ToLower(), deviceSystemName))
@@ -427,7 +429,7 @@
 
         public async Task<StatusDto[]> SaveDeviceResults(SaveDeviceResultsRequest saveDeviceResultsRequest)
         {
-            Console.WriteLine($"{DateTime.Now}\t" + "Попытка сохранить результаты исследования");
+            Logger.Information($"Попытка сохранить результаты исследования");
 
             var bodyXml = GetBodyXmlRequest(saveDeviceResultsRequest);
 
@@ -465,18 +467,18 @@
             }
 
             if (statusTestDtos.Count(x => x._status == "4") > 0)
-                Console.WriteLine($"{DateTime.Now}\t" + $"Обработано \"" +
-                                    $"{statusTestDtos.Count(x => x._status == "4")}" +
-                                    $"\" строки направления");
+                Logger.Information($"Обработано \"" +
+                                   $"{statusTestDtos.Count(x => x._status == "4")}" +
+                                   $"\" строки направления");
 
             foreach (var statusTestDto in statusTestDtos)
             {
                 if (statusTestDto._tests.Length > 0)
                 {
-                    Console.WriteLine($"{DateTime.Now}\t" + $"Обработано \"" +
-                                        $"{statusTestDto._tests.Length}" +
-                                        $"\" тестов строки направления ID=\"" +
-                                        $"{statusTestDto._id}\"");
+                    Logger.Information($"Обработано \"" +
+                                       $"{statusTestDto._tests.Length}" +
+                                       $"\" тестов строки направления ID=\"" +
+                                       $"{statusTestDto._id}\"");
                 }
             }
 
@@ -516,13 +518,5 @@
             var xmlDocument = new XmlDocument { InnerXml = stringWriter.ToString() };
             return xmlDocument.ChildNodes.Count > 0 ? xmlDocument.ChildNodes[1].InnerXml : null;
         }
-
-        // private static T? GetBodyXmlResponse<T>(string response)
-        // {
-        //     var serializer = new XmlSerializer(typeof(T));
-        //
-        //     using var stringReader = new StringReader(response);
-        //     return (T)serializer.Deserialize(stringReader);
-        // }
     }
 }

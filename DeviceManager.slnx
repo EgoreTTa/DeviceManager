@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Application/">
     <Project Path="DataAccess/DataAccess.csproj" Id="d3c38438-7c26-47a5-986e-52e1c0bcc58e" />
+    <Project Path="DeviceManagerHubService/DeviceManagerHubService.csproj" Id="68722512-85c6-47e4-b938-9c242be4e7e4" />
     <Project Path="DeviceManagerService/DeviceManager.csproj" Id="f0d121bb-d970-4ad7-9a21-e6ca61d69efa" />
   </Folder>
   <Folder Name="/Application/Drivers/">

@@ -1,6 +1,7 @@
 namespace DeviceManagerAPI
 {
-    using DeviceManager;
+    using DeviceManager.UseCases;
+    using DeviceManager.UseCases.UseCaseServices;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
@@ -15,17 +16,24 @@ namespace DeviceManagerAPI
 
             services.AddHostedService<DeviceManagerService>();
 
-            services.AddSingleton<IDeviceManager, DeviceManager>();
+            services.AddSingleton<IDeviceUseCaseService, DeviceUseCaseService>();
+            services.AddSingleton<IDriverUseCaseService, DriverUseCaseService>();
+            services.AddSingleton<IDeviceUseCase, DeviceUseCase>();
+            services.AddSingleton<IDriverUseCase, DriverUseCase>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseRouting();
+
             app.UseCors(builder => builder.AllowAnyHeader()
                                           .AllowAnyMethod()
                                           .AllowAnyOrigin());
-            app.UseRouting();
 
-            app.UseEndpoints(builder => { builder.MapControllers(); });
+            app.UseEndpoints(builder =>
+            {
+                builder.MapControllers();
+            });
         }
     }
 }

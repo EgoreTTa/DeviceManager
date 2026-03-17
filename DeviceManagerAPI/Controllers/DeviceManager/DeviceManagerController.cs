@@ -1,55 +1,21 @@
 ﻿namespace DeviceManagerAPI.Controllers.DeviceManager
 {
-    using global::DeviceManager;
     using global::DeviceManager.Configurations;
     using global::DeviceManager.Entities;
-    using Microsoft.AspNetCore.Http;
+    using global::DeviceManager.UseCases;
     using Microsoft.AspNetCore.Mvc;
-    using System.IO;
     using System.Threading.Tasks;
 
     [ApiController]
     [Route("[controller]/")]
     public class DeviceManagerController : ControllerBase
     {
-        private readonly IDeviceManager _service;
+        private readonly IDeviceUseCase _service;
 
-        public DeviceManagerController(IDeviceManager service) => _service = service;
-
-        [HttpPost(nameof(UploadDriver))]
-        public IActionResult UploadDriver(IFormFile file)
-        {
-            // Проверка: файл передан?
-            if (file == null || file.Length == 0)
-                return BadRequest("Файл не выбран.");
-
-            // Опционально: проверка типа/размера
-            if (file.Length > 40 * 1024 * 1024) // 40 MB
-                return BadRequest("Файл больше 40MB.");
-            if (file.Length < 5 * 1024 * 1024) // 5 MB
-                return BadRequest("Файл меньше 5MB.");
-
-            var allowedType = ".dll";
-            if (file.ContentDisposition.Contains(allowedType) is false)
-                return BadRequest("Недопустимый тип файла.");
-
-            // Сохранение (пример — в папку wwwroot/uploads)
-            var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Drivers");
-            Directory.CreateDirectory(uploadsDir); // создать, если нет
-            var filePath = Path.Combine(uploadsDir, file.FileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                file.CopyTo(stream);
-            }
-
-            // Возврат успешного результата
-            return CreatedAtAction(nameof(UploadDriver), new { fileName = file.FileName });
-            // или return Ok(new { Url = $"/uploads/{file.FileName}" });
-        }
+        public DeviceManagerController(IDeviceUseCase service) => _service = service;
 
         [HttpGet(nameof(GetSettings))]
-        public async Task<DeviceManagerConfiguration> GetSettings() => await _service.GetSettings();
+        public DeviceManagerConfig GetSettings() => _service.GetSettings();
 
         // [HttpGet("errors")]
         // public FormDeviceManagerError[] GetErrors()
@@ -87,15 +53,9 @@
         // }
 
         [HttpGet("journal")]
-        public async Task<DeviceManagerEvent[]> GetEvents()
-        {
-            return await _service.GetEvents();
-        }
+        public async Task<DeviceManagerEvent[]> GetEvents() => await _service.GetEvents();
 
         [HttpPut(nameof(UpdateSettings))]
-        public async Task<DeviceManagerEvent> UpdateSettings(DeviceManagerConfiguration formDeviceManagerSettings)
-        {
-            return await _service.UpdateSettings(formDeviceManagerSettings);
-        }
+        public async Task<DeviceManagerEvent> UpdateSettings(DeviceManagerConfig configuration) => await _service.UpdateSettings(configuration);
     }
 }

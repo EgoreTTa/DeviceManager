@@ -1,11 +1,10 @@
 ﻿namespace DeviceManagerAPI.Controllers.Drivers
 {
-    using global::DeviceManager;
+    using DriverBase.DTOs;
     using global::DeviceManager.Configurations.Device.Driver;
-    using global::DeviceManager.Entities;
+    using global::DeviceManager.UseCases;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using System;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -13,29 +12,34 @@
     [Route("[controller]/")]
     public class DriversController : ControllerBase
     {
-        private readonly IDeviceManager _service;
+        private readonly IDriverUseCase _service;
 
-        public DriversController(IDeviceManager service) => _service = service;
+        public DriversController(IDriverUseCase service) => _service = service;
 
         [HttpGet]
-        public async Task<Driver[]> GetAll() => await _service.GetDrivers();
+        public DriverInfo[] GetAll() => _service.GetDriversInfo();
 
         [HttpPost]
-        public async Task<DeviceManagerEvent> UploadDriver(IFormFile uploadedFile)
+        public async Task UploadDriver(IFormFile uploadedFile)
         {
-            await using (var stream = System.IO.File.Create(Path.Combine(Directory.GetCurrentDirectory(), "Drivers", uploadedFile.FileName)))
+            await using (var stream = System.IO
+                                            .File
+                                            .Create(
+                                                Path.Combine(Directory.GetCurrentDirectory(), "Drivers", uploadedFile.FileName)))
             {
                 await uploadedFile.CopyToAsync(stream);
             }
 
-            return await _service.LoadDriver(uploadedFile.FileName);
+            _service.Add(new[] { uploadedFile.FileName });
         }
 
-        [HttpGet("{name}")]
-        public Task<IActionResult> GetByName(string name)
+        [HttpDelete("{filename}")]
+        public void RemoveDriver(string filename)
         {
-            // return _service.Find(x => x.Name == name);
-            throw new NotImplementedException();
+            _service.Remove(new[] { filename });
         }
+        
+        [HttpGet("{name}/options")]
+        public OptionDTO[] GetOptionsByNameParser(string name) => _service.GetParser(name).GetOptions();
     }
 }

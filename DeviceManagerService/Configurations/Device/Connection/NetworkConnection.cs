@@ -3,7 +3,7 @@ namespace DeviceManager.Configurations.Device.Connection
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
 
-    public struct NetworkConnection
+    public class NetworkConnection
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public NetworkModes Mode { get; set; }

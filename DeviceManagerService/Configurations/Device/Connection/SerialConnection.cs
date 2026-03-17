@@ -4,7 +4,7 @@ namespace DeviceManager.Configurations.Device.Connection
     using Newtonsoft.Json.Converters;
     using System.IO.Ports;
 
-    public struct SerialConnection
+    public class SerialConnection
     {
         public string PortName { get; set; }
         public int BaudRate { get; set; }

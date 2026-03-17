@@ -1,9 +1,8 @@
 namespace DeviceManager.Configurations
 {
-    public struct DeviceManagerConfiguration
+    public class DeviceManagerConfig
     {
-        public string Address { get; set; }
-        public int TimeOutInSecond { get; set; }
-        public bool LogRequests { get; set; }
+        public string Address { get; set; } = "http://lis.ru//";
+        public int TimeOutInSecond { get; set; } = 5;
     }
 }

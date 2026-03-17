@@ -1,6 +1,9 @@
-﻿namespace DriverTest2
+﻿using System.Threading.Tasks;
+
+namespace DriverTest2
 {
-    using DataAccess.DTOs;
+    using DriverBase.DTOs;
+    using DataAccess.DTOs.LIS;
     using DriverBase;
     using Serilog;
     using System.Text;
@@ -15,7 +18,20 @@
             Logger.Warning("Parser clear...");
         }
 
-        public void Parse(byte[] bytes, out TestResult[] samples, out byte[] send)
+        public Task<ParserMessage> WriteAsync(byte[] bytes)
+        {
+            throw new System.NotImplementedException();
+        }
+        public Task<ParserMessage> ReadAsync()
+        {
+            throw new System.NotImplementedException();
+        }
+        public Task<ParserMessage> WriteAsync(DeviceOrderDTO[] orders)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Parse(byte[] bytes, out TestResultDTO[] samples, out byte[] send)
         {
             var data = Encoding.GetString(bytes);
             Logger.Debug($" <-:<{GetMessageForLogger(data)}>");
