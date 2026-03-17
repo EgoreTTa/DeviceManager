@@ -1459,7 +1459,7 @@ Test = T.Pr. Value= 65.2  MU = г/л
                 div.appendChild(label);
 
                 let select = document.createElement("select");
-                select.id = driverOption.propertyName;
+                select.id = driverOption.name;
                 select.className = "form-select";
                 select.value = driverOption.value;
                 div.appendChild(select);
@@ -1517,12 +1517,13 @@ Test = T.Pr. Value= 65.2  MU = г/л
 
                 let label = document.createElement("label");
                 label.className = "form-label";
-                label.id = driverOption.propertyName;
                 label.innerText = driverOption.description;
                 div.appendChild(label);
 
                 let select = document.createElement("select");
                 select.className = "form-select";
+                select.id = driverOption.name;
+                select.value = driverOption.value;
                 div.appendChild(select);
 
                 driverOption.examples.forEach(example => {
@@ -1831,10 +1832,7 @@ Test = T.Pr. Value= 65.2  MU = г/л
 
     async function setDeviceDriverOptions(){
         console.warn("driverOptions:", driverOptions);
-        Array.from(driverOptions).forEach((driverOption) => { 
-            let select = document.getElementById(driverOption.propertyName);
-            driverOption.value = select.value;
-        });
+        Array.from(driverOptions).forEach(driverOption => driverOption.value = document.getElementById(driverOption.name).value);
 
         console.warn("driverOptions:", driverOptions);
 

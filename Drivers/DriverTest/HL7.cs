@@ -14,7 +14,7 @@
     public sealed class HL7 : IParser
     {
         private readonly StringBuilder _messageForParse = new StringBuilder();
-        private readonly Regex _messageRegex = new Regex(@"(?<Message>[\s\S])\r\r\n");
+        private readonly Regex _messageRegex = new Regex(@"(?<Message>[\s\S]*\r)\r\n");
 
         private int _indexFieldForSample = 2;
         private string _nameSegmentForSample = "OBR";
@@ -118,7 +118,7 @@
                     message.ForConnect = Encoding.GetBytes(acknowledgment);
                     Logger.Information($"-->:{GetMessageForLogger(acknowledgment)}");
 
-                    testResults.AddRange(ParseMessage(match.ToString()));
+                    testResults.AddRange(ParseMessage(match.Groups["Message"].Value));
                 }
                 catch (Exception exception)
                 {
@@ -173,6 +173,7 @@
 
             var segments = message.Split('\r', StringSplitOptions.RemoveEmptyEntries);
 
+            Logger.Information($"segments {segments.Length} found!");
             foreach (var segment in segments)
             {
                 var fields = segment.Split('|');
@@ -192,9 +193,13 @@
                         {
                             SampleCode = sampleCode,
                             TestCode = testCode,
-                            Value = $"{value}",
+                            Value = value,
                             MuCode = muCode
                         });
+                        Logger.Information($"sampleCode:{sampleCode}" +
+                                           $"testCode:{testCode}" +
+                                           $"value:{value}" +
+                                           $"muCode:{muCode}");
                         break;
                 }
             }
