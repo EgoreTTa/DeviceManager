@@ -3,6 +3,7 @@
     using DataAccess.DTOs.LIS;
     using DriverBase.DTOs;
     using global::DeviceManager.Configurations.Device;
+    using global::DeviceManager.Devices;
     using global::DeviceManager.Entities;
     using global::DeviceManager.UseCases;
     using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,11 @@
         public DeviceConfig[] GetAll() => _service.GetDevices()
                                                   .Select(device => device.Configuration)
                                                   .ToArray();
+
+        [HttpGet("{id}")]
+        public DeviceConfig GetDeviceById(int id) => _service.GetDevices()
+                                                             .Select(device => device.Configuration)
+                                                             .Single(config => config.Id == id);
 
         [HttpPut]
         public async Task<DeviceManagerEvent> Create(DeviceConfig device) => await _service.AddDevice(device);
