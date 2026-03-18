@@ -1,7 +1,7 @@
 namespace DriverBase
 {
-    using DataAccess.DTOs.LIS;
     using DTOs;
+    using Infrastructure.DTOs.LIS;
     using Serilog;
     using System.Text;
     using System.Threading.Tasks;

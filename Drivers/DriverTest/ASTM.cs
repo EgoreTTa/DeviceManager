@@ -1,6 +1,6 @@
 ﻿namespace DriverTest
 {
-    using DataAccess.DTOs.LIS;
+    using Infrastructure.DTOs.LIS;
     using DriverBase;
     using DriverBase.DTOs;
     using Serilog;

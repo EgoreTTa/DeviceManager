@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-
-namespace DriverTest2
+﻿namespace DriverTest2
 {
-    using DriverBase.DTOs;
-    using DataAccess.DTOs.LIS;
     using DriverBase;
+    using DriverBase.DTOs;
+    using Infrastructure.DTOs.LIS;
     using Serilog;
     using System.Text;
+    using System.Threading.Tasks;
 
     public sealed class Custom : IParser
     {
