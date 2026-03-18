@@ -30,10 +30,12 @@ namespace DeviceManagerAPI
                                           .AllowAnyMethod()
                                           .AllowAnyOrigin());
 
-            app.UseEndpoints(builder =>
-            {
-                builder.MapControllers();
-            });
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseEndpoints(builder => { builder.MapControllers(); });
         }
     }
 }
