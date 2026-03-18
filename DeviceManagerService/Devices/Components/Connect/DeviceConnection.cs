@@ -16,7 +16,6 @@ namespace DeviceManager.Devices.Components.Connect
         private readonly IPEndPoint _ipEndPoint;
 
         private Socket _server;
-        private Task _task;
         private CancellationTokenSource _source;
 
         public ILogger Logger { get; set; }
@@ -44,38 +43,26 @@ namespace DeviceManager.Devices.Components.Connect
             }
         }
 
-        public Task StartAsync(CancellationToken token)
+        private async Task SocketConnect()
         {
-            _task = Task.Run(
-                async () =>
-                {
-                    Logger.Debug($"DeviceConnection StartAsync!");
-                    while (token.IsCancellationRequested is false)
-                    {
-                        if (_socket is { })
-                        {
-                            Logger.Debug($"DeviceConnection await _socket.AcceptAsync...");
-                            _server = await _socket.AcceptAsync();
-                            Logger.Debug($"DeviceConnection AcceptAsync!");
-                        }
+            if (_socket is { })
+            {
+                Logger.Debug($"DeviceConnection await _socket.AcceptAsync...");
+                _server = await _socket.AcceptAsync();
+                Logger.Debug($"DeviceConnection AcceptAsync!");
+            }
 
-                        if (_client is { })
-                        {
-                            Logger.Debug($"DeviceConnection await _client.ConnectAsync...");
-                            await _client.ConnectAsync(_ipEndPoint);
-                            Logger.Debug($"DeviceConnection ConnectAsync!");
-                        }
-                        await Task.Delay(TimeSpan.FromSeconds(1), token);
-                    }
-
-                    Logger.Debug($"DeviceConnection StopAsync!!");
-                }, token);
-
-            Logger.Information($"network connect start.");
-            return Task.CompletedTask;
+            if (_client is { })
+            {
+                Logger.Debug($"DeviceConnection await _client.ConnectAsync...");
+                await _client.ConnectAsync(_ipEndPoint);
+                Logger.Debug($"DeviceConnection ConnectAsync!");
+            }
         }
 
-        public async Task StopAsync(CancellationToken token)
+        public Task StartAsync(CancellationToken token) => SocketConnect();
+
+        public void Stop()
         {
             _source.Cancel();
 
@@ -83,7 +70,6 @@ namespace DeviceManager.Devices.Components.Connect
             _server?.Close();
             _client?.Close();
 
-            await _task;
             Logger.Information($"network connect stop.");
         }
 
@@ -101,7 +87,8 @@ namespace DeviceManager.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                throw new NotImplementedException();
+                await SocketConnect();
+                throw new Exception("No connection, reconnection was performed");
             }
         }
 
@@ -116,7 +103,8 @@ namespace DeviceManager.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                throw new NotImplementedException();
+                await SocketConnect();
+                throw new Exception("No connection, reconnection was performed");
             }
         }
 

@@ -9,7 +9,7 @@ namespace DeviceManager.Devices.Components.Connect
         public ILogger Logger { get; set; }
 
         Task StartAsync(CancellationToken token);
-        Task StopAsync(CancellationToken token);
+        void Stop();
         Task<byte[]> ReadAsync(CancellationToken token);
         Task WriteAsync(byte[] bytes, CancellationToken token);
     }

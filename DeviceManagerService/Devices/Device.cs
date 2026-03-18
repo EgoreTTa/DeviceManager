@@ -16,7 +16,7 @@ namespace DeviceManager.Devices
     public sealed class Device
     {
         private (Task task, CancellationTokenSource source) _trackTask;
-        private readonly IConnection _connection;
+        private IConnection _connection;
 
         public ILogger Logger { get; set; }
         public DeviceConfig Configuration { get; set; }
@@ -35,23 +35,23 @@ namespace DeviceManager.Devices
             }
             DeviceService = new DeviceService(logger, url, configuration.SystemName, configuration.DriverSystemName, context);
             DeviceLogs = logs;
-            _connection = configuration.Connection.ConnectionType switch
-            {
-                ConnectionTypes.Network => new NetworkConnect(Logger, configuration.Connection.Network),
-                ConnectionTypes.Serial => new SerialConnect(Logger, configuration.Connection.Serial),
-                ConnectionTypes.FileSystem => new FileSystemConnect(Logger, configuration.Connection.FileSystem),
-                _ => throw new ArgumentOutOfRangeException()
-            };
         }
 
         public async Task StartAsync()
         {
             if (_trackTask != default) return;
 
+            _connection = Configuration.Connection.ConnectionType switch
+            {
+                ConnectionTypes.Network => new NetworkConnect(Logger, Configuration.Connection.Network),
+                ConnectionTypes.Serial => new SerialConnect(Logger, Configuration.Connection.Serial),
+                ConnectionTypes.FileSystem => new FileSystemConnect(Logger, Configuration.Connection.FileSystem),
+                _ => throw new ArgumentOutOfRangeException()
+            };
             _trackTask.source = new CancellationTokenSource();
 
-            await _connection.StartAsync(_trackTask.source.Token);
-            await DeviceService.GetComparisons();
+            _connection.StartAsync(_trackTask.source.Token);
+            DeviceService.GetComparisons();
             _trackTask.task = Run(_trackTask.source.Token);
         }
 

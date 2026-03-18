@@ -36,11 +36,7 @@ namespace DeviceManager.Devices.Components.Connect
             return Task.CompletedTask;
         }
 
-        public Task StopAsync(CancellationToken token)
-        {
-            Logger.Information($"filesystem connect stop.");
-            return Task.CompletedTask;
-        }
+        public void Stop() => Logger.Information($"filesystem connect stop.");
 
         public async Task<byte[]> ReadAsync(CancellationToken token)
         {

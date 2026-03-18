@@ -127,16 +127,25 @@ namespace DeviceManager.UseCases.UseCaseServices
             var beforeDevice = _devices.Select(x => x.Configuration)
                                        .Single(x => x.Id == id);
             var device = _devices.Single(x => x.Configuration == beforeDevice);
-
-            if (afterDevice.Driver.Parser != beforeDevice.Driver.Parser)
+            
+            afterDevice.Id = id;
+            device.Configuration = afterDevice;
+            if (afterDevice.Parser.Equals(beforeDevice.Parser) is false)
             {
                 var afterParser = _driverService.GetParser(afterDevice.Driver.Parser.FullName);
                 afterParser.Logger = device.Logger;
                 device.Parser = afterParser;
             }
+            if (afterDevice.Connection.Equals(beforeDevice.Connection) is false)
+            {
+                await device.StopAsync();
+                await device.StartAsync();
+            }
+            if (afterDevice.Logger.Equals(beforeDevice.Logger) is false)
+            {
+                // todo change logger;
+            }
 
-            afterDevice.Id = id;
-            device.Configuration = afterDevice;
             await File.WriteAllTextAsync(Path.Combine(_pathDeviceConfigs, $"{afterDevice.Name}.json"),
                 JsonConvert.SerializeObject(afterDevice, Formatting.Indented, new JsonSerializerSettings()
                 {

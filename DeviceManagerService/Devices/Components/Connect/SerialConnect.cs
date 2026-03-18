@@ -33,13 +33,13 @@ namespace DeviceManager.Devices.Components.Connect
             return Task.CompletedTask;
         }
 
-        public async Task StopAsync(CancellationToken token)
+        public void Stop()
         {
             _source.Cancel();
 
-            _serialPort?.Close();
+            _serialPort.Close();
 
-            await _task;
+            _task.Wait();
         }
 
         public async Task<byte[]> ReadAsync(CancellationToken token)
