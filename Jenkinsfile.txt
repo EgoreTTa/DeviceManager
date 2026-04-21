@@ -22,13 +22,19 @@ pipeline {
         }
 
 		stage('Clean...') {
-			sh 'rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR'
+            steps {
+				sh 'rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR'}
+			}
 		}
 		stage('Move build') {
-			sh 'mv -rf ./linux-x64 $DEPLOY_DIR'
+            steps {
+				sh 'mv -rf ./linux-x64 $DEPLOY_DIR'
+			}
 		}
 		stage('Restart Service') {
-			sh 'systemctl restart $SERVICE'
+			steps {
+				sh 'systemctl restart $SERVICE'
+			}
 		}
     }
 }
