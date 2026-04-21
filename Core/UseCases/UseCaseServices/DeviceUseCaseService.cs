@@ -2,6 +2,9 @@ namespace Core.UseCases.UseCaseServices
 {
     using Configurations;
     using Configurations.Device;
+    using Configurations.Device.Connection;
+    using Devices.Components.Connect;
+    using Devices.Components.Service;
     using Devices;
     using Devices.Components;
     using Newtonsoft.Json;
@@ -75,7 +78,7 @@ namespace Core.UseCases.UseCaseServices
                         _logger.Information($"Device config {fileInfo.Name} load...");
                         var device = JsonConvert.DeserializeObject<DeviceConfig>(await File.ReadAllTextAsync(file));
 
-                        device.Id = _devices.Select(x => x.Configuration.Id).Count() + 1;
+                        device.Id = _devices.Select(x => x.Config.Id).Count() + 1;
                         _devices.Add(CreateDevice(device, db));
 
                         _logger.Information($"Device config {fileInfo.Name} loaded.");
@@ -111,46 +114,59 @@ namespace Core.UseCases.UseCaseServices
 
         public async Task RemoveDevice(int id)
         {
-            var deviceConfig = _devices.Select(x => x.Configuration)
+            var deviceConfig = _devices.Select(x => x.Config)
                                        .Single(x => x.Id == id);
-            var device = _devices.Single(x => x.Configuration == deviceConfig);
+            var device = _devices.Single(x => x.Config == deviceConfig);
 
             await device.StopAsync();
             _devices.Remove(device);
 
-            File.Delete(Path.Combine(_pathDeviceConfigs, $"{deviceConfig.Id}.json"));
+            File.Delete(Path.Combine(_pathDeviceConfigs, $"{deviceConfig.Name}.json"));
             _logger.Information($"Device configuration {deviceConfig.Name} deleted!");
         }
 
         public async Task UpdateDevice(int id, DeviceConfig afterDevice)
         {
-            var beforeDevice = _devices.Select(x => x.Configuration)
+            var beforeDevice = _devices.Select(x => x.Config)
                                        .Single(x => x.Id == id);
-            var device = _devices.Single(x => x.Configuration == beforeDevice);
-            
-            afterDevice.Id = id;
-            device.Configuration = afterDevice;
-            if (afterDevice.Parser.Equals(beforeDevice.Parser) is false)
-            {
-                var afterParser = _driverService.GetParser(afterDevice.Driver.Parser.FullName);
-                afterParser.Logger = device.Logger;
-                device.Parser = afterParser;
-            }
-            if (afterDevice.Connection.Equals(beforeDevice.Connection) is false)
-            {
-                await device.StopAsync();
-                await device.StartAsync();
-            }
-            if (afterDevice.Logger.Equals(beforeDevice.Logger) is false)
-            {
-                // todo change logger;
-            }
+            var device = _devices.Single(x => x.Config == beforeDevice);
 
-            await File.WriteAllTextAsync(Path.Combine(_pathDeviceConfigs, $"{afterDevice.Name}.json"),
-                JsonConvert.SerializeObject(afterDevice, Formatting.Indented, new JsonSerializerSettings()
+            try
+            {
+                device.Config = afterDevice;
+                _logger.Information($"Device configuration Parser Equals...");
+                if (afterDevice.Parser?.Equals(beforeDevice.Parser) is false)
                 {
-                    NullValueHandling = NullValueHandling.Ignore
-                }));
+                    _logger.Information($"Device configuration Parser change!");
+                    var afterParser = _driverService.GetParser(afterDevice.Parser.FullName);
+                    afterParser.Logger = device.Logger;
+                    device.Parser = afterParser;
+                }
+                _logger.Information($"Device configuration Connection Equals...");
+                if (afterDevice.Connection?.Equals(beforeDevice.Connection) is false)
+                {
+                    _logger.Information($"Device configuration Connection change!");
+                    await device.StopAsync();
+                    await device.StartAsync();
+                }
+                _logger.Information($"Device configuration Logger Equals...");
+                if (afterDevice.Logger?.Equals(beforeDevice.Logger) is false)
+                {
+                    _logger.Information($"Device configuration Logger change!");
+                    // todo change logger;
+                }
+
+                await File.WriteAllTextAsync(Path.Combine(_pathDeviceConfigs, $"{afterDevice.Name}.json"),
+                    JsonConvert.SerializeObject(afterDevice, Formatting.Indented, new JsonSerializerSettings()
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    }));
+            }
+            catch (Exception exception)
+            {
+                _logger.Error(exception.Message);
+                _logger.Debug(exception.StackTrace);
+            }
         }
 
         public DeviceManagerConfig GetSettings() => _deviceManagerConfig;
@@ -178,12 +194,28 @@ namespace Core.UseCases.UseCaseServices
                                                   .WriteTo.Sink(deviceLogger)
                                                   .CreateLogger();
 
-            return new Device(logger, config, null, _deviceManagerConfig.Address, db, deviceLogger);
+            var device = new Device
+            {
+                Config = config,
+                Logger = logger,
+                Connection = config.Connection?.ConnectionType switch
+                {
+                    ConnectionTypes.Network => new NetworkConnect(logger, config.Connection.Network),
+                    ConnectionTypes.Serial => new SerialConnect(logger, config.Connection.Serial),
+                    ConnectionTypes.FileSystem => new FileSystemConnect(logger, config.Connection.FileSystem),
+                    _ => null
+                },
+                Parser = null,
+                DeviceService = new DeviceService(logger, _deviceManagerConfig.Address, config.SystemName, config.DriverSystemName, db),
+                DeviceLogs = deviceLogger
+            };
+
+            return device;
         }
 
         public async Task RetrySendTestResult(int id, int testResultId)
         {
-            var device = _devices.Single(x => x.Configuration.Id == id);
+            var device = _devices.Single(x => x.Config.Id == id);
 
             await device.RetrySendTestResult(testResultId);
         }

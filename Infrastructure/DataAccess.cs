@@ -105,18 +105,18 @@
             {
                 enumValueDtos.Add(new EnumValueDto
                 {
-                    _code = row.Element("code")?.Value,
-                    _systemEntityId = row.Element("systementityid")?.Value,
-                    _driverSystemName = row.Element("driversystemname")?.Value
+                    Code = row.Element("code")?.Value,
+                    SystemEntityId = row.Element("systementityid")?.Value,
+                    DriverSystemName = row.Element("driversystemname")?.Value
                 });
             }
 
-            enumValueDtos = enumValueDtos.OrderBy(x => x._code).ToList();
+            enumValueDtos = enumValueDtos.OrderBy(x => x.Code).ToList();
             Logger.Warning(enumValueDtos.Count > 0
                 ? $"Получено \"{enumValueDtos.Count}\" перечислимых значений тестов"
                 : "Указаный драйвер не содержит сопоставлений перечислимых значений тестов");
             foreach (var enumValueDto in enumValueDtos)
-                Logger.Information($"Перечислимое значение теста=\"{enumValueDto._code}\" is ID=\"{enumValueDto._systemEntityId}\"");
+                Logger.Information($"Перечислимое значение теста=\"{enumValueDto.Code}\" is ID=\"{enumValueDto.SystemEntityId}\"");
             return enumValueDtos.ToArray();
         }
 
@@ -148,18 +148,18 @@
             {
                 measureUnitDtos.Add(new MeasureUnitDto
                 {
-                    _code = row.Element("code")?.Value,
-                    _systemEntityId = row.Element("systementityid")?.Value,
-                    _driverSystemName = row.Element("driversystemname")?.Value
+                    Code = row.Element("code")?.Value,
+                    SystemEntityId = row.Element("systementityid")?.Value,
+                    DriverSystemName = row.Element("driversystemname")?.Value
                 });
             }
 
-            measureUnitDtos = measureUnitDtos.OrderBy(x => x._code).ToList();
+            measureUnitDtos = measureUnitDtos.OrderBy(x => x.Code).ToList();
             Logger.Information(measureUnitDtos.Count > 0
                 ? $"Получено \"{measureUnitDtos.Count}\" единиц измерений"
                 : "Указаный драйвер не содержит сопоставлений единиц измерений");
             foreach (var measureUnitDto in measureUnitDtos)
-                Logger.Information($"Единица измерения=\"{measureUnitDto._code}\" is ID=\"{measureUnitDto._systemEntityId}\"");
+                Logger.Information($"Единица измерения=\"{measureUnitDto.Code}\" is ID=\"{measureUnitDto.SystemEntityId}\"");
             return measureUnitDtos.ToArray();
         }
 
@@ -187,6 +187,7 @@
                     DeviceId = node["deviceid"]?.InnerText,
                     SystemEntityId = node["systementityid"]?.InnerText,
                     DriverSystemName = node["driversystemname"]?.InnerText,
+                    MethodId = node["methodid"]?.InnerText,
                     DeviceSystemName = node["devicesystemname"]?.InnerText,
                 });
             }

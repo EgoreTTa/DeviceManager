@@ -14,6 +14,7 @@ namespace Core.Devices.Components.Connect
         private readonly string _folderToReaded;
         private readonly string _folderToWrite;
         private readonly string _folderToWrited;
+        private readonly int _intervalForReadInSecond;
 
         public ILogger Logger { get; set; }
 
@@ -25,6 +26,7 @@ namespace Core.Devices.Components.Connect
             _folderToReaded = Path.Combine(configuration.FolderToRead, "Readed");
             _folderToWrite = configuration.FolderToWrite;
             _folderToWrited = Path.Combine(configuration.FolderToWrite, "Writed");
+            _intervalForReadInSecond = configuration.IntervalToReadInSecond;
             Logger.Information($"filesystem connect create.");
         }
 
@@ -45,6 +47,12 @@ namespace Core.Devices.Components.Connect
                 var files = Directory.GetFiles(_folderToRead);
                 var filesInfo = files.Select(x => new FileInfo(x))
                                      .OrderByDescending(x => x.CreationTime);
+                
+                if (files.Any() is false)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(_intervalForReadInSecond), token);
+                    throw new Exception("No files for read.");
+                }
 
                 var nextFile = filesInfo.First();
 
@@ -56,7 +64,7 @@ namespace Core.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                throw new NotImplementedException();
+                throw exception;
             }
         }
 
@@ -71,7 +79,7 @@ namespace Core.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                throw new NotImplementedException();
+                throw new Exception("No data for write.");
             }
         }
     }

@@ -53,10 +53,10 @@
         public async Task<DeviceManagerEvent> AddDevice(DeviceConfig device)
         {
             var newDevice = await _deviceUCS.AddDevice(device, _db);
-            var parser = _driverUCS.GetParser(device.Driver.Parser.FullName);
+            var parser = _driverUCS.GetParser(device.Parser.FullName);
 
             newDevice.Parser = parser;
-            newDevice.Parser.SetOptions(device.Driver.Parser.Options);
+            newDevice.Parser.SetOptions(device.Parser.Options);
 
             var newEvent = new DeviceManagerEvent($"Добавлено устройство {device.Name}");
             _db.Events.Add(newEvent);
@@ -67,10 +67,10 @@
 
         public async Task<DeviceManagerEvent> RemoveDevice(int id)
         {
-            var device = _deviceUCS.GetDevices().Single(x => x.Configuration.Id == id);
+            var device = _deviceUCS.GetDevices().Single(x => x.Config.Id == id);
             await _deviceUCS.RemoveDevice(id);
 
-            var newEvent = new DeviceManagerEvent($"Удалено устройство {device.Configuration.Name}");
+            var newEvent = new DeviceManagerEvent($"Удалено устройство {device.Config.Name}");
             _db.Events.Add(newEvent);
             await _db.SaveChangesAsync();
 
@@ -101,10 +101,10 @@
 
         public async Task<DeviceManagerEvent> RetrySendTestResult(int id, int testResultId)
         {
-            var device = _deviceUCS.GetDevices().Single(x => x.Configuration.Id == id);
+            var device = _deviceUCS.GetDevices().Single(x => x.Config.Id == id);
             await _deviceUCS.RetrySendTestResult(id, testResultId);
 
-            var newEvent = new DeviceManagerEvent($"Ручная отправка данных c {device.Configuration.Name} в ЛИС");
+            var newEvent = new DeviceManagerEvent($"Ручная отправка данных c {device.Config.Name} в ЛИС");
             _db.Events.Add(newEvent);
             await _db.SaveChangesAsync();
 
@@ -113,10 +113,10 @@
 
         public async Task<TestResultDTO[]> GetTestResults(int id)
         {
-            var device = _deviceUCS.GetDevices().Single(x => x.Configuration.Id == id);
+            var device = _deviceUCS.GetDevices().Single(x => x.Config.Id == id);
             await _db.TestResults.LoadAsync();
 
-            return _db.TestResults.Where(x => x.DeviceSystemName == device.Configuration.SystemName).ToArray();
+            return _db.TestResults.Where(x => x.DeviceSystemName == device.Config.SystemName).ToArray();
         }
     }
 }

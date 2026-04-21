@@ -2,13 +2,13 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8"/>
     <title>Device Manager</title>
 
-    <link href="css\bootstrap.min.css" rel="stylesheet">
+    <link href="css\bootstrap.min.css" rel="stylesheet"/>
     <script src="js\bootstrap.bundle.min.js"></script>
-    <!--link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
-    <script-- src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script-->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" /> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script> -->
 </head>
 
 <body>
@@ -20,12 +20,12 @@
                         Driver Manager 2.0
                     </div>
                 </div>
-                <ul class="nav col-md-8 mb-2 justify-content-center mb-md-0 text-center">
-                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white" id="header-tab-status" onclick="chargePanel('status')">Статус</a></li>
-                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white" id="header-tab-devices" onclick="chargePanel('devices')">Устройства</a></li>
-                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white" id="header-tab-drivers" onclick="chargePanel('drivers')">Драйвера</a></li>
-                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white" id="header-tab-settings" onclick="chargePanel('settings')">Настройки</a></li>
-                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white" id="header-tab-journal" onclick="chargePanel('journal')">Журнал</a></li>
+                <ul id="nav-header-buttons" class="nav col-md-8 mb-2 justify-content-center mb-md-0 text-center">
+                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white header-tab" id="header-tab-status" onclick="chargePanel('status')">Статус</a></li>
+                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white header-tab" id="header-tab-devices" onclick="chargePanel('devices')">Устройства</a></li>
+                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white header-tab" id="header-tab-drivers" onclick="chargePanel('drivers')">Драйвера</a></li>
+                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white header-tab" id="header-tab-settings" onclick="chargePanel('settings')">Настройки</a></li>
+                    <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white header-tab" id="header-tab-journal" onclick="chargePanel('journal')">Журнал</a></li>
                 </ul>
                 <div class="col-sm-2 mb-2 mb-md-0">
                     <input class="form-control" type="text" value="127.0.0.1:5000" disabled/>
@@ -36,36 +36,13 @@
 
     <div class="container col-xxl create-new-device" style="display: none">
         <div class="my-3 p-3 bg-body rounded shadow">
-            <h4>Свойства устройства</h4>
-            <hr />
-            <div id="place1"></div>
-            <hr />
             <div class="row">
-                <dev class="col-6"></dev>
-                <dev class="col-3">
-                    <button type="button" class="btn btn-danger w-100" onclick="cancelCreateNewDevice()">Отменить</button>
-                </dev>
-                <dev class="col-3">
-                    <button type="button" class="btn btn-success w-100" onclick="createNewDevice()">Сохранить</button>
-                </dev>
+                <h4>Новое устройство</h4>
             </div>
+            <hr class="m-0"/>
+            <div id="place1"></div>
         </div>
     </div>
-
-    <!--div class="container col-xxl device-logs">
-        <div class="my-3 p-3 bg-body rounded shadow">
-            <div class="row">
-                <div class="col-9">
-                    <h4>Монитор событий</h4>
-                </div>
-                <div class="col-3">
-                    <button id="button-device-log" type="button" class="btn btn-success w-100" onclick="updateLog(device.id)">Включить мониторинг</button>
-                </div>
-            </div>
-            <hr />
-            <textarea class="form-control" name="device-log-test" id="log-test" rows="30" disabled></textarea>
-        </div>
-    </div-->
 
     <div class="container col-xxl settings" style="display: none">
         <div class="my-3 p-3 bg-body rounded shadow">
@@ -76,11 +53,11 @@
             <div class="row">
                 <div class="col-sm-4">
                     <label class="form-label">Адрес ЛИС</label>
-                    <input id="devicemanager.settings.address" class="form-control" type="text" />
+                    <input id="devicemanager.settings.address" class="form-control" type="text" required/>
                 </div>
                 <div class="col-sm-4">
                     <label class="form-label">Тайм-аут запросов</label>
-                    <select id="devicemanager.settings.timeout" class="form-select" required="">
+                    <select id="devicemanager.settings.timeout" class="form-select col-10" required>
                         <option value="5 sec">5 сек</option>
                         <option value="15 sec" selected>15 сек</option>
                         <option value="30 sec">30 сек</option>
@@ -93,52 +70,24 @@
             </div>
             <hr />
             <div class="row">
-                <h5>Логирование</h5>
+                <div class="col-sm-4">
+                    <label class="form-label">Адрес DMS</label>
+                    <input id="" class="form-control" type="text" disabled/>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Идентификатор</label>
+                    <input id="" class="form-control" type="text" disabled/>
+                </div>
+                <dev class="col-4 d-flex  align-items-end">
+                    <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
+                </dev>
             </div>
             <hr />
             <div class="row">
-                <div class="col-sm-4">
-                    <label class="form-label">Режим логирования</label>
-                    <select id="" class="form-select" required="">
-                        <option value="default" disabled>выбрать режим...</option>
-                        <option value="Minimum">Минимальный</option>
-                        <option value="Info" selected>Обычный</option>
-                        <option value="Debug" >Подробный</option>
-                    </select>
-                </div>
-                <div class="col-sm-4">
-                    <label class="form-label">Срок хранения логов</label>
-                    <select id="" class="form-select" required="">
-                        <option value="default" disabled>выбрать срок...</option>
-                        <option value="1 day">1 день</option>
-                        <option value="1 week" selected>1 неделя</option>
-                        <option value="1 mount" >1 месяц</option>
-                        <option value="1 year" >1 год</option>
-                        <option value="indefinitely" >бессрочно</option>
-                    </select>
-                </div>
-                <div class="col-sm-4">
-                    <label class="form-check-label" for="devicemanager.settings.islogrequest">Логировать запросы</label>
-                    <div class="form-check form-switch">
-                        <input id="devicemanager.settings.islogrequest" class="form-check-input" type="checkbox" role="switch">
-                    </div>
-                </div>
+                <h5>Логирование</h5>
             </div>
-            <div class="row">
-                <div class="col-sm-4">
-                    <label class="form-label">Маска файлов</label>
-                    <input id="" class="form-control" type="text" value="yyyy-MM-dd HH:mm:ss" />
-                </div>
-                <div class="col-sm-4">
-                    <label class="form-label">Разделение файлов</label>
-                    <select id="" class="form-select" required="">
-                        <option value="default" disabled>выбрать тип...</option>
-                        <option value="1">По запуску</option>
-                        <option value="2" selected>По размеру (1024кб)</option>
-                        <option value="3">По дням</option>
-                    </select>
-                </div>
-            </div>
+            <hr />
+            <div id="logger-settings"></div>
             <hr />
             <div class="row">
                 <dev class="col-6"></dev>
@@ -171,7 +120,7 @@
                             <th class="col-sm-3">Системное имя устройства</th>
                             <th class="col-sm-2">Имя драйвера</th>
                             <th class="col-sm-3">Системное имя драйвера</th>
-                            <th class="col-sm-2">Активно</th>
+                            <th class="col-sm-2">Статус</th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider" id="table-devices">
@@ -200,11 +149,11 @@
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                         <button class="nav-link col-sm-2 active" id="nav-device-tab-1" data-bs-toggle="tab" data-bs-target="#device-tab-1" type="button" role="tab" aria-controls="device-tab-1" aria-selected="true">Статус</button>
-                        <button class="nav-link col-sm-2" id="nav-device-tab-2" data-bs-toggle="tab" data-bs-target="#device-tab-2" type="button" role="tab" aria-controls="device-tab-2" aria-selected="false" onClick="getDeviceTestCollations()">Сопоставления</button>
+                        <button class="nav-link col-sm-2" id="nav-device-tab-2" data-bs-toggle="tab" data-bs-target="#device-tab-2" type="button" role="tab" aria-controls="device-tab-2" aria-selected="false" onClick="getComparisons()">Сопоставления</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-3" data-bs-toggle="tab" data-bs-target="#device-tab-3" type="button" role="tab" aria-controls="device-tab-3" aria-selected="false">Мониторинг</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-4" data-bs-toggle="tab" data-bs-target="#device-tab-4" type="button" role="tab" aria-controls="device-tab-4" aria-selected="false">Тестирование</button>
                         <button class="nav-link col-sm-2" id="nav-device-tab-5" data-bs-toggle="tab" data-bs-target="#device-tab-5" type="button" role="tab" aria-controls="device-tab-5" aria-selected="false">Свойства</button>
-                        <button class="nav-link col-sm-2" id="nav-device-tab-6" data-bs-toggle="tab" data-bs-target="#device-tab-6" type="button" role="tab" aria-controls="device-tab-6" aria-selected="false" onClick="showDeviceDriver()">Настройки</button>
+                        <button class="nav-link col-sm-2" id="nav-device-tab-6" data-bs-toggle="tab" data-bs-target="#device-tab-6" type="button" role="tab" aria-controls="device-tab-6" aria-selected="false" onClick="showDeviceDriver()" disabled>Настройки</button>
                         <!--button class="nav-link col-sm-2" id="nav-device-tab-7" data-bs-toggle="tab" data-bs-target="#device-tab-7" type="button" role="tab" aria-controls="device-tab-7" aria-selected="false" disabled>Очередь заданий</button-->
                     </div>
                 </nav>
@@ -379,14 +328,48 @@
                                     <button class="nav-link text-start active" id="device.comparisons-7-tab" data-bs-toggle="pill" data-bs-target="#device.comparisons-7" type="button" role="tab" aria-controls="device.comparisons-7" aria-selected="true">Результаты тестов</button>
                                 </div>
                                 <div class="tab-content col-10 px-3" id="v-pills-tabContent">
-                                    <div class="tab-pane fade" id="device.comparisons-1" role="tabpanel" aria-labelledby="device.comparisons-1-tab" tabindex="0">
-                                        
-                                    </div>
+                                    <div class="tab-pane fade" id="device.comparisons-1" role="tabpanel" aria-labelledby="device.comparisons-1-tab" tabindex="0">...</div>
                                     <div class="tab-pane fade" id="device.comparisons-2" role="tabpanel" aria-labelledby="device.comparisons-2-tab" tabindex="0">...</div>
                                     <div class="tab-pane fade" id="device.comparisons-3" role="tabpanel" aria-labelledby="device.comparisons-3-tab" tabindex="0">...</div>
                                     <div class="tab-pane fade" id="device.comparisons-4" role="tabpanel" aria-labelledby="device.comparisons-4-tab" tabindex="0">...</div>
-                                    <div class="tab-pane fade" id="device.comparisons-5" role="tabpanel" aria-labelledby="device.comparisons-5-tab" tabindex="0">...</div>
-                                    <div class="tab-pane fade" id="device.comparisons-6" role="tabpanel" aria-labelledby="device.comparisons-6-tab" tabindex="0">...</div>
+                                    <div class="tab-pane fade" id="device.comparisons-5" role="tabpanel" aria-labelledby="device.comparisons-5-tab" tabindex="0">
+                                        <div class="row">
+                                            <div class="table col-12">
+                                                <table class="table table-sm table-striped table-hover table-bordered table-secondary align-middle my-0">
+                                                    <thead class="table-dark">
+                                                        <tr>
+                                                            <th class="col-sm-2">ID в ЛИС</th>
+                                                            <th class="col-sm-5">Ед.измерения</th>
+                                                            <th class="col-sm-5">-</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="table-group-divider table-light" id="table-device.comparisons-5">
+                                                    </tbody>
+                                                    <tfoot>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="device.comparisons-6" role="tabpanel" aria-labelledby="device.comparisons-6-tab" tabindex="0">
+                                        <div class="row">
+                                            <div class="table col-12">
+                                                <table class="table table-sm table-striped table-hover table-bordered table-secondary align-middle my-0">
+                                                    <thead class="table-dark">
+                                                        <tr>
+                                                            <th class="col-sm-2">ID в ЛИС</th>
+                                                            <th class="col-sm-5">Перечислимое значение</th>
+                                                            <th class="col-sm-5">-</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="table-group-divider table-light" id="table-device.comparisons-6">
+                                                    </tbody>
+                                                    <tfoot>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="tab-pane fade show active" id="device.comparisons-7" role="tabpanel" aria-labelledby="device.comparisons-7-tab" tabindex="0">
                                         <div class="row">
                                             <div class="table col-12">
@@ -394,27 +377,11 @@
                                                     <thead class="table-dark">
                                                         <tr>
                                                             <th class="col-sm-2">ID в ЛИС</th>
-                                                            <th class="col-sm-5">Наименование теста на ЛА</th>
-                                                            <th class="col-sm-5">Наименование теста в ЛИС</th>
+                                                            <th class="col-sm-5">Имя теста</th>
+                                                            <th class="col-sm-5">ID метода в ЛИС</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="table-group-divider table-light" id="table-device.comparisons-7">
-                                                        <tr>
-                                                            <td>12</td>
-                                                            <td>tBil</td>
-                                                            <td>BIL</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>12</td>
-                                                            <td>tBil-1</td>
-                                                            <td>BIL</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>152</td>
-                                                            <td>prot</td>
-                                                            <td>PRO</td>
-                                                        </tr>
-                                                    </tbody>
                                                     <tfoot>
                                                     </tfoot>
                                                 </table>
@@ -471,26 +438,12 @@
                                     <h5>Свойства устройства</h5>
                                     <hr />
                                     <div id="place2"></div>
-                                    <hr />
-                                    <div class="row">
-                                        <dev class="col-3">
-                                            <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#modal-delete-device">Удалить</button>
-                                        </dev>
-                                        <dev class="col-3">
-                                            <button id="device.isActive" type="button" class="btn btn-secondary w-100" onclick="flipActiveDevice()">Отключить</button>
-                                        </dev>
-                                        <dev class="col-3">
-                                        </dev>
-                                        <dev class="col-3">
-                                            <button type="button" class="btn btn-success w-100" onclick="updateDevice()">Изменить</button>
-                                        </dev>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="device-tab-6" role="tabpanel" aria-labelledby="nav-device-tab-6" tabindex="0">
-                        <div class="p-3 border border-top-0">
+                        <!-- <div class="p-3 border border-top-0">
                             <div class="row">
                                 <div class="col-12">
                                     <div class="row my-3">
@@ -635,7 +588,7 @@
                                         <h5>Специальные настройки</h5>
                                     </div>
                                     <hr />
-                                    <div id="device.driver.options" class="row row-cols-2">
+                                    <div id="" class="row row-cols-2">
                                     </div>
                                     <hr />
                                     <div class="row">
@@ -647,7 +600,7 @@
                                     </div>
                                 </div> 
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -707,25 +660,6 @@
                     <hr />
                     <div class="row">
                         <div class="col-6">
-                            <label class="form-label">Тип взаимодействия</label>
-                            <div class="form-check">
-                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-1" name="selected.driver.type-workmode" required="" checked value="selected.driver.type-workmode-1" />
-                                <label class="form-check-label" for="selected.driver.type-workmode-1"> Односторонняя передача данных</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-2" name="selected.driver.type-workmode" required="" value="selected.driver.type-workmode-2" />
-                                <label class="form-check-label" for="selected.driver.type-workmode-2"> Двусторонняя передача данных по запросу</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-3" name="selected.driver.type-workmode" required="" disabled value="selected.driver.type-workmode-3" />
-                                <label class="form-check-label" for="selected.driver.type-workmode-3"> Автоматическое загрузка образцов из ЛИС</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="radio" class="form-check-input selected.driver.type-workmode" id="selected.driver.type-workmode-4" name="selected.driver.type-workmode" required="" value="selected.driver.type-workmode-4" />
-                                <label class="form-check-label" for="selected.driver.type-workmode-4"> Автоматическое загрузка образцов из ЛИС по выбору </label>
-                            </div>
-                        </div>
-                        <div class="col-6">
                             <label class="form-label">Тип передачи результатов</label>
                             <div class="form-check">
                                 <input id="selected.driver.address-type-1" type="radio" class="form-check-input" name="selected.driver.address-type" required="" checked />
@@ -737,23 +671,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row my-3">
-                        <div class="col-sm-8">
-                            <label class="form-label">Исключить тесты из обработки</label>
-                            <input id="" class="form-control" type="text" value="NRBC#;MICROR;Left_Shift?" />
-                        </div>
-                        <div class="col-sm-4">
-                            <label class="form-label">Обработка номера образца</label>
-                            <select id="" class="form-select" required="">
-                                <option value="default" disabled>выбрать тип...</option>
-                                <option value="1" selected>Без изменений</option>
-                                <option value="2" >Убрать 0 с начала</option>
-                                <option value="3" >Оставить 4 знака с конца</option>
-                                <option value="4" >Оставить 4 знака с начала</option>
-                            </select>
-                        </div>
-                    </div>
-                    <hr />
                     <div class="row">
                         <h5>Специальные настройки</h5>
                     </div>
@@ -912,219 +829,409 @@ Test = T.Pr. Value= 65.2  MU = г/л
         </div>
     </div>
 
+    <template id="template-form-logger-settings">
+        <form class="form-logger-settings">
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="form-label">Log Level</label>
+                    <select id="" class="form-select" required="">
+                        <option value="Verbose">Verbose</option>
+                        <option value="Debug">Debug</option>
+                        <option value="Information" selected>Information</option>
+                        <option value="Warning">Warning</option>
+                        <option value="Error">Error</option>
+                        <option value="Fatal">Fatal</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Срок хранения журналов</label>
+                    <select id="" class="form-select" required="">
+                        <option value="1 day">1 день</option>
+                        <option value="1 week" selected>1 неделя</option>
+                        <option value="1 mount" >1 месяц</option>
+                        <option value="1 year" >1 год</option>
+                        <option value="indefinitely" >бессрочно</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-check-label" for="devicemanager.settings.islogrequest">Логировать запросы</label>
+                    <div class="form-check form-switch">
+                        <input id="devicemanager.settings.islogrequest" class="form-check-input" type="checkbox" role="switch">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="form-label">Маска файлов</label>
+                    <input id="" class="form-control" type="text" value="yyyy-MM-dd HH:mm:ss" disabled/>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Разделение файлов</label>
+                    <select id="" class="form-select" required="">
+                        <option value="1">По запуску</option>
+                        <option value="2">По размеру (1024кб)</option>
+                        <option value="3" selected>По дням</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </template>
+
     <template id="template-form-create-or-update-device">
         <form class="form-create-or-update-device">
-            <div class="row">
-                <div class="col-sm-6">
-                    <label class="form-label">Имя устройства</label>
-                    <input type="text" class="form-control" id="device.name" />
-                </div>
-                <div class="col-sm-6">
-                    <label class="form-label">Системное имя устройства</label>
-                    <input type="text" class="form-control" id="device.systemName" />
-                </div>
-            </div>
-            <h5 class="my-3">Свойства драйвера</h5>
-            <div class="row">
-                <div class="col-sm-4">
-                    <label class="form-label">Имя драйвера</label>
-                    <select class="form-select" id="device.driver.name" required="">
-                        <option selected disabled value="default">выбрать драйвер...</option>
-                        <option>test ASTM</option>
-                        <option>test HL7</option>
-                        <option>test Custom</option>
-                    </select>
-                </div>
-                <div class="col-sm-4">
-                    <label class="form-label">Системное имя драйвера</label>
-                    <input type="text" class="form-control" id="device.driver.systemName" />
-                </div>
-                <div class="col-sm-4">
-                    <label class="form-label">Кодировка данных</label>
-                    <select class="form-select" id="device.driver.encoding" required="">
-                        <option value="ascii">ascii</option>
-                        <option selected value="utf-8">utf-8</option>
-                        <option value="windows-1251">windows-1251</option>
-                        <option value="cp866">cp866</option>
-                        <option value="unicode">unicode</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-12">
-                <label class="form-label">Опции</label>
-                <div class="form-check">
-                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-1" value="device.driver.option-1"/>
-                    <label class="form-check-label" for="device.driver.option-1"> Автоматическое дополнение номера образца</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-2"
-                        value="device.driver.option-2" />
-                    <label class="form-check-label" for="device.driver.option-2"> Автоматическое создание
-                        направления
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-3"
-                        value="device.driver.option-3" />
-                    <label class="form-check-label" for="device.driver.option-3"> Передача последнего образца или
-                        плашки
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-4" value="device.driver.option-4"
-                        disabled />
-                    <label class="form-check-label" for="device.driver.option-4"> Добавлять имя устройства к номеру
-                        направления при автоматическом создании направления</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-5" value="device.driver.option-5"
-                        disabled />
-                    <label class="form-check-label" for="device.driver.option-5"> Добавлять имя устройства к номеру
-                        образца при автоматическом создании направления</label>
-                </div>
-            </div>
-            <div class="col-sm-12 my-3">
-                <h5 class="mb-3">Тип соединения</h5>
-                <nav>
-                    <div class="nav nav-tabs" id="device.hardware.type" role="tablist">
-                        <button class="nav-link active col-sm-4" id="device.hardware.type-1-tab" data-bs-toggle="tab"
-                            data-bs-target="#device.hardware.type-1" type="button" role="tab" aria-controls="device.hardware.type-1"
-                            aria-selected="true" value="Network">Сетевой</button>
-                        <button class="nav-link col-sm-4" id="device.hardware.type-2-tab" data-bs-toggle="tab"
-                            data-bs-target="#device.hardware.type-2" type="button" role="tab" aria-controls="device.hardware.type-2"
-                            aria-selected="false" value="Serial">Серийный</button>
-                        <button class="nav-link col-sm-4" id="device.hardware.type-3-tab" data-bs-toggle="tab"
-                            data-bs-target="#device.hardware.type-3" type="button" role="tab" aria-controls="device.hardware.type-3"
-                            aria-selected="false" value="FileSystem">Файловый</button>
-                    </div>
-                </nav>
-                <div class="tab-content" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="device.hardware.type-1" role="tabpanel"
-                        aria-labelledby="device.hardware.type-1" tabindex="0">
-                        <div class="row">
-                            <div class="col-sm-2">
-                                <label class="form-label">Режим</label>
-                                <select id="device.hardware.mode" class="form-select" required="" onchange="selectHardware()">
-                                    <option id="device.hardware.mode-1" type="button" value="Server">Сервер</option>
-                                    <option id="device.hardware.mode-2" type="button" value="Client">Клиент</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-10"></div>
+            <div class="my-3">
+                <div class="row">
+                    <div class="col was-validated">
+                        <div class="col">
+                            <input class="form-control" id="device-name" placeholder="Имя устройства" required>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-2">
-                                <label class="form-label">IP-адрес</label>
-                                <input id="device.hardware.address" type="text" class="form-control" value="127.0.0.1" disabled>
-                            </div>
-                            <div class="col-sm-2">
-                                <label class="form-label">Порт</label>
-                                <input id="device.hardware.port" type="text" class="form-control" value="5050" />
-                            </div>
-                            <div class="col-sm-6">
-                            </div>
-                            <div class="col-sm-2 d-flex justify-content-between align-items-end">
-                                <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
-                            </div>
+                        <div class="col my-3">
+                            <input class="form-control" id="device-systemname" placeholder="Системное имя устройства" required>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="device-driver-systemname" placeholder="Системное имя драйвера" required>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="device.hardware.type-2" role="tabpanel"
-                        aria-labelledby="device.hardware.type-2" tabindex="0">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="form-label">Порт данных</label>
-                                <select id="device.serial.portname" class="form-select" required="">
-                                    <option selected>выбрать порт...</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-4">
-                                <label class="form-label">Скорость данных</label>
-                                <select id="device.serial.baudrate" class="form-select" required="">
-                                    <option value="1200">1200</option>
-                                    <option value="2400">2400</option>
-                                    <option value="4800">4800</option>
-                                    <option selected value="9600">9600</option>
-                                    <option value="19200">19200</option>
-                                    <option value="38400">38400</option>
-                                    <option value="57600">57600</option>
-                                    <option value="115200">115200</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-4"><label class="form-label">Длина бит</label>
-                                <select id="device.serial.dataBits" class="form-select" required="">
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option selected value="8">8</option>
-                                    <option value="9">9</option>
-                                </select>
-                            </div>
+                    <div class="col">
+                        <div class="col">
+                            <select id="device.driver.workmode-type" class="form-select">
+                                <option value="workmode-1" selected>Двусторонняя передача данных</option>
+                                <option value="workmode-2" disabled>Автоматическое загрузка образцов из ЛИС</option>
+                                <option value="workmode-3" disabled>Автоматическое загрузка образцов из очереди заданий ЛИС</option>
+                            </select>
+                        </div>
+                        <div class="col my-3">
+                            <select id="device.driver.address-type" class="form-select">
+                                <option value="address-1" selected>По номеру штрих-кода</option>
+                                <option value="address-2" disabled>По позиции в плашке</option>
+                            </select>
                         </div>
                         <div class="row">
-                            <div class="col-sm-4"><label class="form-label">Количество
-                                    стоповых бит</label>
-                                <select id="device.serial.stopBits" class="form-select" required="">
-                                    <option value="None">None</option>
-                                    <option selected value="One">One</option>
-                                    <option value="Two">Two</option>
-                                    <option value="OnePointFive">OnePointFive</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-4"><label class="form-label">Четность</label>
-                                <select id="device.serial.parity" class="form-select" required="">
-                                    <option selected value="None">None</option>
-                                    <option value="Odd">Odd</option>
-                                    <option value="Even">Even</option>
-                                    <option value="Mark">Mark</option>
-                                    <option value="Space">Space</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-2">
-                            </div>
-                            <div class="col-sm-2 d-flex justify-content-between align-items-end">
-                                <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
-                            </div>
+                            <div class="btn-group col" role="group" aria-label="Basic radio toggle button group">
+                                <input type="radio" class="btn-check" name="btnradio" id="device-active" autocomplete="off" checked>
+                                <label class="btn btn-outline-success w-100" for="device-active" onclick="deviceStart()">Включено</label>
+                                <input type="radio" class="btn-check" name="btnradio" id="device-inactive" autocomplete="off">
+                                <label class="btn btn-outline-danger w-100" for="device-inactive" onclick="deviceStop()">Выключено</label>
+                            </div>                
+                            <dev id="button-create-device" class="col">
+                                <button type="button" class="btn btn-success w-100" onclick="createNewDevice()">Сохранить</button>
+                            </dev>
+                            <dev id="button-update-device" class="col">
+                                <button type="button" class="btn btn-success w-100" onclick="updateDevice()">Изменить</button>
+                            </dev>
+                            <dev id="button-delete-device" class="col">
+                                <button type="button" class="btn btn-danger w-100" onclick="deleteSelectedDevice()">Удалить</button>
+                            </dev>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="device.hardware.type-3" role="tabpanel"
-                        aria-labelledby="device.hardware.type-3" tabindex="0">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="form-label">Расположение для чтения данных</label>
-                                <input type="text" class="form-control" value="/Read/"/>
-                            </div>
-                            <div class="col-sm-4">
-                                <label class="form-label">Интервал чтения данных</label>
-                                <select class="form-select" required="">
-                                    <option>Каждую 1 сек</option>
-                                    <option selected>Каждые 5 сек</option>
-                                    <option>Каждые 10 сек</option>
-                                    <option>Каждые 15 сек</option>
-                                    <option>Каждые 30 сек</option>
-                                    <option>Каждую 1 мин</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-4">
-                                <label class="form-label">Удалять после чтения</label>
-                                
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value=""
-                                        id="file-option-1" />
+                </div>
+            </div>
+            <hr/>
+            <div class="my-3">
+                <div class="row ms-0 mt-3 d-flex align-items-start">
+                    <div class="nav flex-column nav-pills col-2 border-end" id="v-pills-tabs" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link text-start active" id="v-pills-1-tab" data-bs-toggle="pill" data-bs-target="#v-pills-1" type="button" role="tab" aria-controls="v-pills-1" aria-selected="true">Подключение</button>
+                        <button class="nav-link text-start" id="v-pills-2-tab" data-bs-toggle="pill" data-bs-target="#v-pills-2" type="button" role="tab" aria-controls="v-pills-2" aria-selected="false">Драйвер</button>
+                        <button class="nav-link text-start" id="v-pills-3-tab" data-bs-toggle="pill" data-bs-target="#v-pills-3" type="button" role="tab" aria-controls="v-pills-3" aria-selected="false">Журнал</button>
+                        <button class="nav-link text-start" id="v-pills-4-tab" data-bs-toggle="pill" data-bs-target="#v-pills-4" type="button" role="tab" aria-controls="v-pills-4" aria-selected="false">Дополнительно</button>
+                    </div>
+                    <div class="tab-content col-10 border-start" id="v-pills-tabContent">
+                        <div class="tab-pane fade show active" id="v-pills-1" role="tabpanel" aria-labelledby="v-pills-1-tab" tabindex="0">
+                            <div class="row m-0 d-flex align-items-start">
+                                <div class="nav flex-column nav-pills col-2 border-end" id="v-pills-1-tabs" role="tablist" aria-orientation="vertical">
+                                    <button class="nav-link text-start active" id="v-pills-1-1-tab" data-bs-toggle="pill" data-bs-target="#v-pills-1-1" type="button" role="tab" aria-controls="v-pills-1-1" aria-selected="true" value="network">Сетевой</button>
+                                    <button class="nav-link text-start" id="v-pills-1-2-tab" data-bs-toggle="pill" data-bs-target="#v-pills-1-2" type="button" role="tab" aria-controls="v-pills-1-2" aria-selected="false" value="serial">Серийный</button>
+                                    <button class="nav-link text-start" id="v-pills-1-3-tab" data-bs-toggle="pill" data-bs-target="#v-pills-1-3" type="button" role="tab" aria-controls="v-pills-1-3" aria-selected="false" value="filesystem">Файловый</button>
+                                </div>
+                                <div class="tab-content col-10" id="v-pills-1-tabContent">
+                                    <div class="tab-pane fade show active" id="v-pills-1-1" role="tabpanel" aria-labelledby="v-pills-1-1-tab" tabindex="0">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <label class="form-label">Режим</label>
+                                                <select id="device.hardware.mode" class="form-select" onchange="selectHardware()">
+                                                    <option id="device.hardware.mode-1" type="button" value="Server">Сервер</option>
+                                                    <option id="device.hardware.mode-2" type="button" value="Client">Клиент</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-10"></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <label class="form-label">IP-адрес</label>
+                                                <input id="device.hardware.address" type="text" class="form-control" value="127.0.0.1" disabled>
+                                            </div>
+                                            <div class="col-2">
+                                                <label class="form-label">Порт</label>
+                                                <input id="device.hardware.port" type="text" class="form-control" value="5050" />
+                                            </div>
+                                            <div class="col">
+                                            </div>
+                                            <div class="col-4 d-flex justify-content-between align-items-end">
+                                                <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="v-pills-1-2" role="tabpanel" aria-labelledby="v-pills-1-2-tab" tabindex="0">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Порт данных</label>
+                                                <select id="device.serial.portname" class="form-select" required="">
+                                                    <option selected>выбрать порт...</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Скорость данных</label>
+                                                <select id="device.serial.baudrate" class="form-select" required="">
+                                                    <option value="1200">1200</option>
+                                                    <option value="2400">2400</option>
+                                                    <option value="4800">4800</option>
+                                                    <option selected value="9600">9600</option>
+                                                    <option value="19200">19200</option>
+                                                    <option value="38400">38400</option>
+                                                    <option value="57600">57600</option>
+                                                    <option value="115200">115200</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-4"><label class="form-label">Длина бит</label>
+                                                <select id="device.serial.dataBits" class="form-select" required="">
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                    <option selected value="8">8</option>
+                                                    <option value="9">9</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4"><label class="form-label">Количество
+                                                    стоповых бит</label>
+                                                <select id="device.serial.stopBits" class="form-select" required="">
+                                                    <option value="None">None</option>
+                                                    <option selected value="One">One</option>
+                                                    <option value="Two">Two</option>
+                                                    <option value="OnePointFive">OnePointFive</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-4"><label class="form-label">Четность</label>
+                                                <select id="device.serial.parity" class="form-select" required="">
+                                                    <option selected value="None">None</option>
+                                                    <option value="Odd">Odd</option>
+                                                    <option value="Even">Even</option>
+                                                    <option value="Mark">Mark</option>
+                                                    <option value="Space">Space</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-4 d-flex justify-content-between align-items-end">
+                                                <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="v-pills-1-3" role="tabpanel" aria-labelledby="v-pills-1-3-tab" tabindex="0">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Расположение для чтения данных</label>
+                                                <input id="device.connect.file-system.folderToRead" type="text" class="form-control" value="Devices/Files/Read"/>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Интервал чтения данных</label>
+                                                <select id="device.connect.file-system.intervalToReadInSecond" class="form-select" required="">
+                                                    <option value="1">1 сек</option>
+                                                    <option value="5" selected>5 сек</option>
+                                                    <option value="10">10 сек</option>
+                                                    <option value="15">15 сек</option>
+                                                    <option value="30">30 сек</option>
+                                                    <option value="60">60 сек</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Удалять после чтения</label>
+                                                
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="" id="file-option-1" disabled/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Расположение для записи данных</label>
+                                                <input id="device.connect.file-system.folderToWrite" type="text" class="form-control" value="Devices/Files/Write"/>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Маска для записываемых данных</label>
+                                                <input type="text" class="form-control" disabled/>
+                                            </div>
+                                            <div class="col-sm-4 d-flex justify-content-between align-items-end">
+                                                <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="form-label">Расположение для записи данных</label>
-                                <input type="text" class="form-control" value="/Send/"/>
+                        <div class="tab-pane fade" id="v-pills-2" role="tabpanel" aria-labelledby="v-pills-2-tab" tabindex="0">
+                            <div class="row">
+                                <div class="col-6">
+                                    <select class="form-select" id="device-parser-fullName" required="">
+                                        <option selected disabled value="default">выбрать драйвер...</option>
+                                        <option>test ASTM</option>
+                                        <option>test HL7</option>
+                                        <option>test Custom</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div class="col-6 d-flex align-items-center">
+                                            <label class="form-label p-0 m-0">Кодировка данных</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <select class="form-select" id="device.driver.encoding" required="">
+                                                <option value="ascii">ascii</option>
+                                                <option selected value="utf-8">utf-8</option>
+                                                <option value="windows-1251">windows-1251</option>
+                                                <option value="cp866">cp866</option>
+                                                <option value="unicode">unicode</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-4">
-                                <label class="form-label">Маска для записываемых данных</label>
-                                <input type="text" class="form-control" />
+                            <div id="parser.options">
+                                <hr/>
+                                <div class="row">
+                                    <div class="col-10 d-flex align-items-center">
+                                        <label class="form-label">Номер поля в O-Record для обработки номера образца</label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select id="IndexFieldForSample" class="form-select">
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-10 d-flex align-items-center">
+                                        <label class="form-label">Номер поля в R-Record для обработки имени теста</label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select id="IndexFieldForSample" class="form-select">
+                                            <option value="2">2</option>
+                                            <option value="2.3">2.3</option>
+                                            <option value="2.4">2.4</option>
+                                            <option value="2.5">2.5</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-10 d-flex align-items-center">
+                                        <label class="form-label">Номер поля в R-Record для обработки ед.изм. теста</label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select id="IndexFieldForSample" class="form-select">
+                                            <option value="4">4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-10 d-flex align-items-center">
+                                        <label class="form-label">Номер поля в R-Record для обработки результата теста</label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select id="IndexFieldForSample" class="form-select">
+                                            <option value="3">3</option>
+                                            <option value="10">10</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-2">
+                        </div>
+                        <div class="tab-pane fade" id="v-pills-3" role="tabpanel" aria-labelledby="v-pills-3-tab" tabindex="0">
+                            <div id="device-logger-settings">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Log Level</label>
+                                        <select id="" class="form-select" required="">
+                                            <option value="Verbose">Verbose</option>
+                                            <option value="Debug">Debug</option>
+                                            <option value="Information" selected>Information</option>
+                                            <option value="Warning">Warning</option>
+                                            <option value="Error">Error</option>
+                                            <option value="Fatal">Fatal</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Срок хранения журналов</label>
+                                        <select id="" class="form-select" required="">
+                                            <option value="1 day">1 день</option>
+                                            <option value="1 week" selected>1 неделя</option>
+                                            <option value="1 mount" >1 месяц</option>
+                                            <option value="1 year" >1 год</option>
+                                            <option value="indefinitely" >бессрочно</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-check-label" for="devicemanager.settings.islogrequest">Логировать запросы</label>
+                                        <div class="form-check form-switch">
+                                            <input id="devicemanager.settings.islogrequest" class="form-check-input" type="checkbox" role="switch">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Маска файлов</label>
+                                        <input id="" class="form-control" type="text" value="yyyy-MM-dd HH:mm:ss" disabled/>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Разделение файлов</label>
+                                        <select id="" class="form-select" required="">
+                                            <option value="1">По запуску</option>
+                                            <option value="2">По размеру (1024кб)</option>
+                                            <option value="3" selected>По дням</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-2 d-flex justify-content-between align-items-end">
-                                <button type="button" class="btn btn-primary w-100" onclick="ping()" disabled>Проверка</button>
+                        </div>
+                        <div class="tab-pane fade" id="v-pills-4" role="tabpanel" aria-labelledby="v-pills-4-tab" tabindex="0">
+                            <div class="row">
+                                <div class="col-5">
+                                <label class="form-label">Опции</label>
+                                <div class="form-check">
+                                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-1" value="device.driver.option-1"/>
+                                    <label class="form-check-label" for="device.driver.option-1"> Автоматическое дополнение номера образца</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-2" value="device.driver.option-2" disabled/>
+                                    <label class="form-check-label" for="device.driver.option-2"> Автоматическое создание направления</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-3" value="device.driver.option-3" disabled/>
+                                    <label class="form-check-label" for="device.driver.option-3"> Передача последнего образца или плашки </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-4" value="device.driver.option-4" disabled />
+                                    <label class="form-check-label" for="device.driver.option-4"> Добавлять имя устройства к номеру направления</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input device.driver.option" type="checkbox" id="device.driver.option-5" value="device.driver.option-5" disabled />
+                                    <label class="form-check-label" for="device.driver.option-5"> Добавлять имя устройства к номеру образца</label>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label class="form-label">Обработка номера образца</label>
+                                <select id="" class="form-select" disabled>
+                                    <option value="default" disabled>выбрать тип...</option>
+                                    <option value="1" selected>Без изменений</option>
+                                    <option value="2" >Убрать 0 с начала</option>
+                                    <option value="3" >Оставить 4 знака с конца</option>
+                                    <option value="4" >Оставить 4 знака с начала</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="unclude" class="form-label">Исключить тесты из обработки</label>
+                                <textarea class="form-control" name="unclude" id="unclude" rows="3" disabled placeholder="testname1
+testname2
+testname3"></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1149,7 +1256,7 @@ Test = T.Pr. Value= 65.2  MU = г/л
 </body>
 
 <script>
-    const ipAPI = 'http://127.0.0.1:5000';
+    const ipAPI = '';
 
     const driverOptionDefault = {
         name: "",
@@ -1160,9 +1267,22 @@ Test = T.Pr. Value= 65.2  MU = г/л
     let driverOption = driverOptionDefault;
     let driverOptions = [ driverOptionDefault ];
 
+    const loggerDefault = {
+        path: "",
+        restrictedToMinimumLevel: "Debug",
+        rollingInterval: "Day",
+        fileSizeLimitBytes: 0,
+        rollOnFileSizeLimit: false,
+        retainedFileCountLimit: 0,
+        shared: false,
+    }
+    let logger = loggerDefault;
+
     const parserDefault = {
         fullName: "",
-        options: [ driverOptionDefault ]
+        encoding: "",
+        options: [ driverOptionDefault ],
+        logger: loggerDefault,
     }
     let parser = parserDefault;
     let parsers = [ parserDefault ];
@@ -1180,11 +1300,8 @@ Test = T.Pr. Value= 65.2  MU = г/л
         name: "",
         systemName: "",
         driverSystemName: "",
-        driver: {
-            filename: "",
-            encoding: "",
-            parser: parserDefault,
-        },
+        isActive: false,
+        parser: parserDefault,
         connection: {
             connectionType: "",
             network: {
@@ -1201,13 +1318,13 @@ Test = T.Pr. Value= 65.2  MU = г/л
             },
             fileSystem: {
                 folderToRead: "",
-                readPeriodInSeconds: "",
+                intervalToReadInSecond: 0,
                 folderToWrite: "",
                 fileToWriteNameMask: "",
                 deleteAfterRead: "",
             },
         },
-        isActive: false,
+        logger,
     };
     let device = deviceDefault;
     let devices = [ deviceDefault ];
@@ -1253,12 +1370,33 @@ Test = T.Pr. Value= 65.2  MU = г/л
     let deviceManagerEvent = deviceManagerEventDefault;
     let deviceManagerEvents = [ deviceManagerEventDefault ];
 
+    const deviceEnumValueDefault = {
+        code: "",
+        deviceId: "",
+        systemEntityId: "",
+        driverSystemName: "",
+        deviceSystemName: ""
+    };
+    let deviceEnumValue = deviceEnumValueDefault;
+    let deviceEnumValues = [ deviceEnumValueDefault ];
+
+    const deviceMeasureUnitDefault = {
+        code: "",
+        deviceId: "",
+        systemEntityId: "",
+        driverSystemName: "",
+        deviceSystemName: ""
+    };
+    let deviceMeasureUnit = deviceMeasureUnitDefault;
+    let deviceMeasureUnits = [ deviceMeasureUnitDefault ];
+
     const deviceTestCollationDefault = {
         code: "",
         deviceId: "",
         systemEntityId: "",
         driverSystemName: "",
-        devicesystemname: ""
+        methodId: "",
+        deviceSystemName: ""
     };
     let deviceTestCollation = deviceTestCollationDefault;
     let deviceTestCollations = [ deviceTestCollationDefault ];
@@ -1276,16 +1414,15 @@ Test = T.Pr. Value= 65.2  MU = г/л
         if (device != null) id = device.id;
         device = deviceDefault;
         device.id = id;
-        device.name = document.getElementById('device.name').value;
-        device.systemName = document.getElementById('device.systemName').value;
-        device.driver.parser.fullName = document.getElementById('device.driver.name').value;
-        device.driverSystemName = document.getElementById('device.driver.systemName').value;
-        device.driver.encoding = document.getElementById('device.driver.encoding').value;
-        console.warn(device.driver.encoding);
+        device.name = document.getElementById('device-name').value;
+        device.systemName = document.getElementById('device-systemname').value;
+        device.parser.fullName = document.getElementById('device-parser-fullName').value;
+        device.driverSystemName = document.getElementById('device-driver-systemname').value;
+        device.parser.encoding = document.getElementById('device.driver.encoding').value;
         // device.driverConfiguration.workMode = driverWorkMode;
         // device.driverConfiguration.options = deviceDriverOptions;
 
-        Array.from(document.getElementById('device.hardware.type').children).forEach(child => {if (child.className.indexOf("active") > -1) device.connection.connectionType = child.value;});
+        Array.from(document.getElementById('v-pills-1-tabs').children).forEach(child => {if (child.className.indexOf("active") > -1) device.connection.connectionType = child.value;});
         
         device.connection.serial.portName = document.getElementById('device.serial.portname').value;
         Array.from(document.getElementById('device.serial.baudrate')).forEach(element => {if (element.selected) {device.connection.serial.baudRate = Number(element.value);}});
@@ -1296,6 +1433,10 @@ Test = T.Pr. Value= 65.2  MU = г/л
         Array.from(document.getElementById('device.hardware.mode')).forEach(element => {if (element.selected) {device.connection.network.mode = element.value;}});
         device.connection.network.address = document.getElementById('device.hardware.address').value;
         device.connection.network.port = document.getElementById('device.hardware.port').value;
+        
+        device.connection.fileSystem.folderToRead = document.getElementById('device.connect.file-system.folderToRead').value;
+        device.connection.fileSystem.folderToWrite = document.getElementById('device.connect.file-system.folderToWrite').value;
+        device.connection.fileSystem.intervalToReadInSecond = document.getElementById('device.connect.file-system.intervalToReadInSecond').value;
         console.debug("device", device);
     }
 
@@ -1314,9 +1455,9 @@ Test = T.Pr. Value= 65.2  MU = г/л
                 element.innerHTML = `
                         <td>${device.name}</td>
                         <td>${device.systemName}</td>
-                        <td>${device.driver.parser.fullName}</td>
+                        <td>${device.parser.fullName}</td>
                         <td>${device.driverSystemName}</td>
-                        <td>${device.isActive ? "Да" : "Нет"}</td>`;
+                        <td>${device.isActive ? "Включено" : "Выключено"}</td>`;
                 element.addEventListener('dblclick', () => showDevice(device.id));
                 table.appendChild(element);
             });
@@ -1328,8 +1469,14 @@ Test = T.Pr. Value= 65.2  MU = г/л
     async function showDevice(id) {
         device = devices.find(device => device.id === id);
         console.warn("showDevice:", device);
-        await getDeviceTestCollations();
+        await getComparisons();
         chargePanel('device');
+    }
+
+    async function getComparisons() {
+        await getDeviceEnumValues();
+        await getDeviceMeasureUnits();
+        await getDeviceTestCollations();
     }
      
     async function createNewDevice() {
@@ -1432,17 +1579,17 @@ Test = T.Pr. Value= 65.2  MU = г/л
     }
 
     async function showDeviceDriver() {
-        let panel = document.getElementById('device.driver.options');
+        let panel = document.getElementById('parser.options');
         Array.from(panel.children).forEach((element) => { element.remove(); });
 
-        console.warn("device.driver.parser:", device.driver.parser.fullName);
+        console.warn("device.driver.parser:", device.parser.fullName);
         let driverInfo = drivers.find(driver => 
             driver.parsers.find(parser => 
-                parser.fullName == device.driver.parser.fullName));
+                parser.fullName == device.parser.fullName));
         console.warn("driverInfo:", driverInfo);
 
         document.getElementById('device.driver.fileName').value = driverInfo.fileName;
-        document.getElementById('device.driver.parser').value = device.driver.parser.fullName;
+        document.getElementById('device.driver.parser').value = device.parser.fullName;
 
         try {
             let response = await fetch(`${ipAPI}/devices/${device.id}/driver/options`);
@@ -1627,6 +1774,22 @@ Test = T.Pr. Value= 65.2  MU = г/л
         chargePanel('event');
     }
 
+    async function deviceStart() {
+        document.getElementById('device-active').disabled = true;
+        document.getElementById('device-inactive').disabled = true;
+        if (device != deviceDefault) await flipActiveDevice();
+        document.getElementById('device-active').disabled = false;
+        document.getElementById('device-inactive').disabled = false;
+    }
+    
+    async function deviceStop() {
+        document.getElementById('device-active').disabled = true;
+        document.getElementById('device-inactive').disabled = true;
+        if (device != deviceDefault) await flipActiveDevice();
+        document.getElementById('device-active').disabled = false;
+        document.getElementById('device-inactive').disabled = false;
+    }
+    
     async function flipActiveDevice() {
         console.warn('device:', device);
 
@@ -1648,17 +1811,9 @@ Test = T.Pr. Value= 65.2  MU = г/л
             response = await fetch(`${ipAPI}/devices/${device.id}`);
             device = await response.json();
 
-            let elementDeviceIsActive = document.getElementById('device.isActive');
-            if (device.isActive) 
-            {
-                elementDeviceIsActive.innerText = "Отключить";
-                elementDeviceIsActive.className = 'btn btn-secondary w-100';
-            }
-            else
-            {
-                elementDeviceIsActive.innerText = "Включить";
-                elementDeviceIsActive.className = 'btn btn-primary w-100';
-            }
+            document.getElementById('device-active').checked = device.isActive == true;
+            document.getElementById('device-inactive').checked = device.isActive == false;
+            
         } catch (error) {
             console.error("E:", error);
         }
@@ -1669,8 +1824,62 @@ Test = T.Pr. Value= 65.2  MU = г/л
         chargePanel('devices');
     }
 
+    function getOptions() {
+        let select = document.getElementById('device-parser-fullName');
+        console.debug("select", select.value);
+        
+        let panel = document.getElementById('parser.options');
+        Array.from(panel.children).forEach(element => element.remove());
+
+        try {
+            parser = drivers.find(driver => driver.parsers.find(parser => parser.fullName == select.value))
+                            .parsers.find(parser => parser.fullName == select.value);
+            console.debug("parser", parser);
+
+            if (parser.options.length > 0){
+                panel.appendChild(document.createElement('hr'));
+            }
+
+            parser.options.forEach(driverOption => {
+                let div = document.createElement("div");
+                div.className = "row";
+                panel.appendChild(div);
+                
+                let divcol1 = document.createElement("div");
+                divcol1.className = "col-10 d-flex align-items-center";
+                div.appendChild(divcol1);
+                
+                let label = document.createElement("label");
+                label.className = "form-label";
+                label.innerText = driverOption.description;
+                divcol1.appendChild(label);
+
+                let divcol2 = document.createElement("div");
+                divcol2.className = "col-2";
+                div.appendChild(divcol2);
+
+                let select = document.createElement("select");
+                select.id = driverOption.name;
+                select.className = "form-select";
+                select.value = driverOption.value;
+                divcol2.appendChild(select);
+
+                driverOption.examples.forEach(example => {
+                    let option = document.createElement("option");
+                    option.value = example;
+                    option.innerText = example;
+                    if (driverOption.value == example) option.selected = true;
+                    select.appendChild(option);
+                })
+            });
+        } catch (error) {
+            console.error("Ошибка:", error);
+        }
+    }
+
     async function getDrivers() {
-        var select = document.getElementById('device.driver.name');
+        let select = document.getElementById('device-parser-fullName');
+        select.onchange = () => getOptions();
         
         Array.from(select.children).forEach(option => { if (option.value !== "default") option.remove(); } );
 
@@ -1682,15 +1891,15 @@ Test = T.Pr. Value= 65.2  MU = г/л
                 driver.parsers.forEach(parser => {
                     let option = document.createElement("option");
 
-                    option.innerHTML = `${parser.fullName}`;
+                    option.innerHTML = parser.fullName;
                     option.value = parser.fullName;
-                    if (device !== null) 
-                        if (device.driver.parser.fullName === parser.fullName)
-                            option.selected = true;
-
+                    if (device?.parser?.fullName == parser.fullName) option.selected = true;
+                    
                     select.appendChild(option);
                 });
             });
+            
+            if (select.value != "default") getOptions();
         } catch (error) {
             console.error("Ошибка:", error);
         }
@@ -1711,7 +1920,7 @@ Test = T.Pr. Value= 65.2  MU = г/л
                 element.innerHTML = `${port}`;
                 element.value = port;
                 document.getElementById('device.serial.portname').appendChild(element);
-                if (device.connection.serial.portName == port) element.selected = true;
+                if (device?.connection?.serial?.portName == port) element.selected = true;
             });
         } catch (error) {
             console.error("Ошибка:", error);
@@ -1725,11 +1934,12 @@ Test = T.Pr. Value= 65.2  MU = г/л
         Array.from(document.getElementsByClassName('form-create-or-update-device')).forEach(element => {
             element.remove();
         })
-        Array.from(document.getElementsByClassName('nav-link px-2')).forEach(element => {
-            element.className = 'nav-link px-2 text-white';
-        })
+        
+        Array.from(document.getElementsByClassName('header-tab'))
+        .forEach(child => child.className = child.className.replace("text-secondary", "text-white"));
+
         let tab = document.getElementById('header-tab-'+ panelName);
-        if (tab !== null) tab.className ='nav-link px-2 text-secondary';
+        if (tab !== null) tab.className = tab.className.replace("text-white", "text-secondary");
         Array.from(document.getElementsByClassName('container ' + panelName)).forEach(element => {
             element.style.display = 'block';
         })
@@ -1741,10 +1951,14 @@ Test = T.Pr. Value= 65.2  MU = г/л
                 break;
             case "device":
                 renderForm('place2');
+                renderTemplate('template-form-logger-settings', 'device-logger-settings');
                 document.getElementById('selected.device.name').value = device.name;
                 document.getElementById('selected.device.systemName').value = device.systemName;
                 getDrivers();
                 getPorts();
+                document.getElementById('button-create-device').hidden = true;
+                document.getElementById('button-update-device').hidden = false;
+                document.getElementById('button-delete-device').hidden = false;
                 break;
             case "drivers":
                 showListDrivers();
@@ -1756,12 +1970,18 @@ Test = T.Pr. Value= 65.2  MU = г/л
                 showStatusDevices();
                 break;
             case "create-new-device":
+                device = deviceDefault;
                 renderForm('place1');
+                renderTemplate('template-form-logger-settings', 'device-logger-settings');
                 getDrivers();
                 getPorts();
+                document.getElementById('button-create-device').hidden = false;
+                document.getElementById('button-update-device').hidden = true;
+                document.getElementById('button-delete-device').hidden = true;
                 break;
             case "settings":
                 getSettings();
+                renderTemplate('template-form-logger-settings', 'logger-settings');
                 break;
             case "journal":
                 showJournal();
@@ -1802,10 +2022,7 @@ Test = T.Pr. Value= 65.2  MU = г/л
         let newSettings = settingsDefault;
         newSettings.address = document.getElementById('devicemanager.settings.address').value;
         let options = document.getElementById('devicemanager.settings.timeout').children;
-        Array.from(options).forEach(option => {
-            if (option.selected)
-                    newSettings.timeOut = option.value;
-        });
+        Array.from(options).forEach(option => { if (option.selected) newSettings.timeOut = option.value; });
         newSettings.isLogRequest = document.getElementById('devicemanager.settings.islogrequest').checked;
 
         if (newSettings.address === settings.address
@@ -1886,27 +2103,36 @@ Test = T.Pr. Value= 65.2  MU = г/л
         toastBootstrap.show();
     }
 
+    async function renderTemplate(templatename, placename) {
+        let template = document.getElementById(templatename);
+        let clone = document.importNode(template.content, true);
+
+        let place = document.getElementById(placename);
+        Array.from(place.children).forEach(child => child.remove());
+        place.appendChild(clone);
+    }
+
     async function renderForm(containerId) {
         const template = document.getElementById('template-form-create-or-update-device');
         const clone = document.importNode(template.content, true);
         
         document.getElementById(containerId).appendChild(clone);
 
-        if (device === null) return;
+        if (device === deviceDefault) return;
 
-        document.getElementById('device.name').value = device.name;
-        document.getElementById('device.systemName').value = device.systemName;
+        document.getElementById('device-name').value = device.name;
+        document.getElementById('device-systemname').value = device.systemName;
 
-        Array.from(document.getElementById('device.driver.name').children)
+        Array.from(document.getElementById('device-parser-fullName').children)
         .forEach(element => {
-            if (element.value == device.driver.parser.fullName) element.selected = true;
+            if (element.value == device.parser.fullName) element.selected = true;
             else element.selected = false;
         });
-        document.getElementById('device.driver.systemName').value = device.driverSystemName;
+        document.getElementById('device-driver-systemname').value = device.driverSystemName;
 
         Array.from(document.getElementById('device.driver.encoding').children)
         .forEach(element => {
-            if (element.value === device.driver.encoding) element.selected = true;
+            if (element.value === device.parser.encoding) element.selected = true;
             else element.selected = false;
         });
 
@@ -1924,34 +2150,27 @@ Test = T.Pr. Value= 65.2  MU = г/л
         document.getElementById('device.hardware.mode').value = device.connection.network.mode;
         document.getElementById('device.hardware.address').value = device.connection.network.address;
         document.getElementById('device.hardware.port').value = device.connection.network.port;
-
-        console.debug("device.connection.serial:", device.connection.serial);
         //serial
         document.getElementById('device.serial.portname').value = device.connection.serial.portName;
         document.getElementById('device.serial.baudrate').value = device.connection.serial.baudRate;
         document.getElementById('device.serial.dataBits').value = device.connection.serial.dataBits;
         document.getElementById('device.serial.parity').value = device.connection.serial.parity;
         document.getElementById('device.serial.stopBits').value = device.connection.serial.stopBits;
+        //file-system
+        document.getElementById('device.connect.file-system.folderToRead').value = device.connection.fileSystem.folderToRead;
+        document.getElementById('device.connect.file-system.intervalToReadInSecond').value = device.connection.fileSystem.intervalToReadInSecond;
+        document.getElementById('device.connect.file-system.folderToWrite').value = device.connection.fileSystem.folderToWrite;
 
-        Array.from(document.getElementById('device.hardware.type').children)
+        Array.from(document.getElementById('v-pills-1-tabs').children)
         .forEach(child => {
                 if (child.value == device.connection.connectionType) child.click();
             }
         );
         
-        document.getElementById('device.driver.systemName').value = device.driverSystemName;
+        document.getElementById('device-driver-systemname').value = device.driverSystemName;
 
-        let elementDeviceIsActive = document.getElementById('device.isActive');
-        if (device.isActive) 
-        {
-            elementDeviceIsActive.innerText = "Отключить";
-            elementDeviceIsActive.className = 'btn btn-secondary w-100';
-        }
-        else
-        {
-            elementDeviceIsActive.innerText = "Включить";
-            elementDeviceIsActive.className = 'btn btn-primary w-100';
-        }
+        document.getElementById('device-active').checked = device.isActive == true;
+        document.getElementById('device-inactive').checked = device.isActive == false;
     }
 
     async function getDeviceResults() {
@@ -1993,6 +2212,48 @@ Test = T.Pr. Value= 65.2  MU = г/л
         }
     }
     
+    async function getDeviceEnumValues() {
+        let table = document.getElementById('table-device.comparisons-5');
+        Array.from(table.children).forEach((element) => { element.remove(); });
+
+        try {
+            let response = await fetch(`${ipAPI}/devices/${device.id}/comparisons/enum-values`);
+            deviceEnumValues = await response.json();
+            
+            deviceEnumValues.forEach(deviceEnumValue => {
+                let element = document.createElement("tr");
+                element.className = "table-light";
+                element.innerHTML =    `<td>${deviceEnumValue.systemEntityId}</td>
+                                        <td>${deviceEnumValue.code}</td>
+                                        <td>-</td>`;
+                table.appendChild(element);
+            });
+        } catch (error) {
+            console.error("Ошибка:", error);
+        }
+    }
+
+    async function getDeviceMeasureUnits() {
+        let table = document.getElementById('table-device.comparisons-6');
+        Array.from(table.children).forEach((element) => { element.remove(); });
+
+        try {
+            let response = await fetch(`${ipAPI}/devices/${device.id}/comparisons/measure-units`);
+            deviceMeasureUnits = await response.json();
+            
+            deviceMeasureUnits.forEach(deviceMeasureUnit => {
+                let element = document.createElement("tr");
+                element.className = "table-light";
+                element.innerHTML =    `<td>${deviceMeasureUnit.systemEntityId}</td>
+                                        <td>${deviceMeasureUnit.code}</td>
+                                        <td>-</td>`;
+                table.appendChild(element);
+            });
+        } catch (error) {
+            console.error("Ошибка:", error);
+        }
+    }
+
     async function getDeviceTestCollations() {
         let table = document.getElementById('table-device.comparisons-7');
         Array.from(table.children).forEach((element) => { element.remove(); });
@@ -2006,7 +2267,7 @@ Test = T.Pr. Value= 65.2  MU = г/л
                 element.className = "table-light";
                 element.innerHTML =    `<td>${deviceTestCollation.systemEntityId}</td>
                                         <td>${deviceTestCollation.code}</td>
-                                        <td>-</td>`;
+                                        <td>${deviceTestCollation.methodId ?? "-"}</td>`;
                 table.appendChild(element);
             });
         } catch (error) {

@@ -6,12 +6,17 @@ namespace Core.Configurations.Device.Connection
     {
         public string FolderToRead { get; set; }
         public string FolderToWrite { get; set; }
+        public int IntervalToReadInSecond { get; set; }
 
         public bool Equals(FileSystemConnection other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
-            return FolderToRead == other.FolderToRead && FolderToWrite == other.FolderToWrite;
+            return FolderToRead == other.FolderToRead 
+                   && 
+                   FolderToWrite == other.FolderToWrite 
+                   && 
+                   IntervalToReadInSecond == other.IntervalToReadInSecond;
         }
 
         public override bool Equals(object obj)
@@ -24,7 +29,7 @@ namespace Core.Configurations.Device.Connection
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(FolderToRead, FolderToWrite);
+            return HashCode.Combine(FolderToRead, FolderToWrite, IntervalToReadInSecond);
         }
     }
 }

@@ -14,6 +14,9 @@
         [XmlElement("systementityid")]
         public string SystemEntityId { get; set; }
 
+        [XmlElement("methodid")]
+        public string MethodId { get; set; }
+
         [XmlElement("driversystemname")]
         public string DriverSystemName { get; set; }
 

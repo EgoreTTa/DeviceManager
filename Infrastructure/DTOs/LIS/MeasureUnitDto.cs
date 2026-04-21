@@ -6,12 +6,12 @@
     public class MeasureUnitDto
     {
         [XmlElement("code")]
-        public string _code;
+        public string Code;
 
         [XmlElement("systementityid")]
-        public string _systemEntityId;
+        public string SystemEntityId;
 
         [XmlElement("driversystemname")]
-        public string _driverSystemName;
+        public string DriverSystemName;
     }
 }

@@ -17,15 +17,17 @@ namespace Core.Devices.Components.Service
 
         private DataAccess _dataAccess;
         private DeviceInfoDto _deviceInfoDto;
-        private TestCollationDto[] _testCollationDto;
-        private MeasureUnitDto[] _measureUnitDtos;
-        private EnumValueDto[] _enumValueDtos;
+        private TestCollationDto[] _testCollationDtos = { };
+        private MeasureUnitDto[] _measureUnitDtos = { };
+        private EnumValueDto[] _enumValueDtos = { };
         private AntibioticDto[] _antibioticDtos;
         private BacteriumDto[] _bacteriumDtos;
         private BiomaterialDto[] _biomaterialDtos;
 
         public ILogger Logger { get; set; }
-        public TestCollationDto[] TestCollationDto => _testCollationDto.ToArray();
+        public MeasureUnitDto[] MeasureUnitDtos => _measureUnitDtos.ToArray();
+        public EnumValueDto[] EnumValueDtos => _enumValueDtos.ToArray();
+        public TestCollationDto[] TestCollationDtos => _testCollationDtos.ToArray();
 
         public DeviceService(ILogger logger, string url, string deviceSystemName, string driverSystemName, AppDbContext context)
         {
@@ -39,7 +41,7 @@ namespace Core.Devices.Components.Service
         public async Task GetComparisons()
         {
             _deviceInfoDto = await _dataAccess.GetDeviceInfo(_driverSystemName);
-            _testCollationDto = await _dataAccess.GetTestCollations(_driverSystemName);
+            _testCollationDtos = await _dataAccess.GetTestCollations(_driverSystemName);
             _measureUnitDtos = await _dataAccess.GetMeasureUnits(_driverSystemName);
             _enumValueDtos = await _dataAccess.GetEnumValues(_driverSystemName);
         }
@@ -61,7 +63,7 @@ namespace Core.Devices.Components.Service
 
             var testsForSaveToSend = results
                                      .Where(x =>
-                                         _testCollationDto.Select(y => y.Code)
+                                         _testCollationDtos.Select(y => y.Code)
                                                           .Contains(x.TestCode))
                                      .ToArray();
 
@@ -83,10 +85,10 @@ namespace Core.Devices.Components.Service
                         Logger.Information($"result.TestCode:{result.TestCode}\t" +
                                            $"result.MuCode:{result.MuCode}");
 
-                        var testCollation = _testCollationDto.SingleOrDefault(x => x.Code == result.TestCode)
+                        var testCollation = _testCollationDtos.SingleOrDefault(x => x.Code == result.TestCode)
                                                              ?.SystemEntityId;
-                        var measureUnit = _measureUnitDtos.SingleOrDefault(x => x._code == result.MuCode)
-                                                          ?._systemEntityId;
+                        var measureUnit = _measureUnitDtos.SingleOrDefault(x => x.Code == result.MuCode)
+                                                          ?.SystemEntityId;
 
                         if (string.IsNullOrEmpty(testCollation) is false
                             &&
@@ -184,7 +186,7 @@ namespace Core.Devices.Components.Service
                 var tests = orderDto._directionLines.SelectMany(y =>
                                         y._testDTOs.Select(z => z._testId))
                                     .Distinct()
-                                    .Intersect(_testCollationDto.Select(x => x.SystemEntityId))
+                                    .Intersect(_testCollationDtos.Select(x => x.SystemEntityId))
                                     .ToArray();
 
                 Logger.Information($"Сопоставлено {tests.Length} показателя для Barcode=\"{orderDto._directionLines.First()._samplebarcode}\"");

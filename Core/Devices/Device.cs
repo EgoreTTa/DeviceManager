@@ -4,9 +4,7 @@ namespace Core.Devices
     using Components.Connect;
     using Components.Service;
     using Core.Configurations.Device;
-    using Core.Configurations.Device.Connection;
     using DriverBase;
-    using Infrastructure.DTOs.LIS;
     using Serilog;
     using System;
     using System.Linq;
@@ -16,43 +14,24 @@ namespace Core.Devices
     public sealed class Device
     {
         private (Task task, CancellationTokenSource source) _trackTask;
-        private IConnection _connection;
 
-        public ILogger Logger { get; set; }
-        public DeviceConfig Configuration { get; set; }
+        public DeviceConfig Config { get; set; }
+        public IConnection Connection { get; set; }
         public IParser Parser { get; set; }
+        public ILogger Logger { get; set; }
         public DeviceService DeviceService { get; set; }
         public DeviceLogs DeviceLogs { get; set; }
-
-        public Device(ILogger logger, DeviceConfig configuration, IParser parser, string url, AppDbContext context, DeviceLogs logs)
-        {
-            Configuration = configuration;
-            Logger = logger;
-            if (parser is { })
-            {
-                Parser = parser;
-                parser.Logger = Logger;
-            }
-            DeviceService = new DeviceService(logger, url, configuration.SystemName, configuration.DriverSystemName, context);
-            DeviceLogs = logs;
-        }
-
+        
         public async Task StartAsync()
         {
             if (_trackTask != default) return;
 
-            _connection = Configuration.Connection.ConnectionType switch
-            {
-                ConnectionTypes.Network => new NetworkConnect(Logger, Configuration.Connection.Network),
-                ConnectionTypes.Serial => new SerialConnect(Logger, Configuration.Connection.Serial),
-                ConnectionTypes.FileSystem => new FileSystemConnect(Logger, Configuration.Connection.FileSystem),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            _trackTask.source = new CancellationTokenSource();
+            var source = new CancellationTokenSource();
 
-            _connection.StartAsync(_trackTask.source.Token);
-            DeviceService.GetComparisons();
-            _trackTask.task = Run(_trackTask.source.Token);
+            Connection?.StartAsync(source.Token);
+            DeviceService?.GetComparisons();
+
+            _trackTask = (Run(source.Token), source);
         }
 
         private async Task Run(CancellationToken token)
@@ -61,12 +40,12 @@ namespace Core.Devices
             {
                 try
                 {
-                    var bytesForParser = await _connection.ReadAsync(token);
+                    var bytesForParser = await Connection.ReadAsync(token);
 
                     var message = await Parser.WriteAsync(bytesForParser);
 
                     if (message.ForConnect is { })
-                        await _connection.WriteAsync(message.ForConnect, token);
+                        await Connection.WriteAsync(message.ForConnect, token);
 
                     if (message.ForDeviceService is { })
                     {
@@ -90,7 +69,7 @@ namespace Core.Devices
                             var orders = await DeviceService.GetDirectiveLinesByBarcodes(barcodes);
                             message = await Parser.WriteAsync(orders);
                             if (message.ForConnect is { })
-                                await _connection.WriteAsync(message.ForConnect, token);
+                                await Connection.WriteAsync(message.ForConnect, token);
                         }
                     }
                 }
@@ -105,18 +84,18 @@ namespace Core.Devices
 
         public async Task StartAsync2(CancellationToken token) // todo
         {
-            await _connection.StartAsync(_trackTask.source.Token);
+            await Connection.StartAsync(_trackTask.source.Token);
             Parser.Clear();
             while (token.IsCancellationRequested is false)
             {
                 try
                 {
                     var message = await Parser.ReadAsync();
-                    await _connection.WriteAsync(message.ForConnect, token);
+                    await Connection.WriteAsync(message.ForConnect, token);
 
-                    var bytesForParser = await _connection.ReadAsync(token);
+                    var bytesForParser = await Connection.ReadAsync(token);
                     message = await Parser.WriteAsync(bytesForParser);
-                    await _connection.WriteAsync(message.ForConnect, token);
+                    await Connection.WriteAsync(message.ForConnect, token);
                     await Task.Delay(TimeSpan.FromSeconds(1), token);
                 }
                 catch (Exception exception)
@@ -137,8 +116,6 @@ namespace Core.Devices
 
             _trackTask = default;
         }
-
-        public TestCollationDto[] GetTestCollations() => DeviceService.TestCollationDto;
 
         public async Task RetrySendTestResult(int id)
         {

@@ -18,13 +18,17 @@
         public DevicesController(IDeviceUseCase service) => _service = service;
 
         [HttpGet]
-        public DeviceConfig[] GetAll() => _service.GetDevices()
-                                                  .Select(device => device.Configuration)
-                                                  .ToArray();
+        public DeviceConfig[] GetAll()
+        {
+            // Console.WriteLine($"Devices get all");
+            return _service.GetDevices()
+                           .Select(device => device.Config)
+                           .ToArray();
+        }
 
         [HttpGet("{id}")]
         public DeviceConfig GetDeviceById(int id) => _service.GetDevices()
-                                                             .Select(device => device.Configuration)
+                                                             .Select(device => device.Config)
                                                              .Single(config => config.Id == id);
 
         [HttpPut]
@@ -39,26 +43,41 @@
         [HttpPut("{id}/flip-active")]
         public async Task<DeviceManagerEvent> FlipActive(int id)
         {
-            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
-            if (device.Configuration.IsActive)
+            var device = _service.GetDevices().Single(x => x.Config.Id == id);
+            if (device.Config.IsActive)
             {
                 await device.StopAsync();
-                device.Configuration.IsActive = false;
+                device.Config.IsActive = false;
             }
             else
             {
                 await device.StartAsync();
-                device.Configuration.IsActive = true;
+                device.Config.IsActive = true;
             }
+            await _service.UpdateDevice(id, device.Config);
 
             return null;
+        }
+
+        [HttpGet("{id}/comparisons/enum-values")]
+        public EnumValueDto[] GetEnumValues(int id)
+        {
+            var device = _service.GetDevices().Single(x => x.Config.Id == id);
+            return device.DeviceService.EnumValueDtos;
+        }
+
+        [HttpGet("{id}/comparisons/measure-units")]
+        public MeasureUnitDto[] GetMeasureUnits(int id)
+        {
+            var device = _service.GetDevices().Single(x => x.Config.Id == id);
+            return device.DeviceService.MeasureUnitDtos;
         }
 
         [HttpGet("{id}/comparisons/test-collations")]
         public TestCollationDto[] GetTestCollations(int id)
         {
-            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
-            return device.GetTestCollations();
+            var device = _service.GetDevices().Single(x => x.Config.Id == id);
+            return device.DeviceService.TestCollationDtos;
         }
 
         [HttpGet("{id}/test-results")]
@@ -73,21 +92,21 @@
         [HttpGet("{id}/logs")]
         public string[] GetLogs(int id)
         {
-            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            var device = _service.GetDevices().Single(x => x.Config.Id == id);
             return device.DeviceLogs.Logs;
         }
 
         [HttpGet("{id}/driver/options")]
         public OptionDTO[] GetDriverOptions(int id)
         {
-            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            var device = _service.GetDevices().Single(x => x.Config.Id == id);
             return device.Parser.GetOptions();
         }
 
         [HttpPost("{id}/driver/options")]
         public void SetDriverOptions(int id, OptionDTO[] options)
         {
-            var device = _service.GetDevices().Single(x => x.Configuration.Id == id);
+            var device = _service.GetDevices().Single(x => x.Config.Id == id);
             device.Parser.SetOptions(options);
         }
     }

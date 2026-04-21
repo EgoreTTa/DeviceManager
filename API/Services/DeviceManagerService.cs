@@ -26,14 +26,14 @@ namespace API.Services
             _driver.Add(Directory.GetFiles(Path.Combine("Drivers"), "*.dll").Select(Path.GetFileName).ToArray());
             await _device.ReadDeviceConfigs();
 
-            foreach (var device in _device.GetDevices())
+            foreach (var device in _device.GetDevices().Where(x=> x.Config.IsActive))
             {
                 try
                 {
-                    var parser = _driver.GetParser(device.Configuration.Driver.Parser.FullName);
+                    var parser = _driver.GetParser(device.Config.Parser.FullName);
                     parser.Logger = device.Logger;
-                    if (device.Configuration.Driver.Parser.Options?.Length > 0)
-                        parser.SetOptions(device.Configuration.Driver.Parser.Options);
+                    if (device.Config.Parser.Options?.Length > 0)
+                        parser.SetOptions(device.Config.Parser.Options);
                     device.Parser = parser;
                     await device.StartAsync();
                 }

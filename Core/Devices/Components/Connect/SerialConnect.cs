@@ -3,6 +3,7 @@ namespace Core.Devices.Components.Connect
     using Core.Configurations.Device.Connection;
     using Serilog;
     using System;
+    using System.IO;
     using System.IO.Ports;
     using System.Linq;
     using System.Threading;
@@ -12,34 +13,57 @@ namespace Core.Devices.Components.Connect
     {
         private readonly SerialPort _serialPort;
 
-        private Task _task;
-        private CancellationTokenSource _source;
-
         public ILogger Logger { get; set; }
 
         public SerialConnect(ILogger logger, SerialConnection configuration)
         {
             Logger = logger;
-            _serialPort = new SerialPort($"{configuration.PortName}");
+            _serialPort = new SerialPort(
+                configuration.PortName, 
+                configuration.BaudRate, 
+                configuration.Parity, 
+                configuration.DataBits, 
+                configuration.StopBits);
         }
 
         public Task StartAsync(CancellationToken token)
         {
-            Logger.Debug($"serial {_serialPort.PortName} open...");
-            _serialPort.Open();
-            Logger.Debug($"serial {_serialPort.PortName} opened.");
-            token.Register(() => _serialPort.Close());
-
+            OpenPort();
+            token.Register(ClosePort);
             return Task.CompletedTask;
+        }
+
+        private void OpenPort()
+        {
+            try
+            {
+                Logger.Debug($"serial {_serialPort.PortName} open...");
+                _serialPort.Open();
+                Logger.Debug($"serial {_serialPort.PortName} opened.");
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception.Message);
+            }
+        }
+
+        private void ClosePort()
+        {
+            try
+            {
+                Logger.Debug($"serial {_serialPort.PortName} close...");
+                _serialPort.Close();
+                Logger.Debug($"serial {_serialPort.PortName} closed.");
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception.Message);
+            }
         }
 
         public void Stop()
         {
-            _source.Cancel();
-
             _serialPort.Close();
-
-            _task.Wait();
         }
 
         public async Task<byte[]> ReadAsync(CancellationToken token)
@@ -55,7 +79,16 @@ namespace Core.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                throw new NotImplementedException();
+                switch (exception)
+                {
+                    case IOException { }:
+                        break;
+                    default:
+                        OpenPort();
+                        break;
+                }
+
+                throw exception;
             }
         }
 
@@ -69,7 +102,8 @@ namespace Core.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                throw new NotImplementedException();
+                OpenPort();
+                throw exception;
             }
         }
 

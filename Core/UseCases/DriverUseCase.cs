@@ -30,10 +30,10 @@
             Console.WriteLine($"parserFullNames:{parserFullNames.Length}");
             foreach (var device in _deviceUseCaseService
                                    .GetDevices()
-                                   .Where(x => parserFullNames.Contains(x.Configuration.Driver.Parser.FullName)))
+                                   .Where(x => parserFullNames.Contains(x.Config.Parser.FullName)))
             {
                 Console.WriteLine($"set parser for device");
-                var parser = _driverUseCaseService.GetParser(device.Configuration.Driver.Parser.FullName);
+                var parser = _driverUseCaseService.GetParser(device.Config.Parser.FullName);
                 parser.Logger = device.Logger;
                 device.Parser = parser;
             }
@@ -47,7 +47,7 @@
                                                        .ToArray();
             foreach (var device in _deviceUseCaseService
                                    .GetDevices()
-                                   .Where(x => parserFullNames.Contains(x.Configuration.Driver.Parser.FullName)))
+                                   .Where(x => parserFullNames.Contains(x.Config.Parser.FullName)))
             {
                 device.Parser = null;
             }

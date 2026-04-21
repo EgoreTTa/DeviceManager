@@ -1,22 +1,21 @@
 namespace Core.Configurations.Device
 {
     using Connection;
-    using Driver;
     using DriverBase.DTOs;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
     using Serilog;
     using Serilog.Events;
     using System;
 
     public class DeviceConfig
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public string SystemName { get; set; }
         public string DriverSystemName { get; set; }
         public bool IsActive { get; set; }
         public ParserConfig Parser { get; set; }
-        public DriverConfig Driver { get; set; }
         public ConnectionConfig Connection { get; set; }
         public LoggerConfig Logger { get; set; }
     }
@@ -58,7 +57,9 @@ namespace Core.Configurations.Device
     public class LoggerConfig : IEquatable<LoggerConfig>
     {
         public string Path { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public LogEventLevel RestrictedToMinimumLevel { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public RollingInterval RollingInterval { get; set; }
         public long? FileSizeLimitBytes { get; set; }
         public bool RollOnFileSizeLimit { get; set; }
@@ -96,12 +97,5 @@ namespace Core.Configurations.Device
         {
             return HashCode.Combine(Path, (int)RestrictedToMinimumLevel, (int)RollingInterval, FileSizeLimitBytes, RollOnFileSizeLimit, RetainedFileCountLimit, Shared);
         }
-    }
-
-    public class DeviceConfigBackup
-    {
-        [JsonIgnore]
-        public int Id { get; set; }
-        public string DeviceConfig { get; set; }
     }
 }

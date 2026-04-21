@@ -11,66 +11,77 @@ namespace Core.Devices.Components.Connect
 
     public sealed class NetworkConnect : IConnection, IDisposable
     {
-        private readonly Socket _socket;
-        private readonly Socket _client;
-        private readonly IPEndPoint _ipEndPoint;
+        private readonly NetworkModes _mode;
+        private readonly string _address;
+        private readonly int _port;
 
         private Socket _server;
-        private CancellationTokenSource _source;
+        private Socket _socket;
+        private Socket _client;
 
         public ILogger Logger { get; set; }
 
         public NetworkConnect(ILogger logger, NetworkConnection configuration)
         {
             Logger = logger;
+            _mode = configuration.Mode;
+            _address = configuration.Address;
+            _port = configuration.Port;
+        }
 
-            if (configuration.Mode == NetworkModes.Server)
+        public Task StartAsync(CancellationToken token)
+        {
+            token.Register(Stop);
+
+            if (_mode == NetworkModes.Server)
             {
-                _ipEndPoint = new IPEndPoint(IPAddress.Loopback, configuration.Port);
+                var ipEndPoint = new IPEndPoint(IPAddress.Loopback, _port);
 
-                _socket = new Socket(_ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
-                _socket.Bind(_ipEndPoint);
+                _socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
+                _socket.Bind(ipEndPoint);
                 _socket.Listen(1);
 
-                Logger.Information($"network {_ipEndPoint.Address}:{_ipEndPoint.Port} socket server create!");
+                Logger.Information($"network server {ipEndPoint.Address}:{ipEndPoint.Port} socket create!");
             }
             else
             {
-                _ipEndPoint = new IPEndPoint(IPAddress.Parse(configuration.Address), configuration.Port);
-                _client = new Socket(_ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
+                var ipEndPoint = new IPEndPoint(IPAddress.Parse(_address), _port);
+                _client = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
 
-                Logger.Information($"network {_ipEndPoint.Address}:{_ipEndPoint.Port} socket client create!");
+                Logger.Information($"network client {ipEndPoint.Address}:{ipEndPoint.Port} socket create!");
             }
+
+            return Task.CompletedTask;
+            // => SocketConnect();
+        }
+
+        public void Stop()
+        {
+            _server?.Close();
+            _client?.Close();
+            _socket?.Close();
+
+            Logger.Information($"network connect stop.");
         }
 
         private async Task SocketConnect()
         {
-            if (_socket is { })
+            if (_mode == NetworkModes.Server)
             {
                 Logger.Debug($"DeviceConnection await _socket.AcceptAsync...");
                 _server = await _socket.AcceptAsync();
                 Logger.Debug($"DeviceConnection AcceptAsync!");
+                var iPEndPoint = _server.RemoteEndPoint as IPEndPoint;
+                Logger.Information($"network client {iPEndPoint?.Address}:{iPEndPoint?.Port} socket accept!");
             }
-
-            if (_client is { })
+            else
             {
                 Logger.Debug($"DeviceConnection await _client.ConnectAsync...");
-                await _client.ConnectAsync(_ipEndPoint);
+                await _client.ConnectAsync(new IPEndPoint(IPAddress.Parse(_address), _port));
                 Logger.Debug($"DeviceConnection ConnectAsync!");
+                var iPEndPoint = _client.RemoteEndPoint as IPEndPoint;
+                Logger.Information($"network client {iPEndPoint?.Address}:{iPEndPoint?.Port} socket connect!");
             }
-        }
-
-        public Task StartAsync(CancellationToken token) => SocketConnect();
-
-        public void Stop()
-        {
-            _source.Cancel();
-
-            _socket?.Close();
-            _server?.Close();
-            _client?.Close();
-
-            Logger.Information($"network connect stop.");
         }
 
         public async Task<byte[]> ReadAsync(CancellationToken token)
@@ -87,6 +98,8 @@ namespace Core.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
+                if (exception is TaskCanceledException) throw exception;
+                // if (exception is NullReferenceException) throw exception;
                 await SocketConnect();
                 throw new Exception("No connection, reconnection was performed");
             }
@@ -103,6 +116,8 @@ namespace Core.Devices.Components.Connect
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
+                if (exception is TaskCanceledException) throw exception;
+                // if (exception is NullReferenceException) throw exception;
                 await SocketConnect();
                 throw new Exception("No connection, reconnection was performed");
             }
@@ -111,8 +126,8 @@ namespace Core.Devices.Components.Connect
         public void Dispose()
         {
             _socket?.Dispose();
-            _server?.Dispose();
             _client?.Dispose();
+            _server?.Dispose();
         }
     }
 }
