@@ -23,7 +23,7 @@ pipeline {
 
 		stage('Clean...') {
             steps {
-				sh 'rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR'}
+				sh 'rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR'
 			}
 		}
 		stage('Move build') {
