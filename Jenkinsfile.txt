@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DEPLOY_DIR  = '/home/ubuntu/API/'		// Папка на цели
+        DEPLOY_DIR  = '/home/ubuntu/API'		// Папка на цели
         SERVICE     = 'DeviceManager.service'	// Имя службы
     }
 
@@ -15,40 +15,70 @@ pipeline {
 
         stage('Build & Publish API') {
             steps {
-                // -r linux-x64: целевая платформа
-                // --self-contained false: если на цели установлен .NET Runtime 3.1
-                sh 'sudo dotnet publish ./API/API.csproj -c Release -r linux-x64 --self-contained false -o ./linux-x64'
+                sh 'sudo dotnet publish ./API/API.csproj -c Release -r linux-x64 --self-contained false -o ./Release/linux-x64'
             }
         }
 		
         stage('Build & Publish drivers') {
             steps {
-                // -r linux-x64: целевая платформа
-                // --self-contained false: если на цели установлен .NET Runtime 3.1
-                sh 'sudo dotnet publish ./Drivers/DriverTest/DriverTest.csproj -c Release -r linux-x64 --self-contained false -o ./Drivers/DriverTest'
-                sh 'sudo dotnet publish ./Drivers/DriverTest2/DriverTest2.csproj -c Release -r linux-x64 --self-contained false -o ./Drivers/DriverTest2'
+                sh '''
+					set -e
+					sudo mkdir -p ./Release/Drivers
+
+					for dir in ./Drivers/*/; do
+						[ -d "$dir" ] || continue
+						if [ "$dir" = "DriverBase" ]; then
+							echo "⏭️  Skipping $dir (shared/base library)"
+							continue
+						fi
+						
+						csproj=$(find "$dir" -maxdepth 1 -name "*.csproj" | head -n 1)
+						[ -z "$csproj" ] && echo "⏭️  Skipping $dir (no .csproj)" && continue
+
+						proj_name=$(basename "$dir")
+						echo "🔨 Building $proj_name..."
+						
+						sudo dotnet publish "$csproj" -c Release -r linux-x64 -o "./Release/Drivers/$proj_name"
+					done
+				'''
             }
         }
 
 		stage('Clean...') {
             steps {
-				sh 'sudo rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR'
+				sh 'sudo rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR/'
 			}
 		}
 		stage('Move API') {
             steps {
-				sh 'sudo mv -f ./linux-x64/* $DEPLOY_DIR'
+				sh 'sudo mv -f ./Release/linux-x64/* $DEPLOY_DIR'
 			}
 		}
 		stage('Move drivers') {
             steps {
-				sh 'sudo mv -f ./Drivers/DriverTest/DriverTest.dll $DEPLOY_DIR/Drivers/DriverTest.dll'
-				sh 'sudo mv -f ./Drivers/DriverTest2/DriverTest2.dll $DEPLOY_DIR/Drivers/DriverTest2.dll'
-			}
+				sh '''
+					set -e
+					sudo mkdir $DEPLOY_DIR/Drivers/
+					
+					for build_dir in ./Release/Drivers/*/; do
+						[ -d "$build_dir" ] || continue
+						
+						dir_name=$(basename "$build_dir")
+						dll_file="$build_dir/${dir_name}.dll"
+
+						if [ -f "$dll_file" ]; then
+							echo "📦 Deploying $dir_name.dll"
+							sudo mv -f "$dll_file" "$DEPLOY_DIR/Drivers/$dir_name.dll"
+						else
+							echo "❌ Error: ${dir_name}.dll not found in $build_dir"
+							exit 1
+						fi
+					done
+				'''			}
 		}
 		stage('Restart Service') {
 			steps {
-				sh 'sudo chmod 777 $DEPLOY_DIR -R'
+				sh 'sudo chmod 777 $DEPLOY_DIR/ -R'
 				sh 'sudo systemctl restart $SERVICE'
 			}
 		}
