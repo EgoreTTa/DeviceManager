@@ -25,6 +25,10 @@
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Update="wwwroot\css\bootstrap-grid.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
