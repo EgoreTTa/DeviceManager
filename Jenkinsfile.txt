@@ -13,11 +13,20 @@ pipeline {
             }
         }
 
-        stage('Build & Publish') {
+        stage('Build & Publish API') {
             steps {
                 // -r linux-x64: целевая платформа
                 // --self-contained false: если на цели установлен .NET Runtime 3.1
-                sh 'sudo dotnet publish -c Release -r linux-x64 --self-contained false -o ./linux-x64'
+                sh 'sudo dotnet publish ./API/API.csproj -c Release -r linux-x64 --self-contained false -o ./linux-x64'
+            }
+        }
+		
+        stage('Build & Publish drivers') {
+            steps {
+                // -r linux-x64: целевая платформа
+                // --self-contained false: если на цели установлен .NET Runtime 3.1
+                sh 'sudo dotnet publish ./Drivers/DriverTest/DriverTest.csproj -c Release -r linux-x64 --self-contained false -o ./Drivers/DriverTest'
+                sh 'sudo dotnet publish ./Drivers/DriverTest2/DriverTest2.csproj -c Release -r linux-x64 --self-contained false -o ./Drivers/DriverTest2'
             }
         }
 
@@ -26,9 +35,15 @@ pipeline {
 				sh 'sudo rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR'
 			}
 		}
-		stage('Move build') {
+		stage('Move API') {
             steps {
 				sh 'sudo mv -f ./linux-x64/* $DEPLOY_DIR'
+			}
+		}
+		stage('Move drivers') {
+            steps {
+				sh 'sudo mv -f ./Drivers/DriverTest/DriverTest.dll $DEPLOY_DIR/Drivers/DriverTest.dll'
+				sh 'sudo mv -f ./Drivers/DriverTest2/DriverTest2.dll $DEPLOY_DIR/Drivers/DriverTest2.dll'
 			}
 		}
 		stage('Restart Service') {
