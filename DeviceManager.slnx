@@ -3,6 +3,7 @@
     <Project Path="Drivers/DriverBase/DriverBase.csproj" Id="88c35508-ba1d-4fd7-a327-d4a5fb651bac" />
   </Folder>
   <Folder Name="/Drivers/Tests/">
+    <Project Path="Drivers/BeckmanCoulter/BeckmanCoulter.csproj" Id="cb48ddc2-0be9-4939-9e07-59c790f764dc" />
     <Project Path="Drivers/DriverTest/DriverTest.csproj" Id="6d0b03c8-a4d0-4380-9419-785cfe020878" />
     <Project Path="Drivers/DriverTest2/DriverTest2.csproj" Id="7ba1ddb9-e1a9-4d24-b25c-c602d7cfdc75" />
   </Folder>
