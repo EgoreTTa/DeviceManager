@@ -33,14 +33,13 @@ pipeline {
 		}
 		stage('Restart Service') {
 			steps {
-				sh 'chmod 777 * $DEPLOY_DIR -R'
+				sh 'sudo chmod 777 $DEPLOY_DIR -R'
 				sh 'sudo systemctl restart $SERVICE'
 				sh 'sudo systemctl status $SERVICE'
 			}
 		}
 		stage('Get status Service') {
 			steps {
-				sh 'sudo chmod 777 * $DEPLOY_DIR -R'
 				sh 'sudo systemctl restart $SERVICE'
 				
 				sh '''
