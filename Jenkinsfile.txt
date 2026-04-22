@@ -40,7 +40,7 @@ pipeline {
 		}
 		stage('Get status Service') {
 			steps {
-				sh 'chmod 777 * $DEPLOY_DIR -R'
+				sh 'sudo chmod 777 * $DEPLOY_DIR -R'
 				sh 'sudo systemctl restart $SERVICE'
 				
 				for i in 1 2 3 4 5; do
