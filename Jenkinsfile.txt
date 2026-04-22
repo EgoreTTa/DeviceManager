@@ -28,7 +28,7 @@ pipeline {
 		}
 		stage('Move build') {
             steps {
-				sh 'mv -rf ./linux-x64 $DEPLOY_DIR'
+				sh 'mv -f ./linux-x64 $DEPLOY_DIR'
 			}
 		}
 		stage('Restart Service') {
