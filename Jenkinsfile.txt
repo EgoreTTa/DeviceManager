@@ -43,19 +43,21 @@ pipeline {
 				sh 'chmod 777 * $DEPLOY_DIR -R'
 				sh 'sudo systemctl restart $SERVICE'
 				
-				for i in 1 2 3 4 5; do
-					if sudo systemctl is-active --quiet $SERVICE; then
-						echo "✅ Service is active (running)"
-						exit 0
-					fi
-						echo "⏳ Waiting... ($i)"
-					sleep 2
-				done
-				
-				echo "❌ Service failed to start"
-					sudo systemctl status $SERVICE --no-pager
-					sudo journalctl -u $SERVICE --no-pager -n 20
-				exit 1
+				sh '''
+					for i in 1 2 3 4 5; do
+						if sudo systemctl is-active --quiet $SERVICE; then
+							echo "✅ Service is active (running)"
+							exit 0
+						fi
+							echo "⏳ Waiting... ($i)"
+						sleep 2
+					done
+					
+					echo "❌ Service failed to start"
+						sudo systemctl status $SERVICE --no-pager
+						sudo journalctl -u $SERVICE --no-pager -n 20
+					exit 1
+				'''
 			}
 		}
     }
