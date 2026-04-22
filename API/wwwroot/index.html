@@ -28,7 +28,7 @@
                     <li class="col-md-2 border"><a type="button" class="nav-link px-2 text-white header-tab" id="header-tab-journal" onclick="chargePanel('journal')">Журнал</a></li>
                 </ul>
                 <div class="col-sm-2 mb-2 mb-md-0">
-                    <input class="form-control" type="text" value="127.0.0.1:5000" disabled/>
+                    <input id="addressAPI" class="form-control" type="text" value="127.0.0.1:5000" onchange="setAddressAPI()"/>
                 </div>
             </div>
         </div>
@@ -1256,7 +1256,7 @@ testname3"></textarea>
 </body>
 
 <script>
-    const ipAPI = '';
+    let addressAPI = '';
 
     const driverOptionDefault = {
         name: "",
@@ -1403,6 +1403,10 @@ testname3"></textarea>
 
     let isActiveUpdateLog = false;
     
+    function setAddressAPI() {
+        addressAPI = document.getElementById('addressAPI').value;
+    }
+
     async function getDevice() {
         let driverWorkMode;
         Array.from(document.getElementsByClassName('device.driver.type-workmode')).forEach(element => {if (element.checked) {driverWorkMode = element.value;}});
@@ -1411,7 +1415,7 @@ testname3"></textarea>
         Array.from(document.getElementsByClassName('device.driver.option')).forEach(element => { if (element.checked) deviceDriverOptions.push(element.value)});
 
         let id;
-        if (device != null) id = device.id;
+        if (device != deviceDefault) id = device.id;
         device = deviceDefault;
         device.id = id;
         device.name = document.getElementById('device-name').value;
@@ -1445,7 +1449,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(ipAPI + '/devices/');
+            let response = await fetch(addressAPI + '/devices/');
             devices = await response.json();
 
             devices.forEach(device => {
@@ -1490,7 +1494,7 @@ testname3"></textarea>
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(device)
             };
-            let response = await fetch(`${ipAPI}/devices`, request);
+            let response = await fetch(`${addressAPI}/devices`, request);
             deviceManagerEvent = await response.json();
             
             showToast("Создано устройство.", deviceManagerEvent.description, deviceManagerEvent.dateTime);
@@ -1512,7 +1516,7 @@ testname3"></textarea>
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(device)
             }
-            let response = await fetch(`${ipAPI}/devices/${device.id}`, request);
+            let response = await fetch(`${addressAPI}/devices/${device.id}`, request);
 
             console.warn("W:", response);
             chargePanel('devices');
@@ -1524,7 +1528,7 @@ testname3"></textarea>
     async function deleteSelectedDevice() {
         try {
             let request = { method: 'DELETE' };
-            let response = await fetch(`${ipAPI}/devices/${device.id}`, request);
+            let response = await fetch(`${addressAPI}/devices/${device.id}`, request);
 
             deviceManagerEvent = await response.json();
             
@@ -1538,7 +1542,7 @@ testname3"></textarea>
     async function deleteSelectedDriver() {
         try {
             let request = { method: 'DELETE' };
-            let response = await fetch(`${ipAPI}/drivers/${driver.fileName}`, request);
+            let response = await fetch(`${addressAPI}/drivers/${driver.fileName}`, request);
 
             //deviceManagerEvent = await response.json();
             
@@ -1553,7 +1557,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(`${ipAPI}/drivers`);
+            let response = await fetch(`${addressAPI}/drivers`);
             drivers = await response.json();
 
             console.debug("drivers:", drivers);
@@ -1592,7 +1596,7 @@ testname3"></textarea>
         document.getElementById('device.driver.parser').value = device.parser.fullName;
 
         try {
-            let response = await fetch(`${ipAPI}/devices/${device.id}/driver/options`);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/driver/options`);
             driverOptions = await response.json();
             
             console.warn("driverOptions:", driverOptions);
@@ -1654,7 +1658,7 @@ testname3"></textarea>
         document.getElementById('selected.driver.parser').value = selectedParser.fullName;
 
         try {
-            let response = await fetch(`${ipAPI}/drivers/${selectedParser.fullName}/options`);
+            let response = await fetch(`${addressAPI}/drivers/${selectedParser.fullName}/options`);
             driverOptions = await response.json();
             
             console.warn("driverOptions:", driverOptions);
@@ -1701,7 +1705,7 @@ testname3"></textarea>
         
         try {
             let request = { method: 'POST', body: formData };
-            let response = await fetch(`${ipAPI}/drivers`, request);
+            let response = await fetch(`${addressAPI}/drivers`, request);
 
             deviceManagerEvent = await response.json();
 
@@ -1718,7 +1722,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(ipAPI + '/devices/status/');
+            let response = await fetch(addressAPI + '/devices/status/');
             statusDevices = await response.json();
 
             console.debug("statusDevices:", statusDevices);
@@ -1745,7 +1749,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(`${ipAPI}/devicemanager/journal`);
+            let response = await fetch(`${addressAPI}/devicemanager/journal`);
             deviceManagerEvents = await response.json();
 
             deviceManagerEvents.forEach(deviceManagerEvent => {
@@ -1799,7 +1803,7 @@ testname3"></textarea>
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(device)
             }
-            let response = await fetch(`${ipAPI}/devices/${device.id}/flip-active/`, request);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/flip-active/`, request);
             deviceManagerEvent = await response.json();
 
             showToast(device.isActive ? "Отключение!" : "Включение.", deviceManagerEvent.description, deviceManagerEvent.dateTime);
@@ -1808,7 +1812,7 @@ testname3"></textarea>
             console.error("E:", error);
         }
         try {
-            response = await fetch(`${ipAPI}/devices/${device.id}`);
+            response = await fetch(`${addressAPI}/devices/${device.id}`);
             device = await response.json();
 
             document.getElementById('device-active').checked = device.isActive == true;
@@ -1884,7 +1888,7 @@ testname3"></textarea>
         Array.from(select.children).forEach(option => { if (option.value !== "default") option.remove(); } );
 
         try {
-            let response = await fetch(`${ipAPI}/drivers`);
+            let response = await fetch(`${addressAPI}/drivers`);
             drivers = await response.json();
 
             drivers.forEach(driver => {
@@ -1910,7 +1914,7 @@ testname3"></textarea>
         .forEach(option => { if (option.value !== "default") option.remove(); } );
 
         try {
-            let response = await fetch(ipAPI + '/help/getports/');
+            let response = await fetch(addressAPI + '/help/getports/');
 
             let ports = await response.json();
             console.debug(ports);
@@ -1997,7 +2001,7 @@ testname3"></textarea>
 
     async function getSettings() {
         try {
-            let response = await fetch(ipAPI + '/devicemanager/getsettings/');
+            let response = await fetch(addressAPI + '/devicemanager/getsettings/');
 
             settings = await response.json();
             console.debug("settings", settings);
@@ -2037,7 +2041,7 @@ testname3"></textarea>
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newSettings)
             };
-            let response = await fetch(ipAPI + '/devicemanager/updatesettings/', request);
+            let response = await fetch(addressAPI + '/devicemanager/updatesettings/', request);
 
             chargePanel('devices');
 
@@ -2061,7 +2065,7 @@ testname3"></textarea>
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(driverOptions)
             };
-            let response = await fetch(`${ipAPI}/devices/${device.id}/driver/options`, request);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/driver/options`, request);
 
             deviceManagerEvent = await response.json();
 
@@ -2178,7 +2182,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(`${ipAPI}/devices/${device.id}/test-results`);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/test-results`);
             deviceResults = await response.json();
 
             deviceResults.forEach(deviceResult => {
@@ -2202,7 +2206,7 @@ testname3"></textarea>
             let request = { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }};
-            let response = await fetch(`${ipAPI}/devices/${device.id}/test-results/${id}`, request);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/test-results/${id}`, request);
 
             deviceManagerEvent = await response.json();
 
@@ -2217,7 +2221,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(`${ipAPI}/devices/${device.id}/comparisons/enum-values`);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/comparisons/enum-values`);
             deviceEnumValues = await response.json();
             
             deviceEnumValues.forEach(deviceEnumValue => {
@@ -2238,7 +2242,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(`${ipAPI}/devices/${device.id}/comparisons/measure-units`);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/comparisons/measure-units`);
             deviceMeasureUnits = await response.json();
             
             deviceMeasureUnits.forEach(deviceMeasureUnit => {
@@ -2259,7 +2263,7 @@ testname3"></textarea>
         Array.from(table.children).forEach((element) => { element.remove(); });
 
         try {
-            let response = await fetch(`${ipAPI}/devices/${device.id}/comparisons/test-collations`);
+            let response = await fetch(`${addressAPI}/devices/${device.id}/comparisons/test-collations`);
             deviceTestCollations = await response.json();
             
             deviceTestCollations.forEach(deviceTestCollation => {
@@ -2295,7 +2299,7 @@ testname3"></textarea>
         while (isActiveUpdateLog)
         {
             try {
-                let response = await fetch(`${ipAPI}/devices/${device.id}/logs`);
+                let response = await fetch(`${addressAPI}/devices/${device.id}/logs`);
                 let log = String();
                 let logs = [ log ];
                 logs = await response.json();
