@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DEPLOY_DIR  = '/home/ubuntu/API'		// Папка на цели
-        SERVICE     = 'DeviceManager.service'	// Имя службы
+        DEPLOY_DIR  = '/home/ubuntu/API'
+        SERVICE     = 'DeviceManager.service'
     }
 
     stages {
@@ -12,13 +12,11 @@ pipeline {
                 checkout scm
             }
         }
-
         stage('Build & Publish API') {
             steps {
                 sh 'sudo dotnet publish ./API/API.csproj -c Release -r linux-x64 --self-contained false -o ./Release/linux-x64'
             }
         }
-		
         stage('Build & Publish drivers') {
             steps {
                 sh '''
@@ -43,7 +41,6 @@ pipeline {
 				'''
             }
         }
-
 		stage('Clean...') {
             steps {
 				sh 'sudo rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR/'
