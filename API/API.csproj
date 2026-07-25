@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,10 +25,6 @@
   <ItemGroup>
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <InvariantGlobalization>true</InvariantGlobalization>
-  </PropertyGroup>
 
   <ItemGroup>
     <Content Update="wwwroot\css\bootstrap-grid.css">

@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Build & Publish API') {
             steps {
-                sh 'sudo dotnet publish ./API/API.csproj -c Release -r linux-x64 --self-contained false -o ./Release/linux-x64'
+                sh 'dotnet publish ./API/API.csproj -c Release -r linux-x64 --self-contained false -o ./Release/linux-x64'
             }
         }
         stage('Build & Publish drivers') {
@@ -36,14 +36,14 @@ pipeline {
 						proj_name=$(basename "$dir")
 						echo "🔨 Building $proj_name..."
 						
-						sudo dotnet publish "$csproj" -c Release -r linux-x64 -o "./Release/Drivers/$proj_name"
+						dotnet publish "$csproj" -c Release -r linux-x64 -o "./Release/Drivers/$proj_name"
 					done
 				'''
             }
         }
 		stage('Clean...') {
             steps {
-				sh 'sudo rm -rf $DEPLOY_DIR/* && mkdir -p $DEPLOY_DIR/'
+				sh 'sudo rm -rf $DEPLOY_DIR/* && sudo mkdir -p $DEPLOY_DIR/'
 			}
 		}
 		stage('Move API') {
