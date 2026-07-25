@@ -14,7 +14,7 @@
     public sealed class HL7 : IParser
     {
         private readonly StringBuilder _messageForParse = new StringBuilder();
-        private readonly Regex _messageRegex = new Regex(@"(?<Message>[\s\S]*\r)\r\n");
+        private readonly Regex _messageRegex = new Regex(@"\x0B(?<Message>[\s\S]*\x0D)\x1C\x0D");
 
         private int _indexFieldForSample = 2;
         private string _nameSegmentForSample = "OBR";
@@ -23,7 +23,7 @@
         private int _indexFieldForValue = 5;
 
         public ILogger Logger { get; set; }
-        public Encoding Encoding { get; set; } = Encoding.ASCII;
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
 
         public void Clear()
         {
@@ -161,8 +161,8 @@
             var messageControlID = header.Split('|')[9];
 
             return $"\x0B" +
-                   $"MSH|^~\\&|{receivingApplication}|{receivingFacility}|{sendingApplication}|{sendingFacility}|{DateTime.Now:yyyyMMddHHmmss}||ACK_R01|{messageControlID}|P|2.3.1||||0||UNICODE\r" +
-                   $"MSA|AA|{messageControlID}|Message accepted|||0\r" +
+                   $"MSH|^~\\&|{receivingApplication}|{receivingFacility}|{sendingApplication}|{sendingFacility}|{DateTime.Now:yyyyMMddHHmmss}||ACK_R01|{messageControlID}|P|2.3.1||||0||UNICODE" + "\x0D" +
+                   $"MSA|AA|{messageControlID}|Message accepted|||0" + "\x0D" +
                    $"\x0D\x0A";
         }
 
@@ -171,7 +171,7 @@
             var testResults = new List<TestResultDTO>();
             var sampleCode = string.Empty;
 
-            var segments = message.Split('\r', StringSplitOptions.RemoveEmptyEntries);
+            var segments = message.Split('\x0D', StringSplitOptions.RemoveEmptyEntries);
 
             Logger.Information($"segments {segments.Length} found!");
             foreach (var segment in segments)
